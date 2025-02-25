@@ -2,7 +2,6 @@ import React from 'react';
 import { FaGoogle } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 const SplashPage = () => {
   return (
