@@ -1,7 +1,6 @@
 import React from 'react';
-import { FaGoogle } from 'react-icons/fa';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import SignIn from '@/components/sign-in';
 
 const SplashPage = () => {
   return (
@@ -23,10 +22,7 @@ const SplashPage = () => {
               Sign in to access build logs, photos, and more.
             </p>
             
-            <Button variant="outline" className="w-full bg-white hover:bg-slate-100 text-slate-800 border-slate-300">
-              <FaGoogle className="mr-2" />
-              Sign in with Google
-            </Button>
+           <SignIn></SignIn>
           </CardContent>
           
           <CardFooter className="text-center">
@@ -35,14 +31,6 @@ const SplashPage = () => {
             </p>
           </CardFooter>
         </Card>
-      </div>
-      
-      <div className="relative w-full h-1/4 md:h-1/3 max-h-60 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-slate-950/90 z-10"></div>
-        <div 
-          className="absolute inset-0 bg-[url('/car-silhouette.png')] bg-no-repeat bg-center bg-contain opacity-20"
-          style={{ filter: 'brightness(0.7) contrast(1.2)' }}
-        ></div>
       </div>
       
       <footer className="bg-slate-950 py-4">
