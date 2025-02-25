@@ -48,7 +48,7 @@ const SplashPage = () => {
       <footer className="bg-slate-950 py-4">
         <div className="container mx-auto px-6 text-center">
           <p className="text-slate-500 text-sm">
-            © {new Date().getFullYear()} Factory Five MK5 Build Journey
+            © 2025 Sanders Factory Five MK5 Build Journey
           </p>
         </div>
       </footer>
