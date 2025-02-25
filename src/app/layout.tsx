@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeWrapper } from "@/components/theme-wrapper";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Factory Five Roadster Build Journey",
-  description: "Sanders Build Journey of an MK5 Roadster, beginning February 2025",
+  description: "Sanders Build Journey of an MK5 Roadster, beginning February",
 };
 
 export default function RootLayout({
@@ -27,7 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+      <ThemeWrapper>
         {children}
+      </ThemeWrapper>
       </body>
     </html>
   );
