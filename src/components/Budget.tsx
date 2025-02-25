@@ -1,16 +1,22 @@
 // components/BudgetCard.tsx
+
+"use client";
+
 import React from "react";
 import { ChevronDown } from "lucide-react";
 
+interface CategoryIndividualContributions {
+    user: string;
+    spent: number;
+}
+
 interface BudgetCategoryProps {
   name: string;
-  spent: number;
   budget: number;
+  individualContributions: CategoryIndividualContributions[];
 }
 
 interface BudgetCardProps {
-  month: string;
-  year: string;
   categories: BudgetCategoryProps[];
 }
 
@@ -19,19 +25,28 @@ const postiveColor = "bg-green-500"
 
 const BudgetCategory: React.FC<BudgetCategoryProps> = ({ 
   name, 
-  spent, 
-  budget
+  budget,
+  individualContributions
 }) => {
   // Calculate percentage for progress bar
+  const spent = individualContributions.reduce((total, contribution) => total + contribution.spent, 0);
   const percentageSpent = Math.min(100, (spent / budget) * 100);
   const remaining = budget - spent
   const isOverBudget = remaining < 0;
   const color = isOverBudget ? negativeColor : postiveColor;
+  const [isOpen, setIsOpen] = React.useState(false);
+
   
   return (
     <div className="mb-6">
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-white font-medium">{name}</span>
+       <div className="flex justify-between items-center mb-1 cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
+        <div className="flex items-center gap-2">
+            <span className="text-white font-medium">{name}</span>
+            <ChevronDown 
+                size={16} 
+                className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+            />
+        </div>
         <span className="text-gray-400">${budget.toLocaleString()} budget</span>
       </div>
       
@@ -48,6 +63,19 @@ const BudgetCategory: React.FC<BudgetCategoryProps> = ({
           {isOverBudget ? "-" : ""}${Math.abs(remaining).toLocaleString()} remaining
         </span>
       </div>
+
+         {/* Dropdown items */}
+      {isOpen && (
+        <div className="mt-2 pl-4 space-y-2 border-l-2 border-gray-700">
+          {individualContributions.map((contribution, index) => (
+            <div key={index} className="flex justify-between text-sm">
+              <span className="text-gray-300">{contribution.user}</span>
+              <span className="text-gray-300">${contribution.spent.toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
     </div>
   );
 };
@@ -70,8 +98,8 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ categories }) => {
         <BudgetCategory
           key={index}
           name={category.name}
-          spent={category.spent}
           budget={category.budget}
+          individualContributions={category.individualContributions}
         />
       ))}
     </div>

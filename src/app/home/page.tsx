@@ -15,21 +15,39 @@ export const metadata: Metadata = {
         name: "Kit",
         spent: 5303,
         budget: 45000,
+        individualContributions: [
+          {
+            user: 'Brandon',
+            spent: 0
+          },
+          {
+            user: 'Jared',
+            spent: 1000
+          },
+        ]
       },
       {
         name: "Engine and Transmission",
-        spent: 6646,
-        budget: 26000
+        budget: 26000,
+        individualContributions: [
+        {
+          user: 'Brandon',
+          spent: 0
+        },
+        {
+          user: 'Jared',
+          spent: 1000
+        }]
       },
       {
         name: "Shipping",
-        spent: 1350,
-        budget: 730
+        budget: 730,
+        individualContributions: []
       },
       {
         name: "Tools",
-        spent: 1350,
-        budget: 730
+        budget: 730,
+        individualContributions: []
       }
     ]
   };
