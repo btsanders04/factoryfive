@@ -1,6 +1,4 @@
 import BudgetCard from "@/components/Budget";
-import { MobileNavigation } from "@/components/mobile-navigation";
-import { Sidebar } from "@/components/sidebar";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -52,22 +50,10 @@ export const metadata: Metadata = {
     ]
   };
 
-export default function HomePage() {
+export default function Dashboard() {
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Desktop left sidebar - hidden on mobile */}
-      <div className="hidden md:block w-64 border-l">
-        <Sidebar />
-      </div>
-      {/* Mobile navigation - visible only on mobile */}
-      <div className="md:hidden">
-        <MobileNavigation />
-      </div>
-
-      {/* Main content area */}
-      <main className="flex-1 p-4 md:p-6">
-        <h1 className="text-3xl font-bold mb-6">Welcome to Dashboard</h1>
-        
+   <div>
+        <h1 className="text-3xl font-bold mb-6">Welcome to Dashboard</h1>      
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <BudgetCard {...budgetData} />
           {/* Example content cards */}
@@ -82,10 +68,7 @@ export default function HomePage() {
               </p>
             </div>
           ))}
-        
-          
         </div>
-      </main> 
     </div>
   );
 }

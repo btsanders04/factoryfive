@@ -1,26 +1,79 @@
-// components/sidebar.tsx
-// Server component for the sidebar navigation
-import Link from "next/link";
-import { Home, Settings, User, HelpCircle, LogOut } from "lucide-react";
+"use client";
 
-export function Sidebar() {
+// components/sidebar.tsx
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Home,
+  Settings,
+  User,
+  HelpCircle,
+  CreditCard,
+  Image,
+} from "lucide-react";
+import { ROUTES } from "@/app/routes";
+import { UserButton } from "@stackframe/stack";
+
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ onNavigate }: SidebarProps) {
+  const pathname = usePathname();
+
   return (
     <div className="h-full py-6 px-4">
       <div className="mb-8">
         <h2 className="text-lg font-semibold px-4">Menu</h2>
       </div>
-      
+
       <nav className="space-y-1">
-        <NavItem href="/" icon={<Home size={20} />} label="Home" active />
-        <NavItem href="/profile" icon={<User size={20} />} label="Build Log" />
-        <NavItem href="/settings" icon={<Settings size={20} />} label="Photos" />
-        <NavItem href="/settings" icon={<Settings size={20} />} label="Parts List" />
-        <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" />
-        <NavItem href="/help" icon={<HelpCircle size={20} />} label="Help & Support" />
+        <NavItem
+          href={ROUTES.dashboard}
+          icon={<Home size={20} />}
+          label="Dashboard"
+          active={pathname === ROUTES.dashboard}
+          onClick={onNavigate}
+        />
+        <NavItem
+          href="/profile"
+          icon={<User size={20} />}
+          label="Build Log"
+          active={pathname === "/profile"}
+          onClick={onNavigate}
+        />
+        <NavItem
+          href="/photos"
+          icon={<Image size={20} />}
+          label="Photos"
+          active={pathname === "/photos"}
+          onClick={onNavigate}
+        />
+        <NavItem
+          href={ROUTES.transactions}
+          icon={<CreditCard size={20} />}
+          label="Transactions"
+          active={pathname === ROUTES.transactions}
+          onClick={onNavigate}
+        />
+        <NavItem
+          href="/settings"
+          icon={<Settings size={20} />}
+          label="Settings"
+          active={pathname === "/settings"}
+          onClick={onNavigate}
+        />
+        <NavItem
+          href="/help"
+          icon={<HelpCircle size={20} />}
+          label="Help & Support"
+          active={pathname === "/help"}
+          onClick={onNavigate}
+        />
       </nav>
-      
+
       <div className="mt-auto pt-8">
-        <NavItem href="/logout" icon={<LogOut size={20} />} label="Logout" variant="ghost" />
+        <UserButton />
       </div>
     </div>
   );
@@ -31,7 +84,8 @@ interface NavItemProps {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
-  variant?: 'default' | 'ghost';
+  variant?: "default" | "ghost";
+  onClick?: () => void;
 }
 
 function NavItem({
@@ -39,18 +93,21 @@ function NavItem({
   icon,
   label,
   active = false,
-  variant = "default"
+  variant = "default",
+  onClick,
 }: NavItemProps) {
   return (
-    <Link 
+    <Link
       href={href}
       className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors
-        ${active 
-          ? "bg-accent text-accent-foreground" 
-          : variant === "ghost" 
-            ? "text-muted-foreground hover:text-foreground" 
-            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+        ${
+          active
+            ? "bg-accent text-accent-foreground"
+            : variant === "ghost"
+              ? "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         }`}
+      onClick={onClick}
     >
       {icon}
       <span>{label}</span>
