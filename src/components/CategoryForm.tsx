@@ -77,11 +77,11 @@ const CategoryForm: React.FC<TransactionFormProps> = ({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="notes" className="text-gray-300">
+            <Label htmlFor="description" className="text-gray-300">
               Description
             </Label>
             <Textarea
-              id="notes"
+              id="description"
               placeholder="Add a description..."
               value={categoryData.description || ""}
               onChange={(e) => handleChange("description", e.target.value)}
