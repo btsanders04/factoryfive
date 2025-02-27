@@ -1,10 +1,4 @@
 import BudgetCard from "@/components/Budget";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: 'Home | My Next.js App',
-  description: 'Welcome to my Next.js application with mobile-friendly navigation',
-}
 
 export default function Dashboard() {
   return (
