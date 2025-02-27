@@ -27,6 +27,8 @@ import {
 } from "@/services/transaction.service";
 import { TransactionWithRelations } from "@/lib/types/transactions";
 import { dateFormat } from "@/lib/utils";
+import { getAllCategories } from "@/services/category.service";
+import { Category } from "@prisma/client";
 
 export default function TransactionsPage() {
   const [open, setOpen] = useState(false);
@@ -34,10 +36,29 @@ export default function TransactionsPage() {
     []
   );
 
-   
+  const [viewableTransactions, setViewableTransactions] = useState<
+    TransactionWithRelations[]
+  >([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [activeCategoryFilterId, setActiveCategoryFilterId] = useState<
+    number | null
+  >(null);
   async function handleAddTransaction(transactionData: CreateTransaction) {
     const transaction = await addTransaction(transactionData);
-    setTransactions([transaction, ...transactions]);
+    const allTransactions = [transaction, ...transactions];
+    setTransactions(allTransactions);
+    handleCategoryFilter(activeCategoryFilterId);
+  }
+
+  function handleCategoryFilter(id: number | null) {
+    setActiveCategoryFilterId(id);
+    if (id) {
+      setViewableTransactions(
+        transactions.filter((transaction) => transaction.categoryId === id)
+      );
+    } else {
+      setViewableTransactions(transactions);
+    }
   }
 
   useEffect(() => {
@@ -45,8 +66,14 @@ export default function TransactionsPage() {
     const fetchTransactions = async () => {
       const data = await getAllTransactions();
       setTransactions(data);
+      setViewableTransactions(data);
+    };
+    const fetchCategories = async () => {
+      const data = await getAllCategories();
+      setCategories(data);
     };
     fetchTransactions();
+    fetchCategories();
   }, []);
 
   return (
@@ -106,12 +133,17 @@ export default function TransactionsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem>All Categories</DropdownMenuItem>
-              <DropdownMenuItem>Food & Dining</DropdownMenuItem>
-              <DropdownMenuItem>Shopping</DropdownMenuItem>
-              <DropdownMenuItem>Transportation</DropdownMenuItem>
-              <DropdownMenuItem>Bills & Utilities</DropdownMenuItem>
-              <DropdownMenuItem>Income</DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleCategoryFilter(null)}>
+                All Categories
+              </DropdownMenuItem>
+              {categories.map((category) => (
+                <DropdownMenuItem
+                  key={category.id}
+                  onSelect={() => handleCategoryFilter(category.id)}
+                >
+                  {category.name}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -129,7 +161,7 @@ export default function TransactionsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.map((transaction) => (
+              {viewableTransactions.map((transaction) => (
                 <TableRow key={transaction.id}>
                   <TableCell className="font-medium">
                     {dateFormat(transaction.date)}
