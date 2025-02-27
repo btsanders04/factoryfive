@@ -10,6 +10,7 @@ import {
   HelpCircle,
   CreditCard,
   Image,
+  DollarSign,
 } from "lucide-react";
 import { ROUTES } from "@/app/routes";
 import { UserButton } from "@stackframe/stack";
@@ -36,17 +37,17 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           onClick={onNavigate}
         />
         <NavItem
-          href="/profile"
+          href={ROUTES.profile}
           icon={<User size={20} />}
           label="Build Log"
-          active={pathname === "/profile"}
+          active={pathname === ROUTES.profile}
           onClick={onNavigate}
         />
         <NavItem
-          href="/photos"
+          href={ROUTES.photos}
           icon={<Image size={20} />}
           label="Photos"
-          active={pathname === "/photos"}
+          active={pathname === ROUTES.photos}
           onClick={onNavigate}
         />
         <NavItem
@@ -56,18 +57,25 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           active={pathname === ROUTES.transactions}
           onClick={onNavigate}
         />
-        <NavItem
-          href="/settings"
-          icon={<Settings size={20} />}
-          label="Settings"
-          active={pathname === "/settings"}
+          <NavItem
+          href={ROUTES.budget}
+          icon={<DollarSign size={20} />}
+          label="Budget"
+          active={pathname === ROUTES.budget}
           onClick={onNavigate}
         />
         <NavItem
-          href="/help"
+          href={ROUTES.settings}
+          icon={<Settings size={20} />}
+          label="Settings"
+          active={pathname === ROUTES.settings}
+          onClick={onNavigate}
+        />
+        <NavItem
+          href={ROUTES.help}
           icon={<HelpCircle size={20} />}
           label="Help & Support"
-          active={pathname === "/help"}
+          active={pathname === ROUTES.help}
           onClick={onNavigate}
         />
       </nav>

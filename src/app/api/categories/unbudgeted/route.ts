@@ -10,7 +10,14 @@ export async function GET() {
   const adapter = new PrismaNeon(neon)
   const prisma = new PrismaClient({ adapter })
 
-  const categories = await prisma.category.findMany()
+  const categories = await prisma.category.findMany({
+    where: {
+        Budget: null
+    },
+    include: {
+        transactions: true
+    }
+  })
 
   return NextResponse.json(categories, { status: 200 })
 }
