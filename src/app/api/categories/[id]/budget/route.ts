@@ -3,8 +3,6 @@ import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-// export const runtime = "edge";
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function PUT(request : NextRequest, context: any) {
   const neon = new Pool({ connectionString: process.env.POSTGRES_PRISMA_URL });
