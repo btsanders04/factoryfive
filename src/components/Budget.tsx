@@ -20,10 +20,6 @@ interface BudgetCategoryProps {
   individualContributions: CategoryIndividualContributions[];
 }
 
-interface BudgetCardProps {
-  categories: BudgetCategoryProps[];
-}
-
 const negativeColor = "bg-red-500";
 const postiveColor = "bg-green-500";
 
@@ -112,7 +108,7 @@ const BudgetCategory: React.FC<BudgetCategoryProps> = ({
   );
 };
 
-const BudgetCard: React.FC<BudgetCardProps> = () => {
+const BudgetCard: React.FC = () => {
   const [budgets, setBudgets] = useState<BudgetWithRelations[]>([]);
   useEffect(() => {
     // Function to fetch categories
