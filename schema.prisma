@@ -1,0 +1,62 @@
+datasource db {
+    provider = "postgresql"
+    // Uses environment variable from .env file
+    url      = env("POSTGRES_PRISMA_URL")
+}
+
+generator client {
+    provider        = "prisma-client-js"
+    // For Edge compatibility
+    previewFeatures = ["driverAdapters"]
+}
+
+model Category {
+    id           Int           @id @default(autoincrement())
+    name         String
+    transactions Transaction[]
+    Budget       Budget?
+
+    // Ensure category names are unique per user
+    @@unique([name])
+}
+
+model Builder {
+    id          Int           @id @default(autoincrement())
+    name        String
+    Transaction Transaction[]
+
+    // Ensure category names are unique per user
+    @@unique([name])
+}
+
+model Transaction {
+    id          Int      @id @default(autoincrement())
+    amount      Float
+    date        DateTime
+    description String
+    notes       String?
+    tags        String[]
+
+    // Relations
+    category   Category @relation(fields: [categoryId], references: [id])
+    categoryId Int
+
+    builder   Builder @relation(fields: [builderId], references: [id])
+    builderId Int
+
+    // Timestamps
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Indexes for better query performance
+    @@index([categoryId])
+    @@index([builderId])
+    @@index([date])
+}
+
+model Budget {
+    id         Int      @id @default(autoincrement())
+    amount     Float    @default(0)
+    categoryId Int      @unique
+    category   Category @relation(fields: [categoryId], references: [id])
+}
