@@ -10,15 +10,19 @@ const BudgetRow = ({
   spent,
   className = "",
   onBudgetChange,
+  onCategoryNameChange
 }: {
   category: Category;
   budgeted: number;
   spent: number;
   className?: string;
-  onBudgetChange?: (categoryId: number, newAmount: number) => void;
+  onBudgetChange: (categoryId: number, newAmount: number) => void;
+  onCategoryNameChange: (categoryId: number, newName: string) => void;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [budgetValue, setBudgetValue] = useState(budgeted);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [categoryName, setCategoryName] = useState(category.name);
 
   // Determine text color for remaining amount
   const remaining = budgetValue - spent;
@@ -33,19 +37,41 @@ const BudgetRow = ({
 
     // Convert to number and handle validation
     const newValue = budgetValue;
-    if (!isNaN(newValue) && onBudgetChange) {
+    if (!isNaN(newValue)) {
       onBudgetChange(category.id, newValue);
     }
   };
 
+  const handleNameEdit = (e: { preventDefault: () => void }) => {
+    if (e) e.preventDefault();
+     setIsEditing(false);
+    // Add function to update the category name in your data store
+    onCategoryNameChange(category.id, categoryName);
+  };
   return (
     <div className={className}>
       {/* Desktop view */}
       <div className="hidden md:flex items-center py-3 px-3 border-b border-gray-800">
         <div className="flex items-center flex-1">
-          <span className="text-sm font-normal text-gray-300">
-            {category.name}
-          </span>
+          {isEditingName ? (
+            <form onSubmit={handleNameEdit} className="inline-flex">
+              <Input
+                type="text"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                onBlur={handleNameEdit}
+                autoFocus
+                className="w-full min-w-[120px] h-7 bg-gray-700 border-white/50 hover:border-white focus:border-white text-white focus:ring-1 focus:ring-white"
+              />
+            </form>
+          ) : (
+            <span
+              className="text-sm font-normal text-gray-300 hover:text-white cursor-pointer"
+              onClick={() => setIsEditingName(true)}
+            >
+              {categoryName}
+            </span>
+          )}
         </div>
 
         <div className="flex space-x-8">

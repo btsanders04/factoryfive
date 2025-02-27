@@ -1,5 +1,6 @@
 import { CreateTransaction } from "@/components/TransactionForm";
 import { TransactionWithRelations } from "@/lib/types/transactions";
+import { Transaction } from "@prisma/client";
 
 export async function addTransaction(
   transactionData: CreateTransaction
@@ -30,4 +31,17 @@ export async function getAllTransactions(): Promise<TransactionWithRelations[]> 
     );
   }
   return response.json() as Promise<TransactionWithRelations[]>;
+}
+
+export async function deleteTransaction(id: number): Promise<Transaction> {
+   const response = await fetch(`/api/transactions/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error || `Error: ${response.status} ${response.statusText}`
+    );
+  }
+  return response.json() as Promise<Transaction>;
 }

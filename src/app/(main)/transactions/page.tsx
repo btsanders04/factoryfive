@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus, Search, ChevronDown, Filter } from "lucide-react";
+import { Plus, Search, ChevronDown, Filter, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,6 +11,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -23,6 +34,7 @@ import TransactionForm, {
 } from "@/components/TransactionForm";
 import {
   addTransaction,
+  deleteTransaction,
   getAllTransactions,
 } from "@/services/transaction.service";
 import { TransactionWithRelations } from "@/lib/types/transactions";
@@ -32,6 +44,11 @@ import { Category } from "@prisma/client";
 
 export default function TransactionsPage() {
   const [open, setOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<number | null>(
+    null
+  );
+
   const [transactions, setTransactions] = useState<TransactionWithRelations[]>(
     []
   );
@@ -43,23 +60,52 @@ export default function TransactionsPage() {
   const [activeCategoryFilterId, setActiveCategoryFilterId] = useState<
     number | null
   >(null);
+
   async function handleAddTransaction(transactionData: CreateTransaction) {
     const transaction = await addTransaction(transactionData);
     const allTransactions = [transaction, ...transactions];
     setTransactions(allTransactions);
-    handleCategoryFilter(activeCategoryFilterId);
+  }
+
+  const confirmDelete = (transactionId: number) => {
+    setTransactionToDelete(transactionId);
+    setDeleteDialogOpen(true);
+  };
+
+  async function handleDelete() {
+    if (transactionToDelete) {
+      const deletedTransaction = await deleteTransaction(transactionToDelete);
+      console.log("DELETED", deletedTransaction);
+      setTransactionToDelete(null);
+      if (deletedTransaction) {
+        const filteredTransactions = transactions.filter(
+          (transaction) => transaction.id !== deletedTransaction.id
+        );
+        setTransactions(filteredTransactions);
+      }
+    }
   }
 
   function handleCategoryFilter(id: number | null) {
     setActiveCategoryFilterId(id);
-    if (id) {
+  }
+
+  function updateViewableTransactions() {
+    if (activeCategoryFilterId) {
       setViewableTransactions(
-        transactions.filter((transaction) => transaction.categoryId === id)
+        transactions.filter(
+          (transaction) => transaction.categoryId === activeCategoryFilterId
+        )
       );
     } else {
       setViewableTransactions(transactions);
     }
+    console.log(viewableTransactions);
   }
+
+  useEffect(() => {
+    updateViewableTransactions();
+  }, [transactions, activeCategoryFilterId]);
 
   useEffect(() => {
     // Function to fetch categories
@@ -170,6 +216,15 @@ export default function TransactionsPage() {
                   <TableCell>{transaction.builder.name}</TableCell>
                   <TableCell>${transaction.amount.toFixed(2)}</TableCell>
                   <TableCell>{transaction.notes}</TableCell>
+                  <TableCell className="text-right">
+                    <button
+                      onClick={() => confirmDelete(transaction.id)}
+                      className="text-red-500 hover:text-red-700 focus:outline-none"
+                      aria-label="Delete transaction"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -182,6 +237,27 @@ export default function TransactionsPage() {
         onOpenChange={setOpen}
         onAddTransaction={handleAddTransaction}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              transaction.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

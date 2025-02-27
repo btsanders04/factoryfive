@@ -17,6 +17,21 @@ export async function getAllCategories(): Promise<Category[]> {
   return response.json() as Promise<Category[]>;
 }
 
+export async function updateCategory(id: number, name: string): Promise<Category> {
+   const response = await fetch(`/api/categories/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({id, name}),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error || `Error: ${response.status} ${response.statusText}`
+    );
+  }
+  return response.json() as Promise<Category>;
+}
+
 export async function getCategoriesWithoutBudget(): Promise<CategoryWithTransactions[]> {
   const response = await fetch("/api/categories/unbudgeted", {
     method: "GET",

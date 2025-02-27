@@ -4,7 +4,10 @@ import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function PUT(request : NextRequest, context: any) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const neon = new Pool({ connectionString: process.env.POSTGRES_PRISMA_URL });
   const adapter = new PrismaNeon(neon);
   const prisma = new PrismaClient({ adapter });
@@ -12,7 +15,7 @@ export async function PUT(request : NextRequest, context: any) {
   try {
     // Parse the request body
     const { amount } = await request.json();
-    const categoryId = parseInt(context.params.id); // Validate inputs
+    const categoryId = parseInt((await params).id); // Validate inputs
     if (categoryId === undefined) {
       return NextResponse.json(
         { error: "Category ID is required" },

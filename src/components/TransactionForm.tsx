@@ -33,7 +33,10 @@ interface TransactionFormProps {
   onOpenChange: (open: boolean) => void;
   onAddTransaction: (transaction: CreateTransaction) => void;
 }
-export type CreateTransaction = Omit<Transaction, "id" | "createdAt" | "updatedAt">;
+export type CreateTransaction = Omit<
+  Transaction,
+  "id" | "createdAt" | "updatedAt"
+>;
 
 const TransactionForm: React.FC<TransactionFormProps> = ({
   open,
@@ -42,6 +45,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 }) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [builders, setBuilders] = useState<Builder[]>([]);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // In your component
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -72,6 +76,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     fetchCategories();
     fetchBuilders();
   }, []);
+  useEffect(() => {
+    const isValid =
+      transactionData.amount > 0 &&
+      transactionData.categoryId !== 0 &&
+      transactionData.builderId !== 0;
+    setIsFormValid(isValid);
+  }, [transactionData]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (field: keyof Transaction, value: any) => {
@@ -120,7 +131,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               Category
             </Label>
             <Select
-              onValueChange={(value) => handleChange("categoryId", parseInt(value))}
+              onValueChange={(value) =>
+                handleChange("categoryId", parseInt(value))
+              }
               value={transactionData.categoryId.toString()}
             >
               <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-orange-500">
@@ -142,7 +155,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               Builder
             </Label>
             <Select
-              onValueChange={(value) => handleChange("builderId",  parseInt(value))}
+              onValueChange={(value) =>
+                handleChange("builderId", parseInt(value))
+              }
               value={transactionData.builderId.toString()}
             >
               <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-orange-500">
@@ -236,7 +251,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             </Button>
             <Button
               type="submit"
-              className="bg-orange-500 text-white hover:bg-orange-600"
+              className={`bg-orange-500 text-white ${
+                isFormValid
+                  ? "hover:bg-orange-600"
+                  : "opacity-50 cursor-not-allowed"
+              }`}
+              disabled={!isFormValid}
             >
               Add transaction
             </Button>

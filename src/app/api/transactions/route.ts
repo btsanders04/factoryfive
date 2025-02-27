@@ -1,3 +1,4 @@
+import { getUserPermission } from "@/lib/stackshare_utils";
 import { Pool } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
@@ -7,6 +8,17 @@ const adapter = new PrismaNeon(neon);
 const prisma = new PrismaClient({ adapter });
 
 export async function POST(request: NextRequest) {
+  const isAllowed = await getUserPermission('write_transactions');
+  console.log(isAllowed);
+  if (!isAllowed) {
+      return NextResponse.json(
+        {
+          error:
+            "Unauthorized",
+        },
+        { status: 403 }
+      );
+    }
   try {
     // Parse the request body
     const { amount, date, categoryId, notes, description, builderId } =

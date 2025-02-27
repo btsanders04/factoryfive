@@ -7,7 +7,7 @@ import { getAllBudgets, upsertBudget } from "@/services/budget.service";
 import { BudgetWithRelations } from "@/lib/types/budget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BudgetRow from "@/components/BudgetRow";
-import { createCategory, getCategoriesWithoutBudget } from "@/services/category.service";
+import { createCategory, getCategoriesWithoutBudget, updateCategory } from "@/services/category.service";
 import { CategoryWithTransactions } from "@/lib/types/category";
 import { ActionType } from "@/lib/types/enum";
 import CategoryForm, { CreateCategory } from "@/components/CategoryForm";
@@ -45,6 +45,10 @@ export default function TransactionsPage() {
           newCategory
         ].sort((category) => category.id)
       );
+  }
+
+  const updateCategoryName = async (categoryId: number, newName: string) => {
+    await updateCategory(categoryId, newName);
   }
 
   // Toggle unbudgeted categories visibility
@@ -162,6 +166,7 @@ export default function TransactionsPage() {
                   0
                 )}
                 onBudgetChange={updateBudget}
+                onCategoryNameChange={updateCategoryName}
               />
             ))}
           </div>
@@ -184,6 +189,7 @@ export default function TransactionsPage() {
                   }
                   className="bg-gray-900"
                   onBudgetChange={updateBudget}
+                  onCategoryNameChange={updateCategoryName}
                 />
               ))}
             </div>
