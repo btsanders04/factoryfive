@@ -78,7 +78,7 @@ const CategoryForm: React.FC<TransactionFormProps> = ({
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="notes" className="text-gray-300">
-              Notes
+              Description
             </Label>
             <Textarea
               id="notes"
