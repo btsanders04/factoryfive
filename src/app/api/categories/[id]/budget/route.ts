@@ -7,7 +7,7 @@ export const runtime = "edge";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   const neon = new Pool({ connectionString: process.env.POSTGRES_PRISMA_URL });
   const adapter = new PrismaNeon(neon);
@@ -16,7 +16,7 @@ export async function PUT(
   try {
     // Parse the request body
     const { amount } = await request.json();
-    const categoryId = parseInt(params.id); // Validate inputs
+    const categoryId = parseInt(context.params.id); // Validate inputs
     if (categoryId === undefined) {
       return NextResponse.json(
         { error: "Category ID is required" },
