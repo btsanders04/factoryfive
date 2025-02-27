@@ -25,7 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
-import { Calendar } from "./ui/calendar";
+import { Calendar } from "../../../components/ui/calendar";
 import { dateFormat } from "@/lib/utils";
 
 interface TransactionFormProps {

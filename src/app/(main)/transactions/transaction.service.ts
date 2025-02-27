@@ -1,4 +1,4 @@
-import { CreateTransaction } from "@/components/TransactionForm";
+import { CreateTransaction } from "@/app/(main)/transactions/TransactionForm";
 import { TransactionWithRelations } from "@/lib/types/transactions";
 import { Transaction } from "@prisma/client";
 

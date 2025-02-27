@@ -21,26 +21,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import TransactionForm, {
   CreateTransaction,
-} from "@/components/TransactionForm";
+} from "@/app/(main)/transactions/TransactionForm";
 import {
   addTransaction,
   deleteTransaction,
   getAllTransactions,
-} from "@/services/transaction.service";
+} from "@/app/(main)/transactions/transaction.service";
 import { TransactionWithRelations } from "@/lib/types/transactions";
-import { dateFormat } from "@/lib/utils";
 import { getAllCategories } from "@/services/category.service";
 import { Category } from "@prisma/client";
+import { DataTable } from "./data-table";
+import { createColumns } from "./columns";
 
 export default function TransactionsPage() {
   const [open, setOpen] = useState(false);
@@ -52,14 +45,9 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<TransactionWithRelations[]>(
     []
   );
-
-  const [viewableTransactions, setViewableTransactions] = useState<
-    TransactionWithRelations[]
-  >([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategoryFilterId, setActiveCategoryFilterId] = useState<
-    number | null
-  >(null);
+
+  // const columns: ColumnDef<TransactionWithRelations>[]
 
   async function handleAddTransaction(transactionData: CreateTransaction) {
     const transaction = await addTransaction(transactionData);
@@ -75,7 +63,6 @@ export default function TransactionsPage() {
   async function handleDelete() {
     if (transactionToDelete) {
       const deletedTransaction = await deleteTransaction(transactionToDelete);
-      console.log("DELETED", deletedTransaction);
       setTransactionToDelete(null);
       if (deletedTransaction) {
         const filteredTransactions = transactions.filter(
@@ -86,33 +73,11 @@ export default function TransactionsPage() {
     }
   }
 
-  function handleCategoryFilter(id: number | null) {
-    setActiveCategoryFilterId(id);
-  }
-
-  function updateViewableTransactions() {
-    if (activeCategoryFilterId) {
-      setViewableTransactions(
-        transactions.filter(
-          (transaction) => transaction.categoryId === activeCategoryFilterId
-        )
-      );
-    } else {
-      setViewableTransactions(transactions);
-    }
-    console.log(viewableTransactions);
-  }
-
-  useEffect(() => {
-    updateViewableTransactions();
-  }, [transactions, activeCategoryFilterId]);
-
   useEffect(() => {
     // Function to fetch categories
     const fetchTransactions = async () => {
       const data = await getAllTransactions();
       setTransactions(data);
-      setViewableTransactions(data);
     };
     const fetchCategories = async () => {
       const data = await getAllCategories();
@@ -129,7 +94,7 @@ export default function TransactionsPage() {
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div>
             <h1 className="text-2xl font-bold">Transactions</h1>
-            <p className="text-gray-500">Manage your financial transactions</p>
+            <p className="text-gray-500">You owe me money</p>
           </div>
           <Button
             onClick={() => setOpen(true)}
@@ -140,96 +105,12 @@ export default function TransactionsPage() {
           </Button>
         </div>
 
-        {/* Filters and Search */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="relative col-span-1 md:col-span-2">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-            <Input
-              placeholder="Search transactions..."
-              className="pl-10 w-full"
-            />
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-full justify-between">
-                <div className="flex items-center">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <span>Filter</span>
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem>All Transactions</DropdownMenuItem>
-              <DropdownMenuItem>Expenses Only</DropdownMenuItem>
-              <DropdownMenuItem>Income Only</DropdownMenuItem>
-              <DropdownMenuItem>Last 30 Days</DropdownMenuItem>
-              <DropdownMenuItem>This Month</DropdownMenuItem>
-              <DropdownMenuItem>Last Month</DropdownMenuItem>
-              <DropdownMenuItem>Custom Range</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-full justify-between">
-                <div className="flex items-center">
-                  <span>Category</span>
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onSelect={() => handleCategoryFilter(null)}>
-                All Categories
-              </DropdownMenuItem>
-              {categories.map((category) => (
-                <DropdownMenuItem
-                  key={category.id}
-                  onSelect={() => handleCategoryFilter(category.id)}
-                >
-                  {category.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
         {/* Transactions Table */}
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Builder</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Notes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {viewableTransactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="font-medium">
-                    {dateFormat(transaction.date)}
-                  </TableCell>
-                  <TableCell>{transaction.category.name}</TableCell>
-                  <TableCell>{transaction.builder.name}</TableCell>
-                  <TableCell>${transaction.amount.toFixed(2)}</TableCell>
-                  <TableCell>{transaction.notes}</TableCell>
-                  <TableCell className="text-right">
-                    <button
-                      onClick={() => confirmDelete(transaction.id)}
-                      className="text-red-500 hover:text-red-700 focus:outline-none"
-                      aria-label="Delete transaction"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={createColumns(confirmDelete)}
+          data={transactions}
+          categories={categories}
+        ></DataTable>
       </div>
 
       <TransactionForm
