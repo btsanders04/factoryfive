@@ -7,11 +7,13 @@ import { getAllBudgets, upsertBudget } from "@/services/budget.service";
 import { BudgetWithRelations } from "@/lib/types/budget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BudgetRow from "@/components/BudgetRow";
-import { getCategoriesWithoutBudget } from "@/services/category.service";
+import { createCategory, getCategoriesWithoutBudget } from "@/services/category.service";
 import { CategoryWithTransactions } from "@/lib/types/category";
 import { ActionType } from "@/lib/types/enum";
+import CategoryForm, { CreateCategory } from "@/components/CategoryForm";
 
 export default function TransactionsPage() {
+  const [open, setOpen] = useState(false);
   const [budgets, setBudget] = useState<BudgetWithRelations[]>([]);
   const [unbudgeted, setUnbudgeted] = useState<CategoryWithTransactions[]>([]);
   const [showUnbudgeted, setShowUnbudgeted] = useState(false);
@@ -35,6 +37,16 @@ export default function TransactionsPage() {
     setShowUnbudgeted(!showUnbudgeted);
   };
 
+  const handleAddCategory = async (category: CreateCategory) => {
+    const newCategory = await createCategory(category)
+    setUnbudgeted(
+        [
+          ...unbudgeted,
+          newCategory
+        ].sort((category) => category.id)
+      );
+  }
+
   // Toggle unbudgeted categories visibility
   const updateBudget = async (id: number, amount: number) => {
     const updatedBudget = await upsertBudget(id, amount);
@@ -49,21 +61,23 @@ export default function TransactionsPage() {
     } else if (updatedBudget.action === ActionType.CREATED) {
       {
         // Add new budget to array
-        setBudget([...budgets, updatedBudget.budget].sort((budget) => budget.id));
+        setBudget(
+          [...budgets, updatedBudget.budget].sort((budget) => budget.id)
+        );
         setUnbudgeted(unbudgeted.filter((category) => category.id !== id));
       }
     } else {
       setBudget(
         budgets.filter((budget) => budget.id !== updatedBudget.budget.id)
       );
-      setUnbudgeted([
-        ...unbudgeted,
-        {
-          transactions: updatedBudget.budget.category.transactions,
-          name: updatedBudget.budget.category.name,
-          id: updatedBudget.budget.category.id,
-        },
-      ].sort((category) => category.id));
+      setUnbudgeted(
+        [
+          ...unbudgeted,
+          {
+            ...updatedBudget.budget.category,
+          },
+        ].sort((category) => category.id)
+      );
     }
   };
 
@@ -82,10 +96,18 @@ export default function TransactionsPage() {
   const percentSpent = Math.round((totalSpent / totalBudgeted) * 100);
 
   return (
-       <div className="container mx-auto p-2 sm:p-4 bg-gray-900 max-w-4xl">
+    <div className="container mx-auto p-2 sm:p-4 bg-gray-900 max-w-4xl">
       <Card className="bg-gray-800 border-gray-700">
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 flex flex-row items-center justify-between">
           <CardTitle className="text-white text-xl">Budget Overview</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-white bg-orange-500 hover:bg-orange-600"
+            onClick={() => setOpen(true)}
+          >
+            Add Category
+          </Button>
         </CardHeader>
         <CardContent>
           {/* Summary Stats */}
@@ -178,6 +200,12 @@ export default function TransactionsPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <CategoryForm
+        open={open}
+        onOpenChange={setOpen}
+        onAddCategory={handleAddCategory}
+      />
     </div>
   );
 }

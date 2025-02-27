@@ -1,3 +1,4 @@
+import { CreateCategory } from "@/components/CategoryForm";
 import { CategoryWithTransactions } from "@/lib/types/category";
 import { Category } from "@prisma/client/edge";
 
@@ -28,4 +29,20 @@ export async function getCategoriesWithoutBudget(): Promise<CategoryWithTransact
     );
   }
   return response.json() as Promise<CategoryWithTransactions[]>;
+}
+
+
+export async function createCategory(category: CreateCategory): Promise<CategoryWithTransactions> {
+  const response = await fetch("/api/categories", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(category),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error || `Error: ${response.status} ${response.statusText}`
+    );
+  }
+  return response.json() as Promise<CategoryWithTransactions>;
 }

@@ -23,7 +23,8 @@ const BudgetRow = ({
   // Determine text color for remaining amount
   const remaining = budgetValue - spent;
 
-  const percentSpent = budgetValue > 0 ? Math.round((spent / budgetValue) * 100) : 0;
+  const percentSpent =
+    budgetValue > 0 ? Math.round((spent / budgetValue) * 100) : 0;
   const remainingColor = remaining >= 0 ? "text-green-500" : "text-red-500";
 
   const handleBudgetEdit = (e: { preventDefault: () => void }) => {
@@ -38,7 +39,7 @@ const BudgetRow = ({
   };
 
   return (
-      <div className={className}>
+    <div className={className}>
       {/* Desktop view */}
       <div className="hidden md:flex items-center py-3 px-3 border-b border-gray-800">
         <div className="flex items-center flex-1">
@@ -60,7 +61,7 @@ const BudgetRow = ({
                   }}
                   onBlur={handleBudgetEdit}
                   autoFocus
-                  className="w-20 h-7 bg-gray-700 border-gray-600 text-right text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-20 h-7 bg-gray-800 border border-white/50 hover:border-white focus:border-white text-right text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:ring-1 focus:ring-white"
                   min="0"
                   step="any"
                 />
@@ -82,7 +83,7 @@ const BudgetRow = ({
           </div>
         </div>
       </div>
-      
+
       {/* Mobile view */}
       <div className="md:hidden py-3 px-3 border-b border-gray-800">
         <div className="flex justify-between mb-2">
@@ -93,7 +94,7 @@ const BudgetRow = ({
             {remaining < 0 ? "-" : ""}${Math.abs(remaining).toLocaleString()}
           </div>
         </div>
-        
+
         <div className="flex justify-between items-center mb-2">
           <div className="text-xs text-gray-400">
             ${spent.toLocaleString()} spent
@@ -110,7 +111,7 @@ const BudgetRow = ({
                   }}
                   onBlur={handleBudgetEdit}
                   autoFocus
-                  className="w-20 h-7 bg-gray-700 border-gray-600 text-right text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-20 h-7 bg-gray-800 border border-white/50 hover:border-white focus:border-white text-right text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:ring-1 focus:ring-white"
                   min="0"
                   step="any"
                 />
@@ -125,11 +126,11 @@ const BudgetRow = ({
             )}
           </div>
         </div>
-        
+
         <div className="w-full">
-          <Progress 
-            value={percentSpent > 100 ? 100 : percentSpent} 
-            className="h-1 bg-gray-700" 
+          <Progress
+            value={percentSpent > 100 ? 100 : percentSpent}
+            className="h-1 bg-gray-700"
           />
         </div>
       </div>
