@@ -34,11 +34,11 @@ export default function TransactionsPage() {
     []
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleAddTransaction = async (transactionData: CreateTransaction) => {
+   
+  async function handleAddTransaction(transactionData: CreateTransaction) {
     const transaction = await addTransaction(transactionData);
     setTransactions([transaction, ...transactions]);
-  };
+  }
 
   useEffect(() => {
     // Function to fetch categories
