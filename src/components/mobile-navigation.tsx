@@ -27,7 +27,7 @@ export function MobileNavigation() {
         <Button
           variant="ghost"
           size="icon"
-          className="fixed bottom-4 left-4 h-12 w-12 rounded-full shadow-lg bg-primary text-primary-foreground z-50"
+          className="fixed bottom-4 left-4 h-12 w-12 rounded-full shadow-lg bg-primary-400 text-primary-foreground z-50"
         >
           <Menu className="h-6 w-6" />
           <span className="sr-only">Toggle menu</span>

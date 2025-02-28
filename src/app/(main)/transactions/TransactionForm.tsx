@@ -151,7 +151,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               value={transactionData.amount}
               onChange={(e) => handleChange("amount", e.target.value)}
               placeholder="$0.00"
-              className="bg-gray-800 border-gray-700 text-white focus:ring-orange-500 focus-visible:ring-orange-500"
+              className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400 focus-visible:ring-primary-400"
             />
           </div>
 
@@ -166,7 +166,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               }
               value={transactionData.categoryId.toString()}
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-orange-500">
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400">
                 <SelectValue placeholder="Search categories..." />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700 text-white">
@@ -190,7 +190,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               }
               value={transactionData.builderId.toString()}
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-orange-500">
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400">
                 <SelectValue placeholder="Select a User" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700 text-white">
@@ -222,7 +222,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                   <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-gray-800">
+              <PopoverContent className="w-auto p-0 bg-gray-800 z-50">
                 <Calendar
                   mode="single"
                   selected={transactionData.date}
@@ -247,7 +247,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               placeholder="Add a note..."
               value={transactionData.notes || ""}
               onChange={(e) => handleChange("notes", e.target.value)}
-              className="bg-gray-800 border-gray-700 text-white resize-none focus:ring-orange-500 focus-visible:ring-orange-500"
+              className="bg-gray-800 border-gray-700 text-white resize-none focus:ring-primary-400 focus-visible:ring-primary-400"
             />
           </div>
 
@@ -281,14 +281,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             </Button>
             <Button
               type="submit"
-              className={`bg-orange-500 text-white ${
+              className={`bg-primary-400 text-white ${
                 isFormValid
-                  ? "hover:bg-orange-600"
+                  ? "hover:bg-primary-600"
                   : "opacity-50 cursor-not-allowed"
               }`}
               disabled={!isFormValid}
             >
-              Add transaction
+              {isEditMode ? "Edit" : "Add"} transaction
             </Button>
           </div>
         </form>

@@ -89,19 +89,6 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // Get header label safely
-  const getHeaderLabel = (columnId: string) => {
-    const column = table.getColumn(columnId);
-    if (!column) return columnId;
-
-    const headerDef = column.columnDef.header;
-    if (typeof headerDef === "string") return headerDef;
-    return (
-      columnId.charAt(0).toUpperCase() +
-      columnId.slice(1).replace(/([A-Z])/g, " $1")
-    );
-  };
-
   // Function to render the card view for mobile using shadcn/ui Card component
   const renderCardView = () => {
     return (
@@ -115,10 +102,16 @@ export function DataTable<TData, TValue>({
               .getAllCells()
               .find((cell) => cell.column.id === "amount");
 
-               // // Find amount/price column if it exists
+            // // Find amount/price column if it exists
             const categoryColumn = row
               .getAllCells()
               .find((cell) => cell.column.id === "category");
+            const dateColumn = row
+              .getAllCells()
+              .find((cell) => cell.column.id === "date");
+            const builderColumn = row
+              .getAllCells()
+              .find((cell) => cell.column.id === "builder");
 
             return (
               <Card key={row.id} className="overflow-hidden">
@@ -126,25 +119,38 @@ export function DataTable<TData, TValue>({
                   <div className="flex justify-between items-start">
                     <div>
                       <CardTitle className="text-base">
-                        {amountColumn && (
+                        {dateColumn && (
                           <div className="font-semibold">
                             {flexRender(
-                              amountColumn.column.columnDef.cell,
-                              amountColumn.getContext()
+                              dateColumn.column.columnDef.cell,
+                              dateColumn.getContext()
                             )}
                           </div>
                         )}
                       </CardTitle>
-                     
                     </div>
-                    <Badge variant="outline"> {categoryColumn && (
+                    <div className="flex items-center space-x-3">
+                      {builderColumn && (
+                        <div className="relative flex items-center justify-center w-6 h-6 rounded-full bg-primary-400">
+                          <span className="text-sm font-bold text-white">
+                            {flexRender(
+                              builderColumn.column.columnDef.cell,
+                              builderColumn.getContext()
+                            )}
+                          </span>
+                        </div>
+                      )}
+                      <Badge variant="outline">
+                        {categoryColumn && (
                           <div className="font-semibold">
                             {flexRender(
                               categoryColumn.column.columnDef.cell,
                               categoryColumn.getContext()
                             )}
                           </div>
-                        )}</Badge>
+                        )}
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
 
@@ -152,12 +158,7 @@ export function DataTable<TData, TValue>({
                   <div className="space-y-2">
                     {row
                       .getVisibleCells()
-                      .filter(
-                        (cell) =>
-                          cell.column.id !== "amount" &&
-                          cell.column.id !== "category" &&
-                          cell.column.id !== "actions"
-                      )
+                      .filter((cell) => cell.column.id === "notes")
                       .map((cell) => {
                         // Skip cells that are already shown in the card header/title
                         return (
@@ -165,9 +166,6 @@ export function DataTable<TData, TValue>({
                             key={cell.id}
                             className="flex justify-between items-center text-sm"
                           >
-                            <span className="text-muted-foreground font-medium">
-                              {getHeaderLabel(cell.column.id)}
-                            </span>
                             <span>
                               {flexRender(
                                 cell.column.columnDef.cell,
@@ -181,7 +179,14 @@ export function DataTable<TData, TValue>({
                 </CardContent>
 
                 <CardFooter className="flex justify-between border-t pt-4 pb-4">
-                  Actions
+                  {amountColumn && (
+                    <div className="font-semibold">
+                      {flexRender(
+                        amountColumn.column.columnDef.cell,
+                        amountColumn.getContext()
+                      )}
+                    </div>
+                  )}
                   {actionsColumn && (
                     <div className="font-semibold">
                       {flexRender(

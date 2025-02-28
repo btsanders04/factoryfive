@@ -122,7 +122,7 @@ export default function TransactionsPage() {
           </div>
           <Button
             onClick={() => setOpenTransactionModal(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
+            className="bg-primary-400 hover:bg-primary-600 text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Transaction

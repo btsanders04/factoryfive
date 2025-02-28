@@ -8,6 +8,12 @@ import { BudgetWithRelations } from "@/lib/types/budget";
 import { getAllBudgets } from "@/services/budget.service";
 import { TransactionWithBuilder } from "@/lib/types/transactions";
 import { Builder } from "@prisma/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface CategoryIndividualContributions {
   builder: Builder;
@@ -61,20 +67,25 @@ const BudgetCategory: React.FC<BudgetCategoryProps> = ({
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
-    <div className="mb-6">
-      <div
-        className="flex justify-between items-center mb-1 cursor-pointer"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-white font-medium">{name}</span>
-          <ChevronDown
-            size={16}
-            className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
-          />
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="mb-4 border-b border-gray-800 pb-4 last:border-0"
+    >
+      <CollapsibleTrigger className="w-full">
+        <div className="flex justify-between items-center mb-1 cursor-pointer">
+          <div className="flex items-center gap-2">
+            <span className="text-white font-medium">{name}</span>
+            <ChevronDown
+              size={16}
+              className={`text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+            />
+          </div>
+          <span className="text-gray-400">
+            ${budget.toLocaleString()} budget
+          </span>
         </div>
-        <span className="text-gray-400">${budget.toLocaleString()} budget</span>
-      </div>
+      </CollapsibleTrigger>
 
       <div className="relative h-2 w-full bg-gray-800 rounded-full mb-1">
         <div
@@ -91,8 +102,7 @@ const BudgetCategory: React.FC<BudgetCategoryProps> = ({
         </span>
       </div>
 
-      {/* Dropdown items */}
-      {isOpen && (
+      <CollapsibleContent>
         <div className="mt-2 pl-4 space-y-2 border-l-2 border-gray-700">
           {individualContributions.map((contribution, index) => (
             <div key={index} className="flex justify-between text-sm">
@@ -103,12 +113,12 @@ const BudgetCategory: React.FC<BudgetCategoryProps> = ({
             </div>
           ))}
         </div>
-      )}
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
-const BudgetCard: React.FC = () => {
+const BudgetCard = () => {
   const [budgets, setBudgets] = useState<BudgetWithRelations[]>([]);
   useEffect(() => {
     // Function to fetch categories
@@ -118,24 +128,26 @@ const BudgetCard: React.FC = () => {
     };
     fetchBudgets();
   }, []);
-  return (
-    <div className="bg-gray-900 rounded-lg p-6 w-full max-w-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold text-white">Budget</h2>
-        </div>
-      </div>
 
-      {budgets.map((budget, index) => (
-        <BudgetCategory
-          key={index}
-          name={budget.category.name}
-          budget={budget.amount}
-          individualContributions={getIndividualContributions(
-            budget.category.transactions
-          )}
-        />
-      ))}
+  return (
+    <div className="flex justify-center w-full">
+      <Card className="shadow-md w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold">Budget</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {budgets.map((budget, index) => (
+            <BudgetCategory
+              key={index}
+              name={budget.category.name}
+              budget={budget.amount}
+              individualContributions={getIndividualContributions(
+                budget.category.transactions
+              )}
+            />
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 };

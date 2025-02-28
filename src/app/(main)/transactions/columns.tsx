@@ -65,7 +65,19 @@ export const createColumns = (
       );
     },
     cell: ({ cell }) => {
-      return cell.getValue<Builder>().name;
+      const builder = cell.getValue<Builder>();
+      const fullName = builder.name;
+      const firstLetter = fullName.charAt(0);
+
+      return (
+        <>
+          {/* Full name on medium screens and up */}
+          <span className="hidden md:inline">{fullName}</span>
+
+          {/* First letter only on mobile */}
+          <span className="inline md:hidden">{firstLetter}</span>
+        </>
+      );
     },
   },
   {
