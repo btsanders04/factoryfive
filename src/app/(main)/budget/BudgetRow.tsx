@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Category } from "@prisma/client";
 import { Input } from "@/components/ui/input";
-import { Progress } from "./ui/progress";
+import { Progress } from "@/components/ui/progress";
 
 const BudgetRow = ({
   category,

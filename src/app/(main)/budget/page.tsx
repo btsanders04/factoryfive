@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { getAllBudgets, upsertBudget } from "@/services/budget.service";
 import { BudgetWithRelations } from "@/lib/types/budget";
-import BudgetRow from "@/components/BudgetRow";
 import {
   createCategory,
   getCategoriesWithoutBudget,
@@ -15,6 +14,7 @@ import { CategoryWithTransactions } from "@/lib/types/category";
 import { ActionType } from "@/lib/types/enum";
 import CategoryForm, { CreateCategory } from "@/components/CategoryForm";
 import { Plus } from "lucide-react";
+import BudgetRow from "./BudgetRow";
 
 export default function TransactionsPage() {
   const [open, setOpen] = useState(false);
