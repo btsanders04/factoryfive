@@ -18,3 +18,28 @@ export async function DELETE(
   });
   return NextResponse.json(transaction, { status: 202 });
 }
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const id = parseInt((await params).id);
+  const { amount, categoryId, builderId, notes, date } = await request.json();
+  const transaction = await prisma.transaction.update({
+    where: {
+      id: id,
+    },
+    data: {
+      amount,
+      categoryId,
+      builderId,
+      notes,
+      date,
+    },
+    include: {
+      category: true,
+      builder: true
+    }
+  });
+  return NextResponse.json(transaction, { status: 202 });
+}

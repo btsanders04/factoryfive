@@ -17,9 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getAllCategories } from "@/services/category.service";
 import { Builder, Category, Transaction } from "@prisma/client";
-import { getAllBuilders } from "@/services/builder.service";
 import {
   Popover,
   PopoverContent,
@@ -27,25 +25,35 @@ import {
 } from "@radix-ui/react-popover";
 import { Calendar } from "../../../components/ui/calendar";
 import { dateFormat } from "@/lib/utils";
+import { TransactionWithRelations } from "@/lib/types/transactions";
 
 interface TransactionFormProps {
   open: boolean;
+  transaction: TransactionWithRelations | null;
+  categories: Category[];
+  builders: Builder[];
   onOpenChange: (open: boolean) => void;
   onAddTransaction: (transaction: CreateTransaction) => void;
+  onEditTransaction: (transaction: CreateTransaction & { id: number }) => void;
 }
 export type CreateTransaction = Omit<
   Transaction,
   "id" | "createdAt" | "updatedAt"
 >;
 
+export type EditTransaction = Omit<Transaction, "createdAt" | "updatedAt">;
+
 const TransactionForm: React.FC<TransactionFormProps> = ({
   open,
+  transaction,
+  categories,
+  builders,
   onOpenChange,
   onAddTransaction,
+  onEditTransaction,
 }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [builders, setBuilders] = useState<Builder[]>([]);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // In your component
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -54,27 +62,17 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   //   const [error, setError] = useState<string | null>(null);
 
   const [transactionData, setTransactionData] = useState<CreateTransaction>({
-    amount: 0,
-    description: "",
-    date: new Date(),
-    builderId: 0,
-    categoryId: 0,
-    notes: "",
+    amount: transaction?.amount || 0,
+    description: transaction?.description || "",
+    date: transaction?.date || new Date(),
+    builderId: transaction?.builderId || 0,
+    categoryId: transaction?.categoryId || 0,
+    notes: transaction?.notes || "",
     tags: [],
   });
 
   useEffect(() => {
-    // Function to fetch categories
-    const fetchCategories = async () => {
-      const data = await getAllCategories();
-      setCategories(data);
-    };
-    const fetchBuilders = async () => {
-      const data = await getAllBuilders();
-      setBuilders(data);
-    };
-    fetchCategories();
-    fetchBuilders();
+    setIsEditMode(!!transaction);
   }, []);
   useEffect(() => {
     const isValid =
@@ -92,19 +90,51 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     });
   };
 
+  const handelCancel = () => {
+    if (isEditMode) {
+      setTransactionData({
+        amount: 0,
+        description: "",
+        date: new Date(),
+        builderId: 0,
+        categoryId: 0,
+        notes: "",
+        tags: [],
+      });
+    }
+    setIsEditMode(false);
+    onOpenChange(false);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAddTransaction(transactionData);
+    if (isEditMode && transaction) {
+      onEditTransaction({ ...transactionData, id: transaction.id });
+    } else {
+      onAddTransaction(transactionData);
+    }
+    setIsEditMode(false);
+    setTransactionData({
+      amount: transaction?.amount || 0,
+      description: "",
+      date: new Date(),
+      builderId: 0,
+      categoryId: 0,
+      notes: "",
+      tags: [],
+    });
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handelCancel}>
       <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800 text-white">
         <DialogHeader className="flex justify-between items-center">
-          <DialogTitle className="text-white">Add transaction</DialogTitle>
+          <DialogTitle className="text-white">
+            {isEditMode ? "Edit" : "Add"} transaction
+          </DialogTitle>
           <Button
-            onClick={() => onOpenChange(false)}
+            onClick={handelCancel}
             variant="ghost"
             className="h-8 w-8 p-0 text-gray-400 hover:text-white"
           ></Button>
@@ -243,7 +273,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
-              onClick={() => onOpenChange(false)}
+              onClick={handelCancel}
               variant="outline"
               className="border-gray-600 text-white hover:bg-gray-800 hover:text-white"
             >

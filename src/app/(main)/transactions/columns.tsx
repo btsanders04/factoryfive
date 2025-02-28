@@ -5,10 +5,11 @@ import { TransactionWithRelations } from "@/lib/types/transactions";
 import { dateFormat } from "@/lib/utils";
 import { Builder, Category } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Trash2 } from "lucide-react";
+import { ArrowUpDown, Pencil, Trash2 } from "lucide-react";
 
 export const createColumns = (
-  confirmDelete: (id: number) => void
+  confirmDelete: (id: number) => void,
+  editTransaction: (transaction: TransactionWithRelations) => void
 ): ColumnDef<TransactionWithRelations>[] => [
   {
     accessorKey: "date",
@@ -99,6 +100,13 @@ export const createColumns = (
       const transaction = row.original;
       return (
         <div className="text-right">
+          <button
+            onClick={() => editTransaction(transaction)}
+            className="hover:text-gray-300 focus:outline-none mr-3"
+            aria-label="Edit Transaction"
+          >
+            <Pencil size={16} />
+          </button>
           <button
             onClick={() => confirmDelete(transaction.id)}
             className="text-red-500 hover:text-red-700 focus:outline-none"

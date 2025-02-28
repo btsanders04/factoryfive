@@ -16,41 +16,67 @@ import {
 } from "@/components/ui/alert-dialog";
 import TransactionForm, {
   CreateTransaction,
+  EditTransaction,
 } from "@/app/(main)/transactions/TransactionForm";
 import {
   addTransaction,
   deleteTransaction,
   getAllTransactions,
+  editTransaction,
 } from "@/app/(main)/transactions/transaction.service";
 import { TransactionWithRelations } from "@/lib/types/transactions";
 import { getAllCategories } from "@/services/category.service";
-import { Category } from "@prisma/client";
+import { Builder, Category } from "@prisma/client";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
+import { getAllBuilders } from "@/services/builder.service";
 
 export default function TransactionsPage() {
-  const [open, setOpen] = useState(false);
+  const [openTransactionModal, setOpenTransactionModal] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<number | null>(
     null
   );
+  const [transactionToEdit, setTransactionToEdit] =
+    useState<TransactionWithRelations | null>(null);
 
   const [transactions, setTransactions] = useState<TransactionWithRelations[]>(
     []
   );
   const [categories, setCategories] = useState<Category[]>([]);
-
-  // const columns: ColumnDef<TransactionWithRelations>[]
+  const [builders, setBuilders] = useState<Builder[]>([]);
 
   async function handleAddTransaction(transactionData: CreateTransaction) {
     const transaction = await addTransaction(transactionData);
     const allTransactions = [transaction, ...transactions];
     setTransactions(allTransactions);
   }
+  async function handleEditTransaction(transactionData: EditTransaction) {
+    const updatedTransaction = await editTransaction(transactionData);
+    setTransactions(
+      transactions.map((transaction) => {
+        if (transaction.id === updatedTransaction.id) {
+          return updatedTransaction;
+        } else {
+          return transaction;
+        }
+      })
+    );
+  }
+
+  const closeTransactionModal = () => {
+    setOpenTransactionModal(false);
+    setTransactionToEdit(null);
+  };
 
   const confirmDelete = (transactionId: number) => {
     setTransactionToDelete(transactionId);
     setDeleteDialogOpen(true);
+  };
+
+  const editTransactionClicked = (transaction: TransactionWithRelations) => {
+    setTransactionToEdit(transaction);
+    setOpenTransactionModal(true);
   };
 
   async function handleDelete() {
@@ -76,8 +102,13 @@ export default function TransactionsPage() {
       const data = await getAllCategories();
       setCategories(data);
     };
+    const fetchBuilders = async () => {
+      const data = await getAllBuilders();
+      setBuilders(data);
+    };
     fetchTransactions();
     fetchCategories();
+    fetchBuilders();
   }, []);
 
   return (
@@ -90,7 +121,7 @@ export default function TransactionsPage() {
             <p className="text-gray-500">You owe me money</p>
           </div>
           <Button
-            onClick={() => setOpen(true)}
+            onClick={() => setOpenTransactionModal(true)}
             className="bg-orange-500 hover:bg-orange-600 text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -100,17 +131,22 @@ export default function TransactionsPage() {
 
         {/* Transactions Table */}
         <DataTable
-          columns={createColumns(confirmDelete)}
+          columns={createColumns(confirmDelete, editTransactionClicked)}
           data={transactions}
           categories={categories}
         ></DataTable>
       </div>
-
-      <TransactionForm
-        open={open}
-        onOpenChange={setOpen}
-        onAddTransaction={handleAddTransaction}
-      />
+      {openTransactionModal && (
+        <TransactionForm
+          open={openTransactionModal}
+          transaction={transactionToEdit}
+          categories={categories}
+          builders={builders}
+          onOpenChange={closeTransactionModal}
+          onAddTransaction={handleAddTransaction}
+          onEditTransaction={handleEditTransaction}
+        />
+      )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

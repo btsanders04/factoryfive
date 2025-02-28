@@ -1,4 +1,4 @@
-import { CreateTransaction } from "@/app/(main)/transactions/TransactionForm";
+import { CreateTransaction, EditTransaction } from "@/app/(main)/transactions/TransactionForm";
 import { TransactionWithRelations } from "@/lib/types/transactions";
 import { Transaction } from "@prisma/client";
 
@@ -7,6 +7,24 @@ export async function addTransaction(
 ): Promise<TransactionWithRelations> {
   const response = await fetch("/api/transactions", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(transactionData),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error || `Error: ${response.status} ${response.statusText}`
+    );
+  }
+  return response.json() as Promise<TransactionWithRelations>;
+}
+
+
+export async function editTransaction(
+  transactionData: EditTransaction
+): Promise<TransactionWithRelations> {
+  const response = await fetch(`/api/transactions/${transactionData.id}`, {
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(transactionData),
   });
