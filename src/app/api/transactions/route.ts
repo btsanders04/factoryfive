@@ -8,8 +8,7 @@ const adapter = new PrismaNeon(neon);
 const prisma = new PrismaClient({ adapter });
 
 export async function POST(request: NextRequest) {
-  const isAllowed = await getUserPermission('write_transactions');
-  console.log(isAllowed);
+  const isAllowed = await getUserPermission();
   if (!isAllowed) {
       return NextResponse.json(
         {

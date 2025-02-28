@@ -1,3 +1,4 @@
+import { getUserPermission } from "@/lib/stackshare_utils";
 import { Pool } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
@@ -15,6 +16,16 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     // Parse the request body
+     const isAllowed = await getUserPermission();
+      if (!isAllowed) {
+          return NextResponse.json(
+            {
+              error:
+                "Unauthorized",
+            },
+            { status: 403 }
+          );
+        }
     const body = await request.json();
 
     // Validate that the necessary fields are present

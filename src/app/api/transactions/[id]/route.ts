@@ -1,3 +1,4 @@
+import { getUserPermission } from "@/lib/stackshare_utils";
 import { Pool } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
@@ -10,6 +11,15 @@ export async function DELETE(
   _: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const isAllowed = await getUserPermission();
+  if (!isAllowed) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized",
+      },
+      { status: 403 }
+    );
+  }
   const id = parseInt((await params).id);
   const transaction = await prisma.transaction.delete({
     where: {
@@ -23,6 +33,15 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const isAllowed = await getUserPermission();
+  if (!isAllowed) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized",
+      },
+      { status: 403 }
+    );
+  }
   const id = parseInt((await params).id);
   const { amount, categoryId, builderId, notes, date } = await request.json();
   const transaction = await prisma.transaction.update({
@@ -38,8 +57,8 @@ export async function PUT(
     },
     include: {
       category: true,
-      builder: true
-    }
+      builder: true,
+    },
   });
   return NextResponse.json(transaction, { status: 202 });
 }
