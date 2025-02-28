@@ -104,7 +104,8 @@ export default function TransactionsPage() {
         {/* Header */}
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold">Budget Overview</h1>
+            <h1 className="text-2xl font-bold">Budget</h1>
+            <p className="text-gray-500">Please don&apos;t be red</p>
           </div>
           <Button
             onClick={() => setOpen(true)}
