@@ -111,11 +111,6 @@ export function DataTable<TData, TValue>({
             const actionsColumn = row
               .getAllCells()
               .find((cell) => cell.column.id === "actions");
-            // Get category for this row if it exists
-            // const category = row.getValue<Category>("category");
-            // const categoryName = category ? category.name : "No Category";
-
-            // // Find amount/price column if it exists
             const amountColumn = row
               .getAllCells()
               .find((cell) => cell.column.id === "amount");
@@ -124,26 +119,6 @@ export function DataTable<TData, TValue>({
             const categoryColumn = row
               .getAllCells()
               .find((cell) => cell.column.id === "category");
-
-            // // Find date/created column if it exists
-            // const dateColumn = row
-            //   .getAllCells()
-            //   .find(
-            //     (cell) =>
-            //       cell.column.id === "date" ||
-            //       cell.column.id === "createdAt" ||
-            //       cell.column.id === "updatedAt"
-            //   );
-
-            // // Find description/name/title column if it exists
-            // const titleColumn = row
-            //   .getAllCells()
-            //   .find(
-            //     (cell) =>
-            //       cell.column.id === "description" ||
-            //       cell.column.id === "name" ||
-            //       cell.column.id === "category"
-            //   );
 
             return (
               <Card key={row.id} className="overflow-hidden">
