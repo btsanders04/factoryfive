@@ -38,10 +38,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           onClick={onNavigate}
         />
         <NavItem
-          href={ROUTES.profile}
+          href={ROUTES.buildlog}
           icon={<User size={20} />}
           label="Build Log"
-          active={pathname === ROUTES.profile}
+          active={pathname === ROUTES.buildlog}
           onClick={onNavigate}
         />
         <NavItem

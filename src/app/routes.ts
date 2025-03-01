@@ -6,5 +6,5 @@ export const ROUTES = {
     settings: '/settings',
     comingsoon: '/comingsoon',
     help: '/help',
-    profile: '/profile'
+    buildlog: '/buildlog'
 }
