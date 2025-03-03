@@ -9,30 +9,26 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Category } from "@prisma/client";
-
+import { Category, Prisma } from "@prisma/client";
 
 interface TransactionFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddCategory: (category: CreateCategory) => void;
+  onAddCategory: (category: Prisma.CategoryCreateInput) => void;
 }
-export type CreateCategory = Omit<Category, "id" | "createdAt" | "updatedAt">;
 
 const CategoryForm: React.FC<TransactionFormProps> = ({
   open,
   onOpenChange,
   onAddCategory,
 }) => {
-
   //   const [loading, setLoading] = useState(true);
   //   const [error, setError] = useState<string | null>(null);
 
-  const [categoryData, setCategoryData] = useState<CreateCategory>({
+  const [categoryData, setCategoryData] = useState<Prisma.CategoryCreateInput>({
     name: "",
-    description: ""
+    description: "",
   });
-
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (field: keyof Category, value: any) => {

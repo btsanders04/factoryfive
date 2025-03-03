@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { getAllBudgets, upsertBudget } from "@/services/budget.service";
+import { getAllBudgets, upsertBudget } from "@/app/(main)/budget/budget.service";
 import { BudgetWithRelations } from "@/lib/types/budget";
 import {
   createCategory,
@@ -12,9 +12,10 @@ import {
 } from "@/services/category.service";
 import { CategoryWithTransactions } from "@/lib/types/category";
 import { ActionType } from "@/lib/types/enum";
-import CategoryForm, { CreateCategory } from "@/components/CategoryForm";
+import CategoryForm from "@/components/CategoryForm";
 import BudgetRow from "./BudgetRow";
 import {PrimaryAddButton} from "@/components/PrimaryAddButton";
+import { Prisma } from "@prisma/client";
 
 export default function TransactionsPage() {
   const [open, setOpen] = useState(false);
@@ -41,7 +42,7 @@ export default function TransactionsPage() {
     setShowUnbudgeted(!showUnbudgeted);
   };
 
-  const handleAddCategory = async (category: CreateCategory) => {
+  const handleAddCategory = async (category:  Prisma.CategoryCreateInput) => {
     const newCategory = await createCategory(category);
     setUnbudgeted([...unbudgeted, newCategory].sort((category) => category.id));
   };

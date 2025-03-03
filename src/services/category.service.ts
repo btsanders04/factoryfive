@@ -1,6 +1,5 @@
-import { CreateCategory } from "@/components/CategoryForm";
 import { CategoryWithTransactions } from "@/lib/types/category";
-import { Category } from "@prisma/client/edge";
+import { Category, Prisma } from "@prisma/client";
 
 
 export async function getAllCategories(): Promise<Category[]> {
@@ -47,7 +46,7 @@ export async function getCategoriesWithoutBudget(): Promise<CategoryWithTransact
 }
 
 
-export async function createCategory(category: CreateCategory): Promise<CategoryWithTransactions> {
+export async function createCategory(category:  Prisma.CategoryCreateInput): Promise<CategoryWithTransactions> {
   const response = await fetch("/api/categories", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
