@@ -24,17 +24,17 @@ const ToolsChecklistPage = () => {
   };
 
   const handleToggleCheck = async (id: number, status: boolean) => {
-    await checkTool(id, !status);
     setTools(
       tools.map((tool) =>
         tool.id === id ? { ...tool, checked: !status } : tool
       )
     );
+    await checkTool(id, !status);
   };
 
   const handleDelete = async (id: number) => {
-    await deleteTool(id);
     setTools(tools.filter((tool) => tool.id !== id));
+    await deleteTool(id);
   };
 
   useEffect(() => {
@@ -57,9 +57,7 @@ const ToolsChecklistPage = () => {
               Shoot, we have to go to Lowes again.
             </p>
           </div>
-          <ToolModal
-            submitTool={handleAddTool}
-          ></ToolModal>
+          <ToolModal submitTool={handleAddTool}></ToolModal>
         </div>
         <div className="space-y-2">
           {tools.length === 0 ? (

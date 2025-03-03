@@ -53,5 +53,5 @@ export async function PUT(
       checked: !!checked,
     },
   });
-  return NextResponse.json(tool, { status: 204 });
+  return NextResponse.json(tool, { status: 202 });
 }
