@@ -1,14 +1,5 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { CalendarClock } from "lucide-react";
-
 const timelineEvents = [
   {
     id: 1,

@@ -4,16 +4,6 @@
 // components/sidebar.tsx
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  Settings,
-  User,
-  HelpCircle,
-  CreditCard,
-  Image,
-  DollarSign,
-  Drill,
-} from "lucide-react";
 import { MAIN_ROUTES } from "@/app/routes";
 import { UserButton } from "@stackframe/stack";
 
