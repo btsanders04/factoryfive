@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Builder, Category, Transaction } from "@prisma/client";
+import { Builder, Category, Prisma, Transaction } from "@prisma/client";
 import {
   Popover,
   PopoverContent,
@@ -33,15 +33,9 @@ interface TransactionFormProps {
   categories: Category[];
   builders: Builder[];
   onOpenChange: (open: boolean) => void;
-  onAddTransaction: (transaction: CreateTransaction) => void;
-  onEditTransaction: (transaction: CreateTransaction & { id: number }) => void;
+  onAddTransaction: (transaction: Prisma.TransactionUncheckedCreateInput) => void;
+  onEditTransaction: (transaction: Prisma.TransactionUncheckedUpdateInput) => void;
 }
-export type CreateTransaction = Omit<
-  Transaction,
-  "id" | "createdAt" | "updatedAt"
->;
-
-export type EditTransaction = Omit<Transaction, "createdAt" | "updatedAt">;
 
 const TransactionForm: React.FC<TransactionFormProps> = ({
   open,
@@ -61,7 +55,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   //   const [loading, setLoading] = useState(true);
   //   const [error, setError] = useState<string | null>(null);
 
-  const [transactionData, setTransactionData] = useState<CreateTransaction>({
+  const [transactionData, setTransactionData] = useState<Prisma.TransactionUncheckedCreateInput>({
     amount: transaction?.amount || 0,
     description: transaction?.description || "",
     date: transaction?.date || new Date(),
@@ -73,6 +67,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   useEffect(() => {
     setIsEditMode(!!transaction);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     const isValid =
@@ -216,7 +211,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 >
                   <span>
                     {transactionData.date
-                      ? dateFormat(transactionData.date)
+                      ? dateFormat(transactionData.date as Date)
                       : "Select date"}
                   </span>
                   <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
@@ -225,7 +220,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <PopoverContent className="w-auto p-0 bg-gray-800 z-50">
                 <Calendar
                   mode="single"
-                  selected={transactionData.date}
+                  selected={transactionData.date as Date}
                   onSelect={(date) => {
                     handleChange("date", date || new Date());
                     setCalendarOpen(false);

@@ -1,9 +1,8 @@
-import { CreateTransaction, EditTransaction } from "@/app/(main)/transactions/TransactionForm";
 import { TransactionWithRelations } from "@/lib/types/transactions";
-import { Transaction } from "@prisma/client";
+import { Prisma, Transaction } from "@prisma/client";
 
 export async function addTransaction(
-  transactionData: CreateTransaction
+  transactionData: Prisma.TransactionUncheckedCreateInput
 ): Promise<TransactionWithRelations> {
   const response = await fetch("/api/transactions", {
     method: "POST",
@@ -19,9 +18,8 @@ export async function addTransaction(
   return response.json() as Promise<TransactionWithRelations>;
 }
 
-
 export async function editTransaction(
-  transactionData: EditTransaction
+  transactionData: Prisma.TransactionUncheckedUpdateInput
 ): Promise<TransactionWithRelations> {
   const response = await fetch(`/api/transactions/${transactionData.id}`, {
     method: "PUT",
@@ -37,10 +35,12 @@ export async function editTransaction(
   return response.json() as Promise<TransactionWithRelations>;
 }
 
-export async function getAllTransactions(): Promise<TransactionWithRelations[]> {
+export async function getAllTransactions(): Promise<
+  TransactionWithRelations[]
+> {
   const response = await fetch("/api/transactions", {
     method: "GET",
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
   });
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
@@ -52,7 +52,7 @@ export async function getAllTransactions(): Promise<TransactionWithRelations[]> 
 }
 
 export async function deleteTransaction(id: number): Promise<Transaction> {
-   const response = await fetch(`/api/transactions/${id}`, {
+  const response = await fetch(`/api/transactions/${id}`, {
     method: "DELETE",
   });
   if (!response.ok) {
