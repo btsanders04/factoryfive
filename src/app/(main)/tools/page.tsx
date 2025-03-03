@@ -15,15 +15,12 @@ import {
 } from "@/app/(main)/tools/tool.service";
 
 const ToolsChecklistPage = () => {
-  const [openToolModal, setOpenToolModal] = useState<boolean>(false);
   const [tools, setTools] = useState<Tool[]>([]);
-
   const handleAddTool = async (tool: Prisma.ToolCreateInput) => {
     const newTool = await createTool(tool);
     if (newTool.name.trim()) {
       setTools([newTool, ...tools]);
     }
-    setOpenToolModal(false);
   };
 
   const handleToggleCheck = async (id: number, status: boolean) => {
@@ -61,7 +58,6 @@ const ToolsChecklistPage = () => {
             </p>
           </div>
           <ToolModal
-            isOpen={openToolModal}
             submitTool={handleAddTool}
           ></ToolModal>
         </div>

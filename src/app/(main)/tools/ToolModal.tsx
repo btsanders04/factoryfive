@@ -14,14 +14,20 @@ import { PrimaryAddButton } from "@/components/PrimaryAddButton";
 import { Prisma } from "@prisma/client";
 
 export const ToolModal = ({
-  isOpen,
   submitTool,
 }: {
-  isOpen: boolean;
   submitTool: (tool: Prisma.ToolCreateInput) => void;
 }) => {
   const [newTool, setNewTool] = useState({ name: "", link: "" });
-  const [open, setOpen] = useState(isOpen);
+  const [open, setOpen] = useState(false);
+
+  const onSubmit = () => {
+    submitTool({
+      name: newTool.name.trim(),
+      link: newTool.link.trim(),
+    });
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -59,16 +65,7 @@ export const ToolModal = ({
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={() =>
-              submitTool({
-                name: newTool.name.trim(),
-                link: newTool.link.trim(),
-              })
-            }
-          >
-            Add Tool
-          </Button>
+          <Button onClick={onSubmit}>Add Tool</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
