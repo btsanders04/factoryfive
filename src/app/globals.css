@@ -67,7 +67,7 @@
     --primary: 210 40% 98%; /* blue-600 */
     --primary-foreground: 222.2 47.4% 11.2%; /* slate-300 */
     
-    --secondary: 217.2 32.6% 17.5%; /* slate-800 */
+    --secondary: 24 100%, 50%; /* slate-800 */
     --secondary-foreground: 210 40% 98%; /* slate-300 */
     
     --muted: 217.2 32.6% 17.5%; /* slate-800 */

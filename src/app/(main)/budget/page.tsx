@@ -13,8 +13,8 @@ import {
 import { CategoryWithTransactions } from "@/lib/types/category";
 import { ActionType } from "@/lib/types/enum";
 import CategoryForm, { CreateCategory } from "@/components/CategoryForm";
-import { Plus } from "lucide-react";
 import BudgetRow from "./BudgetRow";
+import {PrimaryAddButton} from "@/components/PrimaryAddButton";
 
 export default function TransactionsPage() {
   const [open, setOpen] = useState(false);
@@ -107,13 +107,7 @@ export default function TransactionsPage() {
             <h1 className="text-2xl font-bold">Budget</h1>
             <p className="text-gray-500">Please don&apos;t be red</p>
           </div>
-          <Button
-            onClick={() => setOpen(true)}
-            className="bg-primary-400 hover:bg-primary-600 text-white"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Category
-          </Button>
+          <PrimaryAddButton buttonTitle="Add Category" onClick={() => setOpen(true)} />
         </div>
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="bg-gray-900 p-2 sm:p-4 rounded-lg">
