@@ -42,9 +42,7 @@ export const ToolModal = ({
               id="tool-name"
               placeholder="Enter tool name"
               value={newTool.name}
-              onChange={(e) =>
-                setNewTool({ ...newTool, name: e.target.value.trim() })
-              }
+              onChange={(e) => setNewTool({ ...newTool, name: e.target.value })}
             />
           </div>
           <div className="space-y-2">
@@ -53,9 +51,7 @@ export const ToolModal = ({
               id="tool-link"
               placeholder="https://example.com/tool"
               value={newTool.link}
-              onChange={(e) =>
-                setNewTool({ ...newTool, link: e.target.value.trim() })
-              }
+              onChange={(e) => setNewTool({ ...newTool, link: e.target.value })}
             />
           </div>
         </div>
@@ -63,7 +59,16 @@ export const ToolModal = ({
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={() => submitTool(newTool)}>Add Tool</Button>
+          <Button
+            onClick={() =>
+              submitTool({
+                name: newTool.name.trim(),
+                link: newTool.link.trim(),
+              })
+            }
+          >
+            Add Tool
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
