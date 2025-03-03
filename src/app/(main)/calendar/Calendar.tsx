@@ -150,7 +150,7 @@ export default function Calendar() {
 
     return (
         <div>
-            <Card className="w-full max-w-3xl mx-auto">
+            <Card className="w-full">
                 <CardHeader className="pb-0">
                     <div className="flex items-center justify-between">
                         <Button

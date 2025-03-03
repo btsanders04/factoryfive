@@ -1,6 +1,6 @@
-import { ROUTES } from "@/app/routes";
+import { comingsoon } from "@/app/routes";
 import { redirect } from "next/navigation";
 
 export default function PhotosPage() {
-    redirect(ROUTES.comingsoon.link)
+    redirect(comingsoon.link)
 }
