@@ -50,7 +50,7 @@ export async function PUT(
       id: id,
     },
     data: {
-      checked: checked,
+      checked: !!checked,
     },
   });
   return NextResponse.json(tool, { status: 204 });
