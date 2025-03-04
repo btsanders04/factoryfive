@@ -32,3 +32,20 @@ export async function updateTask(
   }
   return response.json() as Promise<Task>;
 }
+
+export async function createTask(
+  taskData: Prisma.TaskUncheckedCreateInput
+): Promise<Task> {
+  const response = await fetch(`/api/tasks`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(taskData),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error || `Error: ${response.status} ${response.statusText}`
+    );
+  }
+  return response.json() as Promise<Task>;
+}

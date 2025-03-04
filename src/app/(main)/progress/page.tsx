@@ -7,16 +7,20 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, Circle } from "lucide-react";
-import { getAllTaskSections, updateTask } from "./task.service";
+import { CheckCircle2, Circle, Plus } from "lucide-react";
+import { createTask, getAllTaskSections, updateTask } from "./task.service";
 import { TaskSectionWithRelations } from "@/lib/types/tasks";
 import { Task } from "@prisma/client";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const AssemblyProgressTracker = () => {
   // State to track completed tasks
   const [taskSections, setTaskSections] = useState<TaskSectionWithRelations[]>(
     []
   );
+  // Add these state variables at the top of your component
+  const [newTaskText, setNewTaskText] = useState<Record<number, string>>({});
   const [activeTab, setActiveTab] = useState("overview");
 
   // Function to toggle task completion
@@ -33,6 +37,19 @@ const AssemblyProgressTracker = () => {
         ),
       }))
     );
+  };
+
+  const updateNewTaskText = (id: number, text: string) => {
+    setNewTaskText({ ...newTaskText, [id]: text });
+  };
+
+  // Add this function to handle adding new tasks
+  const addNewTask = async (sectionIndex: number, taskSectionId: number, name: string) => {
+    const newTask = await createTask({ name, taskSectionId });
+    const updatedSections = [...taskSections];
+    updatedSections[sectionIndex].tasks.push(newTask);
+    setTaskSections(updatedSections);
+    updateNewTaskText(taskSectionId, "");
   };
 
   // Calculate progress for a section
@@ -167,7 +184,7 @@ const AssemblyProgressTracker = () => {
               const progress = calculateSectionProgress(sectionIndex);
 
               return (
-                <div key={sectionIndex} className="mb-6">
+                <div key={section.id} className="mb-6">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-lg flex items-center gap-2">
                       {progress === 100 ? (
@@ -182,24 +199,60 @@ const AssemblyProgressTracker = () => {
                   <Progress value={progress} className="h-2 mb-3" />
 
                   <div className="ml-6 mt-3 space-y-2">
-                    {section.tasks.map((task, taskIndex) => (
-                      <div
-                        key={taskIndex}
-                        className="flex items-start space-x-2"
-                      >
+                    {section.tasks.map((task) => (
+                      <div key={task.id} className="flex items-start space-x-2">
                         <Checkbox
-                          id={`task-${sectionIndex}-${taskIndex}`}
+                          id={`task-${section.id}-${task.id}`}
                           checked={task.isCompleted}
                           onCheckedChange={() => toggleTask(task)}
                         />
                         <Label
-                          htmlFor={`task-${sectionIndex}-${taskIndex}`}
+                          htmlFor={`task-${section.id}-${task.id}`}
                           className={`text-sm ${task.isCompleted ? "line-through text-gray-400" : ""}`}
                         >
                           {task.name}
                         </Label>
                       </div>
                     ))}
+                    {/* New task input section */}
+                    <div className="flex items-center space-x-2 mt-2">
+                      <Input
+                        id={`new-task-${section.id}`}
+                        placeholder="Add new task..."
+                        value={newTaskText[section.id] ?? ""}
+                        onChange={(e) =>
+                          updateNewTaskText(section.id, e.target.value)
+                        }
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            newTaskText[section.id]?.trim()
+                          ) {
+                            addNewTask(
+                              sectionIndex,
+                              section.id,
+                              newTaskText[section.id]?.trim()
+                            );
+                          }
+                        }}
+                        className="text-sm h-8"
+                      />
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          if (newTaskText[section.id]?.trim()) {
+                            addNewTask(
+                              sectionIndex,
+                              section.id,
+                              newTaskText[section.id]?.trim()
+                            );
+                          }
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );

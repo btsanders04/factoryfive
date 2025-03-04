@@ -95,8 +95,8 @@ model Task {
     name           String
     isCompleted    Boolean      @default(false)
     completionDate DateTime?    @db.Timestamptz
-    createdAt      DateTime     @db.Timestamptz
-    updatedAt      DateTime     @db.Timestamptz
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
     taskSectionId  Int?
     taskSection    TaskSection? @relation(fields: [taskSectionId], references: [id])
 
