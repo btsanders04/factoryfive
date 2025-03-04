@@ -266,7 +266,7 @@ export default function Calendar() {
                         ${getOpacityClass(getHoursForSelectedDate(date.date))}`}
                       >
                         <span
-                          className={`h-6 w-6 text-sm flex items-center justify-center rounded-full hover:bg-primary hover:text-primary-foreground  ${compareDates(date.date, selectedDate) ? "bg-primary text-primary-foreground" : ""}`}
+                          className={`h-6 w-6 text-sm flex items-center justify-center rounded-full hover:bg-secondary hover:text-primary-foreground  ${compareDates(date.date, selectedDate) ? "bg-secondary text-primary-foreground" : ""}`}
                         >
                           {date.day}
                         </span>

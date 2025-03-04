@@ -37,6 +37,8 @@
     /* Blues */
     --blue-400: 217.2 91.2% 67.8%; /* #60A5FA */
     --blue-600: 221.2 83.2% 53.3%; /* #2563EB */
+
+    --white:  0 0% 100%;
     
     /* Slate colors for backgrounds */
     --slate-800: 217.2 32.6% 17.5%; /* #1E293B */
@@ -64,10 +66,10 @@
     --popover: 222.2 84% 4.9%; /* slate-950 */
     --popover-foreground: 210 40% 98%; /* slate-300 */
     
-    --primary: 210 40% 98%; /* blue-600 */
+    --primary: 217.2 91.2% 67.8%;; /* blue-600 */
     --primary-foreground: 222.2 47.4% 11.2%; /* slate-300 */
     
-    --secondary: 24 100%, 50%; /* slate-800 */
+    --secondary: 24 100%, 50%; /* orange */
     --secondary-foreground: 210 40% 98%; /* slate-300 */
     
     --muted: 217.2 32.6% 17.5%; /* slate-800 */

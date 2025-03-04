@@ -136,7 +136,7 @@ export default function TransactionsPage() {
             <span className="text-gray-400">Budget Progress</span>
             <span className="text-gray-400">{percentSpent}%</span>
           </div>
-          <Progress value={percentSpent} className="h-2 bg-gray-700" />
+          <Progress value={percentSpent} className="h-2" />
         </div>
 
         {/* Header for desktop */}

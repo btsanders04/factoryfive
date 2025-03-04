@@ -7,18 +7,27 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, Circle, Plus } from "lucide-react";
-import { createTask, getAllTaskSections, updateTask } from "./task.service";
+import { CheckCircle2, Circle, Plus, Trash2 } from "lucide-react";
+import {
+  createTask,
+  createTaskSection,
+  deleteTask,
+  getAllTaskSections,
+  updateTask,
+} from "./task.service";
 import { TaskSectionWithRelations } from "@/lib/types/tasks";
-import { Task } from "@prisma/client";
+import { Prisma, Task } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { PrimaryAddButton } from "@/components/PrimaryAddButton";
+import CreateSectionModal from "./CreateSectionModal";
 
 const AssemblyProgressTracker = () => {
   // State to track completed tasks
   const [taskSections, setTaskSections] = useState<TaskSectionWithRelations[]>(
     []
   );
+  const [openModal, setOpenModal] = useState(false);
   // Add these state variables at the top of your component
   const [newTaskText, setNewTaskText] = useState<Record<number, string>>({});
   const [activeTab, setActiveTab] = useState("overview");
@@ -39,12 +48,26 @@ const AssemblyProgressTracker = () => {
     );
   };
 
+  const onTrashClicked = async (taskId: number) => {
+    await deleteTask(taskId);
+    setTaskSections(
+      taskSections.map((section) => ({
+        ...section,
+        tasks: section.tasks.filter((task) => task.id !== taskId),
+      }))
+    );
+  };
+
   const updateNewTaskText = (id: number, text: string) => {
     setNewTaskText({ ...newTaskText, [id]: text });
   };
 
   // Add this function to handle adding new tasks
-  const addNewTask = async (sectionIndex: number, taskSectionId: number, name: string) => {
+  const addNewTask = async (
+    sectionIndex: number,
+    taskSectionId: number,
+    name: string
+  ) => {
     const newTask = await createTask({ name, taskSectionId });
     const updatedSections = [...taskSections];
     updatedSections[sectionIndex].tasks.push(newTask);
@@ -58,7 +81,9 @@ const AssemblyProgressTracker = () => {
     const completedCount = section.tasks.filter(
       (task) => task.isCompleted
     ).length;
-
+    if (section.tasks.length === 0) {
+      return 0;
+    }
     return (completedCount / section.tasks.length) * 100;
   };
 
@@ -68,11 +93,21 @@ const AssemblyProgressTracker = () => {
       (acc, section) => acc + section.tasks.length,
       0
     );
+    if (totalTasks === 0) {
+      return 0;
+    }
     const totalCompleted = taskSections.flatMap((section) =>
       section.tasks.filter((task) => task.isCompleted)
     ).length;
 
     return (totalCompleted / totalTasks) * 100;
+  };
+
+  const handleCreateTransaction = async (
+    data: Prisma.TaskSectionCreateInput
+  ) => {
+    const newSection = await createTaskSection(data);
+    setTaskSections([...taskSections, newSection]);
   };
 
   useEffect(() => {
@@ -92,6 +127,10 @@ const AssemblyProgressTracker = () => {
             <h1 className="text-2xl font-bold">Overall Progress</h1>
             <p className="text-gray-500">Are we done yet?</p>
           </div>
+          <PrimaryAddButton
+            buttonTitle="Add New Section"
+            onClick={() => setOpenModal(true)}
+          ></PrimaryAddButton>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -200,18 +239,30 @@ const AssemblyProgressTracker = () => {
 
                   <div className="ml-6 mt-3 space-y-2">
                     {section.tasks.map((task) => (
-                      <div key={task.id} className="flex items-start space-x-2">
-                        <Checkbox
-                          id={`task-${section.id}-${task.id}`}
-                          checked={task.isCompleted}
-                          onCheckedChange={() => toggleTask(task)}
-                        />
-                        <Label
-                          htmlFor={`task-${section.id}-${task.id}`}
-                          className={`text-sm ${task.isCompleted ? "line-through text-gray-400" : ""}`}
+                      <div
+                        key={task.id}
+                        className="flex items-start justify-between"
+                      >
+                        <div className="flex items-start space-x-2">
+                          <Checkbox
+                            id={`task-${section.id}-${task.id}`}
+                            checked={task.isCompleted}
+                            onCheckedChange={() => toggleTask(task)}
+                          />
+                          <Label
+                            htmlFor={`task-${section.id}-${task.id}`}
+                            className={`text-sm ${task.isCompleted ? "line-through text-gray-400" : ""}`}
+                          >
+                            {task.name}
+                          </Label>
+                        </div>
+                        <button
+                          onClick={() => onTrashClicked(task.id)}
+                          className="text-red-500 hover:text-red-600 transition-colors"
+                          aria-label="Delete task"
                         >
-                          {task.name}
-                        </Label>
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     ))}
                     {/* New task input section */}
@@ -260,6 +311,13 @@ const AssemblyProgressTracker = () => {
           </TabsContent>
         </Tabs>
       </div>
+      {openModal && (
+        <CreateSectionModal
+          open={openModal}
+          onOpenChange={setOpenModal}
+          onSubmit={handleCreateTransaction}
+        ></CreateSectionModal>
+      )}
     </div>
   );
 };

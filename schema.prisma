@@ -104,7 +104,8 @@ model Task {
 }
 
 model TaskSection {
-    id    Int    @id
-    name  String
-    tasks Task[]
+    id          Int    @id @default(autoincrement())
+    name        String
+    description String
+    tasks       Task[]
 }
