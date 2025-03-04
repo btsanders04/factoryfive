@@ -1,5 +1,4 @@
 import { getUserPermission } from "@/lib/stackshare_utils";
-
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../prismaClient";
 
@@ -16,16 +15,18 @@ export async function PUT(
       { status: 403 }
     );
   }
-  const { name } = await request.json();
+  const { isCompleted } = await request.json();
 
-  const categoryId = parseInt((await params).id);
-  const updatedCategory = await prisma.category.update({
+  const taskId = parseInt((await params).id);
+  console.log("Task Id", taskId);
+  const updatedTask = await prisma.task.update({
     where: {
-      id: categoryId,
+      id: taskId,
     },
     data: {
-      name: name,
+      isCompleted: isCompleted,
+      completionDate: isCompleted ? new Date() : null,
     },
   });
-  return NextResponse.json(updatedCategory, { status: 204 });
+  return NextResponse.json(updatedTask, { status: 202 });
 }

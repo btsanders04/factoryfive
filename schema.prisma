@@ -87,5 +87,24 @@ model WorkHour {
     hours Float    @default(0) @db.DoublePrecision
     date  DateTime @unique @db.Timestamptz
 
-    @@index([date], name: "dateIndex")
+    @@index([date])
+}
+
+model Task {
+    id             Int          @id @default(autoincrement())
+    name           String
+    isCompleted    Boolean      @default(false)
+    completionDate DateTime?    @db.Timestamptz
+    createdAt      DateTime     @db.Timestamptz
+    updatedAt      DateTime     @db.Timestamptz
+    taskSectionId  Int?
+    taskSection    TaskSection? @relation(fields: [taskSectionId], references: [id])
+
+    @@index([id])
+}
+
+model TaskSection {
+    id    Int    @id
+    name  String
+    tasks Task[]
 }

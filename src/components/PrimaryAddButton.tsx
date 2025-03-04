@@ -9,7 +9,7 @@ export function PrimaryAddButton({buttonTitle, onClick}: {
     return (
         <Button
             onClick={onClick}
-            className="bg-primary-400 hover:bg-primary-600 text-white"
+            className="bg-primary hover:bg-primary-600 text-white"
         >
             <Plus className="h-4 w-4 mr-2"/>
             {buttonTitle}

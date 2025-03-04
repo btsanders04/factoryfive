@@ -1,7 +1,5 @@
+import prisma from "@/app/api/prismaClient";
 import { getUserPermission } from "@/lib/stackshare_utils";
-import { Pool } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(
@@ -17,9 +15,6 @@ export async function PUT(
       { status: 403 }
     );
   }
-  const neon = new Pool({ connectionString: process.env.POSTGRES_PRISMA_URL });
-  const adapter = new PrismaNeon(neon);
-  const prisma = new PrismaClient({ adapter });
 
   try {
     // Parse the request body

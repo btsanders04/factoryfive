@@ -1,11 +1,6 @@
 import { getUserPermission } from "@/lib/stackshare_utils";
-import { Pool } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
-const neon = new Pool({ connectionString: process.env.POSTGRES_PRISMA_URL });
-const adapter = new PrismaNeon(neon);
-const prisma = new PrismaClient({ adapter });
+import prisma from "../prismaClient";
 
 export async function GET() {
   const categories = await prisma.category.findMany();
@@ -35,13 +30,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Connect to the database
-    const neon = new Pool({
-      connectionString: process.env.POSTGRES_PRISMA_URL,
-    });
-    const adapter = new PrismaNeon(neon);
-    const prisma = new PrismaClient({ adapter });
 
     // Create the new category
     const newCategory = await prisma.category.create({

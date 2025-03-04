@@ -131,7 +131,7 @@ export function DataTable<TData, TValue>({
                     </div>
                     <div className="flex items-center space-x-3">
                       {builderColumn && (
-                        <div className="relative flex items-center justify-center w-6 h-6 rounded-full bg-primary-400">
+                        <div className="relative flex items-center justify-center w-6 h-6 rounded-full bg-primary">
                           <span className="text-sm font-bold text-white">
                             {flexRender(
                               builderColumn.column.columnDef.cell,

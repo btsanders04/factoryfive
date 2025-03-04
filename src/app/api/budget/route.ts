@@ -1,12 +1,8 @@
-import { Pool } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { PrismaClient } from "@prisma/client";
+
 import { NextResponse } from "next/server";
+import prisma from "../prismaClient";
 
 export async function GET() {
-  const neon = new Pool({ connectionString: process.env.POSTGRES_PRISMA_URL });
-  const adapter = new PrismaNeon(neon);
-  const prisma = new PrismaClient({ adapter });
 
   // Get a budget with its category and related transactions
   const budgetWithTransactions = await prisma.budget.findMany({

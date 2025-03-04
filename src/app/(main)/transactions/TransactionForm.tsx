@@ -276,7 +276,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             </Button>
             <Button
               type="submit"
-              className={`bg-primary-400 text-white ${
+              className={`bg-primary text-white ${
                 isFormValid
                   ? "hover:bg-primary-600"
                   : "opacity-50 cursor-not-allowed"

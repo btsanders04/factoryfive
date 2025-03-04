@@ -173,12 +173,12 @@ export default function Calendar() {
 
   const getOpacityClass = (hours: number) => {
     if (hours === 0) return "";
-    if (hours <= 2) return "bg-primary-400/10";
-    if (hours <= 4) return "bg-primary-400/20";
-    if (hours <= 8) return "bg-primary-400/40";
-    if (hours <= 10) return "bg-primary-400/60";
-    if (hours <= 12) return "bg-primary-400/80";
-    return "bg-primary-400";
+    if (hours <= 2) return "bg-primary/10";
+    if (hours <= 4) return "bg-primary/20";
+    if (hours <= 8) return "bg-primary/40";
+    if (hours <= 10) return "bg-primary/60";
+    if (hours <= 12) return "bg-primary/80";
+    return "bg-primary";
   };
 
   useEffect(() => {
