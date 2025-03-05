@@ -42,10 +42,10 @@ export async function deleteTool(id: number): Promise<Tool> {
   return response.json() as Promise<Tool>;
 }
 
-export async function checkTool(id: number, checked: boolean): Promise<Tool> {
+export async function checkTool(id: number, aquired: boolean): Promise<Tool> {
   const response = await fetch(`/api/tools/${id}`, {
     method: "PUT",
-    body: JSON.stringify({ checked }),
+    body: JSON.stringify({ aquired }),
   });
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);

@@ -37,7 +37,7 @@ export async function PUT(
       { status: 403 }
     );
   }
-  const { checked } = await request.json();
+  const { aquired } = await request.json();
 
   const id = parseInt((await params).id);
   const tool = await prisma.tool.update({
@@ -45,7 +45,7 @@ export async function PUT(
       id: id,
     },
     data: {
-      checked: !!checked,
+      aquired: !!aquired,
     },
   });
   return NextResponse.json(tool, { status: 202 });

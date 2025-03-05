@@ -26,7 +26,7 @@ const ToolsChecklistPage = () => {
   const handleToggleCheck = async (id: number, status: boolean) => {
     setTools(
       tools.map((tool) =>
-        tool.id === id ? { ...tool, checked: !status } : tool
+        tool.id === id ? { ...tool, aquired: !status } : tool
       )
     );
     await checkTool(id, !status);
@@ -73,14 +73,14 @@ const ToolsChecklistPage = () => {
                 <div className="flex items-center gap-3">
                   <Checkbox
                     id={`tool-${tool.id}`}
-                    checked={tool.checked}
+                    checked={tool.aquired}
                     onCheckedChange={() =>
-                      handleToggleCheck(tool.id, tool.checked)
+                      handleToggleCheck(tool.id, tool.aquired)
                     }
                   />
                   <Label
                     htmlFor={`tool-${tool.id}`}
-                    className={`font-medium cursor-pointer ${tool.checked ? "line-through text-gray-400" : ""}`}
+                    className={`font-medium cursor-pointer ${tool.aquired ? "line-through text-gray-400" : ""}`}
                   >
                     {tool.name}
                   </Label>
