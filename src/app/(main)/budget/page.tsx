@@ -99,7 +99,7 @@ export default function TransactionsPage() {
 
   // Calculate totals
   const totalBudgeted = budgets.reduce((sum, cat) => sum + cat.amount, 0);
-  const totalSpent = budgets.reduce(
+  const totalSpent = Math.abs(budgets.reduce(
     (sum, cat) =>
       sum +
       cat.category.transactions.reduce(
@@ -107,7 +107,7 @@ export default function TransactionsPage() {
         0
       ),
     0
-  );
+  ));
   const totalRemaining = totalBudgeted - totalSpent;
   const percentSpent = Math.round((totalSpent / totalBudgeted) * 100);
 
