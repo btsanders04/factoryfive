@@ -54,8 +54,8 @@ const ToolsNeededCard = () => {
           </div>
         ) : (
           neededTools.map((tool) => (
-            <div key={tool.id}>
-              <div className="flex items-center gap-3">
+            <div key={tool.id} className="flex items-center gap-2">
+              <div>
                 <Label
                   htmlFor={`tool-${tool.id}`}
                   className={"font-medium cursor-pointer"}
@@ -63,7 +63,7 @@ const ToolsNeededCard = () => {
                   {tool.name}
                 </Label>
               </div>
-              <div className="flex items-center gap-2">
+              <div>
                 {tool.link && (
                   <a
                     href={tool.link}
