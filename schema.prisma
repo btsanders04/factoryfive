@@ -19,15 +19,16 @@ model Category {
     updatedAt    DateTime      @updatedAt
     transactions Transaction[]
     Budget       Budget?
+    hidden       Boolean       @default(false)
 
     // Ensure category names are unique per user
     @@unique([name])
 }
 
 model Builder {
-    id          Int           @id @default(autoincrement())
-    name        String
-    Transaction Transaction[]
+    id           Int           @id @default(autoincrement())
+    name         String
+    transactions Transaction[] @relation("Builder")
 
     // Ensure category names are unique per user
     @@unique([name])
@@ -45,8 +46,12 @@ model Transaction {
     category   Category @relation(fields: [categoryId], references: [id])
     categoryId Int
 
-    builder   Builder @relation(fields: [builderId], references: [id])
-    builderId Int
+    builder              Builder       @relation("Builder", fields: [builderId], references: [id])
+    builderId            Int
+    // Self-referential relationship - fixed
+    relatedTransactionId Int?
+    relatedTransaction   Transaction?  @relation("TransferRelation", fields: [relatedTransactionId], references: [id])
+    relatedTo            Transaction[] @relation("TransferRelation")
 
     Tool Tool[]
 

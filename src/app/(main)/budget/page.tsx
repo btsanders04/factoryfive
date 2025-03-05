@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { getAllBudgets, upsertBudget } from "@/app/(main)/budget/budget.service";
+import {
+  getAllBudgets,
+  upsertBudget,
+} from "@/app/(main)/budget/budget.service";
 import { BudgetWithRelations } from "@/lib/types/budget";
 import {
   createCategory,
@@ -14,12 +17,15 @@ import { CategoryWithTransactions } from "@/lib/types/category";
 import { ActionType } from "@/lib/types/enum";
 import CategoryForm from "@/components/CategoryForm";
 import BudgetRow from "./BudgetRow";
-import {PrimaryAddButton} from "@/components/PrimaryAddButton";
+import { PrimaryAddButton } from "@/components/PrimaryAddButton";
 import { Prisma } from "@prisma/client";
+import { BuilderWithSpend, getBuildersSpend } from "@/services/builder.service";
 
 export default function TransactionsPage() {
   const [open, setOpen] = useState(false);
   const [budgets, setBudget] = useState<BudgetWithRelations[]>([]);
+  const [buildersSpend, setBuildersSpend] = useState<BuilderWithSpend[]>([]);
+
   const [unbudgeted, setUnbudgeted] = useState<CategoryWithTransactions[]>([]);
   const [showUnbudgeted, setShowUnbudgeted] = useState(false);
 
@@ -33,8 +39,14 @@ export default function TransactionsPage() {
       const data = await getCategoriesWithoutBudget();
       setUnbudgeted(data);
     };
+
+    const fetchBuildersSpend = async () => {
+      const data = await getBuildersSpend();
+      setBuildersSpend(data);
+    };
     fetchBudget();
     fetchUnbudgetedCategories();
+    fetchBuildersSpend();
   }, []);
 
   // Toggle unbudgeted categories visibility
@@ -42,7 +54,7 @@ export default function TransactionsPage() {
     setShowUnbudgeted(!showUnbudgeted);
   };
 
-  const handleAddCategory = async (category:  Prisma.CategoryCreateInput) => {
+  const handleAddCategory = async (category: Prisma.CategoryCreateInput) => {
     const newCategory = await createCategory(category);
     setUnbudgeted([...unbudgeted, newCategory].sort((category) => category.id));
   };
@@ -108,7 +120,10 @@ export default function TransactionsPage() {
             <h1 className="text-2xl font-bold">Budget</h1>
             <p className="text-gray-500">Please don&apos;t be red</p>
           </div>
-          <PrimaryAddButton buttonTitle="Add Category" onClick={() => setOpen(true)} />
+          <PrimaryAddButton
+            buttonTitle="Add Category"
+            onClick={() => setOpen(true)}
+          />
         </div>
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="bg-gray-900 p-2 sm:p-4 rounded-lg">
@@ -129,6 +144,18 @@ export default function TransactionsPage() {
               ${totalRemaining.toLocaleString()}
             </div>
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          {buildersSpend.map((builder) => (
+            <div className="bg-gray-900 p-2 sm:p-4 rounded-lg"   key={builder.id}>
+              <div className="text-xs sm:text-sm text-gray-400">
+                {builder.name}
+              </div>
+              <div className="text-lg sm:text-2xl font-bold text-white">
+                ${Math.abs(builder.spend).toLocaleString()}
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="mb-4">

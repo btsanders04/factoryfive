@@ -42,10 +42,31 @@ export default function TransactionsPage() {
   const [builders, setBuilders] = useState<Builder[]>([]);
 
   async function handleAddTransaction(
-    transactionData: Prisma.TransactionUncheckedCreateInput
+    transactionData: Prisma.TransactionUncheckedCreateInput & {
+      transferBuilderId?: number;
+    }
   ) {
-    const transaction = await addTransaction(transactionData);
-    const allTransactions = [transaction, ...transactions];
+    const allTransactions = [...transactions];
+    const transaction = await addTransaction({
+      ...transactionData,
+      amount: -transactionData.amount,
+    });
+
+    if (transactionData.transferBuilderId) {
+      const transferTransaction = await addTransaction({
+        ...transactionData,
+        builderId: transactionData.transferBuilderId,
+        amount: transactionData.amount,
+        relatedTransactionId: transaction.id,
+      });
+      const updateTransaction = await editTransaction({
+        ...transaction,
+        relatedTransactionId: transferTransaction.id,
+      });
+      allTransactions.push(updateTransaction, transferTransaction);
+    } else {
+      allTransactions.push(transaction);
+    }
     setTransactions(allTransactions);
   }
 

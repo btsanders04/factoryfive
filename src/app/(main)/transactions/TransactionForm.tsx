@@ -33,8 +33,12 @@ interface TransactionFormProps {
   categories: Category[];
   builders: Builder[];
   onOpenChange: (open: boolean) => void;
-  onAddTransaction: (transaction: Prisma.TransactionUncheckedCreateInput) => void;
-  onEditTransaction: (transaction: Prisma.TransactionUncheckedUpdateInput) => void;
+  onAddTransaction: (
+    transaction: Prisma.TransactionUncheckedCreateInput & {transferBuilderId?: number}
+  ) => void;
+  onEditTransaction: (
+    transaction: Prisma.TransactionUncheckedUpdateInput
+  ) => void;
 }
 
 const TransactionForm: React.FC<TransactionFormProps> = ({
@@ -46,17 +50,18 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   onAddTransaction,
   onEditTransaction,
 }) => {
+  const TRANSFER = 9;
+
   const [isFormValid, setIsFormValid] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   // In your component
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  //   const [loading, setLoading] = useState(true);
-  //   const [error, setError] = useState<string | null>(null);
-
-  const [transactionData, setTransactionData] = useState<Prisma.TransactionUncheckedCreateInput>({
-    amount: transaction?.amount || 0,
+  const [transactionData, setTransactionData] = useState<
+    Prisma.TransactionUncheckedCreateInput & { transferBuilderId?: number }
+  >({
+    amount: Math.abs(transaction?.amount || 0),
     description: transaction?.description || "",
     date: transaction?.date || new Date(),
     builderId: transaction?.builderId || 0,
@@ -67,18 +72,25 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   useEffect(() => {
     setIsEditMode(!!transaction);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
-    const isValid =
+    let isValid =
       transactionData.amount > 0 &&
       transactionData.categoryId !== 0 &&
       transactionData.builderId !== 0;
+    if (transactionData.categoryId === TRANSFER) {
+      isValid = isValid && !!transactionData?.transferBuilderId;
+    }
     setIsFormValid(isValid);
   }, [transactionData]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleChange = (field: keyof Transaction, value: any) => {
+  const handleChange = (
+    field: keyof (Transaction & { transferBuilderId?: number }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    value: any
+  ) => {
     setTransactionData({
       ...transactionData,
       [field]: value,
@@ -174,29 +186,84 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             </Select>
           </div>
 
-          {/* Builder */}
-          <div className="space-y-2">
-            <Label htmlFor="builder" className="text-gray-300">
-              Builder
-            </Label>
-            <Select
-              onValueChange={(value) =>
-                handleChange("builderId", parseInt(value))
-              }
-              value={transactionData.builderId.toString()}
-            >
-              <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400">
-                <SelectValue placeholder="Select a User" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                {builders.map((builder) => (
-                  <SelectItem key={builder.id} value={builder.id.toString()}>
-                    {builder.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {transactionData.categoryId === TRANSFER ? (
+            <div>
+              <div className="space-y-2">
+                <Label htmlFor="builderFrom" className="text-gray-300">
+                  From Builder
+                </Label>
+                <Select
+                  onValueChange={(value) =>
+                    handleChange("builderId", parseInt(value))
+                  }
+                  value={transactionData.builderId.toString()}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400">
+                    <SelectValue placeholder="Select a builder" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                    {builders.map((builder) => (
+                      <SelectItem
+                        key={builder.id}
+                        value={builder.id.toString()}
+                      >
+                        {builder.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="builderTo" className="text-gray-300">
+                  To Builder
+                </Label>
+                <Select
+                  onValueChange={(value) =>
+                    handleChange("transferBuilderId", parseInt(value))
+                  }
+                  value={transactionData.transferBuilderId?.toString()}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400">
+                    <SelectValue placeholder="Select a builder" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                    {builders.map((builder) => (
+                      <SelectItem
+                        key={builder.id}
+                        value={builder.id.toString()}
+                      >
+                        {builder.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="builder" className="text-gray-300">
+                Builder
+              </Label>
+              <Select
+                onValueChange={(value) =>
+                  handleChange("builderId", parseInt(value))
+                }
+                value={transactionData.builderId.toString()}
+              >
+                <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400">
+                  <SelectValue placeholder="Select a builder" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                  {builders.map((builder) => (
+                    <SelectItem key={builder.id} value={builder.id.toString()}>
+                      {builder.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Date */}
           <div className="space-y-2">

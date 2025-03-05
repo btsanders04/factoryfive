@@ -101,10 +101,10 @@ const BudgetRow = ({
               </button>
             )}
           </div>
-          <div className="w-24 text-right text-white">
+          <div className="w-24 text-right text-white flex items-center justify-end">
             ${spent.toLocaleString()}
           </div>
-          <div className={`w-24 text-right ${remainingColor}`}>
+          <div className={`w-24 text-right  flex items-center justify-end ${remainingColor}`}>
             {remaining < 0 ? "-" : ""}${Math.abs(remaining).toLocaleString()}
           </div>
         </div>

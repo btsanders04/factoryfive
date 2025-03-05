@@ -48,7 +48,11 @@ export async function getAllTransactions(): Promise<
       errorData?.error || `Error: ${response.status} ${response.statusText}`
     );
   }
-  return response.json() as Promise<TransactionWithRelations[]>;
+  const data = (await response.json()) as TransactionWithRelations[];
+  return data.map((transaction) => ({
+    ...transaction,
+    date: new Date(transaction.date),
+  }));
 }
 
 export async function deleteTransaction(id: number): Promise<Transaction> {

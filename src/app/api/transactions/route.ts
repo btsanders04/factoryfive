@@ -5,14 +5,13 @@ import prisma from "../prismaClient";
 export async function POST(request: NextRequest) {
   const isAllowed = await getUserPermission();
   if (!isAllowed) {
-      return NextResponse.json(
-        {
-          error:
-            "Unauthorized",
-        },
-        { status: 403 }
-      );
-    }
+    return NextResponse.json(
+      {
+        error: "Unauthorized",
+      },
+      { status: 403 }
+    );
+  }
   try {
     // Parse the request body
     const { amount, date, categoryId, notes, description, builderId } =

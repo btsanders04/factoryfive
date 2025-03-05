@@ -37,7 +37,7 @@ export async function PUT(
     );
   }
   const id = parseInt((await params).id);
-  const { amount, categoryId, builderId, notes, date } = await request.json();
+  const { amount, categoryId, builderId, notes, date, relatedTransactionId } = await request.json();
   const transaction = await prisma.transaction.update({
     where: {
       id: id,
@@ -48,6 +48,7 @@ export async function PUT(
       builderId,
       notes,
       date,
+      relatedTransactionId
     },
     include: {
       category: true,

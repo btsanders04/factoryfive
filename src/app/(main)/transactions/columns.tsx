@@ -98,7 +98,14 @@ export const createColumns = (
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
-      }).format(amount);
+      }).format(Math.abs(amount));
+      if (amount > 0) {
+        return (
+          <>
+            <span className="text-green-500">+{formatted}</span>
+          </>
+        );
+      }
       return formatted;
     },
   },
@@ -111,7 +118,7 @@ export const createColumns = (
     cell: ({ row }) => {
       const transaction = row.original;
       return (
-        <div className="text-right">
+        <div className="text-right flex">
           <button
             onClick={() => editTransaction(transaction)}
             className="hover:text-gray-300 focus:outline-none mr-3"
