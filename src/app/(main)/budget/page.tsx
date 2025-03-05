@@ -183,10 +183,10 @@ export default function TransactionsPage() {
               key={budget.id}
               category={budget.category}
               budgeted={budget.amount}
-              spent={budget.category.transactions.reduce(
+              spent={Math.abs(budget.category.transactions.reduce(
                 (acc, transaction) => acc + transaction.amount,
                 0
-              )}
+              ))}
               onBudgetChange={updateBudget}
               onCategoryNameChange={updateCategoryName}
             />
