@@ -56,12 +56,12 @@ const BudgetCategory: React.FC<BudgetCategoryProps> = ({
   individualContributions,
 }) => {
   // Calculate percentage for progress bar
-  const spent = individualContributions.reduce(
+  const spent = Math.abs(individualContributions.reduce(
     (total, contribution) => total + contribution.amount,
     0
-  );
+  ));
   const percentageSpent = Math.min(100, (spent / budget) * 100);
-  const remaining = budget - spent;
+  const remaining = Math.abs(budget - spent);
   const isOverBudget = remaining < 0;
   const color = isOverBudget ? negativeColor : postiveColor;
   const [isOpen, setIsOpen] = React.useState(false);
@@ -97,7 +97,7 @@ const BudgetCategory: React.FC<BudgetCategoryProps> = ({
       <div className="flex justify-between items-center">
         <span className="text-white">${spent.toLocaleString()} spent</span>
         <span className={isOverBudget ? "text-red-500" : "text-green-500"}>
-          {isOverBudget ? "-" : ""}${Math.abs(remaining).toLocaleString()}{" "}
+          {isOverBudget ? "-" : ""}${remaining.toLocaleString()}{" "}
           remaining
         </span>
       </div>
