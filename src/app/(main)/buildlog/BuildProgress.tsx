@@ -21,11 +21,11 @@ const buildMilestones: Milestone[] = [
     title: "Kit Delivery Day",
     date: "April 5, 2025",
     description: "After months of anticipation, our Factory Five MK5 Roadster kit arrived! The excitement was overwhelming as we started unpacking all the components.",
-    featuredImage: "/images/pexels-karolina-grabowska-4016579.jpg",
+    featuredImage: "/images/pexels-alexant-7004697.jpg",
     additionalImages: [
-      "/images/pexels-karolina-grabowska-4016579.jpg",
-      "/images/pexels-karolina-grabowska-4016579.jpg",
-      "/images/pexels-karolina-grabowska-4016579.jpg",
+      "/images/pexels-alexant-7004697.jpg",
+      "/images/pexels-alexant-7004697.jpg",
+      "/images/pexels-alexant-7004697.jpg",
     ]
   },
   {
@@ -33,11 +33,11 @@ const buildMilestones: Milestone[] = [
     title: "Chassis Preparation",
     date: "April 20, 2025",
     description: "We began prepping the powder-coated chassis by installing the aluminum panels and preparing it for the drivetrain installation. The riveting process was surprisingly satisfying!",
-    featuredImage: "/images/pexels-karolina-grabowska-4016579.jpg",
+    featuredImage: "/images/pexels-alexant-7004697.jpg",
     additionalImages: [
-      "/images/milestones/chassis-detail1.jpg",
-      "/images/milestones/chassis-detail2.jpg",
-      "/images/milestones/chassis-complete.jpg",
+      "/images/pexels-alexant-7004697.jpg",
+      "/images/pexels-alexant-7004697.jpg",
+      "/images/pexels-alexant-7004697.jpg",
     ]
   },
   {
@@ -45,11 +45,11 @@ const buildMilestones: Milestone[] = [
     title: "Engine Installation",
     date: "May 15, 2025",
     description: "The big day arrived! We carefully lowered our 351W engine and TKO transmission into the chassis as a single unit. Getting everything aligned properly was challenging but rewarding.",
-    featuredImage: "/images/milestones/engine-install.jpg",
+    featuredImage: "/images/pexels-alexant-7004697.jpg",
     additionalImages: [
-      "/images/milestones/engine-prep.jpg",
-      "/images/milestones/engine-lowering.jpg",
-      "/images/milestones/engine-connected.jpg",
+      "/images/pexels-alexant-7004697.jpg",
+      "/images/pexels-alexant-7004697.jpg",
+      "/images/pexels-alexant-7004697.jpg",
       "/images/milestones/engine-complete.jpg",
     ]
   },
