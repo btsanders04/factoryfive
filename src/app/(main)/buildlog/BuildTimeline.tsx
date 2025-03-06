@@ -105,6 +105,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones }) => {
                     src={milestone.featuredImage}
                     alt={milestone.title}
                     fill
+                    unoptimized={true}
                     className="object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>
