@@ -15,7 +15,7 @@ export async function GET(
     const cookies = request.headers.get('Cookie') || '';
     // Construct the target URL
     const targetUrl = new URL(
-      `https://sanderssmarthome.synology.me/synofoto/api/v2/p/Thumbnail/get`
+      `https://${process.env.SYNOLOGY_HOST}/synofoto/api/v2/p/Thumbnail/get`
     );
     targetUrl.searchParams.set("id", id);
     targetUrl.searchParams.set("cache_key", cacheKey);
