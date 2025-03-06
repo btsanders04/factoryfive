@@ -21,11 +21,11 @@ const buildMilestones: Milestone[] = [
     title: "Kit Delivery Day",
     date: "April 5, 2025",
     description: "After months of anticipation, our Factory Five MK5 Roadster kit arrived! The excitement was overwhelming as we started unpacking all the components.",
-    featuredImage: "/images/pexels-alexant-7004697.jpg",
+    featuredImage: `/api/synology/photos/${128166}`,
     additionalImages: [
-      "/images/pexels-alexant-7004697.jpg",
-      "/images/pexels-alexant-7004697.jpg",
-      "/images/pexels-alexant-7004697.jpg",
+      `/api/synology/photos/${128166}`,
+      `/api/synology/photos/${128166}`,
+      `/api/synology/photos/${128166}`,
     ]
   },
   {

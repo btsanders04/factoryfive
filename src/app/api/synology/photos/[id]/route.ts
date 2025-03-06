@@ -1,0 +1,82 @@
+import { NextRequest, NextResponse } from "next/server";
+import { v4 as uuid } from 'uuid';
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Get parameters from the URL
+    const searchParams = request.nextUrl.searchParams;
+    const id = (await params).id;
+    const size = searchParams.get("size") || "xl";
+    const passphrase = process.env.SYNOLOGY_PASSKEY || "";
+    const cacheKey = `${id}_${uuid()}`;
+    const synoToken = request.headers.get("Authorization") as string;
+    const cookies = request.headers.get('Cookie') || '';
+    // Construct the target URL
+    const targetUrl = new URL(
+      `https://sanderssmarthome.synology.me/synofoto/api/v2/p/Thumbnail/get`
+    );
+    targetUrl.searchParams.set("id", id);
+    targetUrl.searchParams.set("cache_key", cacheKey);
+    targetUrl.searchParams.set("type", "unit");
+    targetUrl.searchParams.set("size", size);
+    targetUrl.searchParams.set("passphrase", passphrase);
+    targetUrl.searchParams.set("SynoToken", synoToken);
+
+    // Set up fetch options with all required headers
+    const fetchOptions: RequestInit = {
+      method: "GET",
+      headers: {
+        accept:
+          "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "accept-language": "en-US,en;q=0.9",
+        "cache-control": "max-age=0",
+        cookie: cookies
+      },
+    };
+
+    // Make the request to the Synology server
+    const response = await fetch(targetUrl.toString(), fetchOptions);
+
+    // Get the image data as an array buffer
+    const imageData = await response.arrayBuffer();
+
+    // Create a new response with the image data
+    const newResponse = new NextResponse(imageData, {
+      status: response.status,
+      statusText: response.statusText,
+    });
+
+    // // Copy all headers from the original response
+    // response.headers.forEach((value, key) => {
+    //   newResponse.headers.set(key, value);
+    // });
+
+    // Ensure the content-type header is set correctly for the image
+    // If the original response didn't provide a content type, set a default image type
+    const contentType = response.headers.get("content-type");
+    if (contentType) {
+      newResponse.headers.set("content-type", contentType);
+    } else {
+      // Set a default image content type if none was provided
+      newResponse.headers.set("content-type", "image/jpeg");
+    }
+
+    // Add cache control headers to improve performance
+    newResponse.headers.set("cache-control", "public, max-age=3600");
+
+    return newResponse;
+  } catch (error) {
+    console.error("Error fetching thumbnail:", error);
+    return new NextResponse(
+      JSON.stringify({ error: "Failed to fetch thumbnail" }),
+      {
+        status: 500,
+        headers: {
+          "content-type": "application/json",
+        },
+      }
+    );
+  }
+}
