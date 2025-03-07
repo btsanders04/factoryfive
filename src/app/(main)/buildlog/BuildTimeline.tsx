@@ -6,13 +6,15 @@ import { motion } from "framer-motion";
 import ImageLightbox from "@/components/ImageLightbox";
 import { Milestone } from "@prisma/client";
 import { dateFormat } from "@/lib/utils";
-
+import { Button } from "@/components/ui/button";
+import { Edit2 } from "lucide-react";
 
 interface BuildTimelineProps {
   milestones: Milestone[];
+  onEditMilestone: (milestone: Milestone) => void;
 }
 
-const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones }) => {
+const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilestone }) => {
   const [selectedMilestone, setSelectedMilestone] = useState<number | null>(
     null
   );
@@ -97,7 +99,16 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones }) => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-xl font-bold text-gray-700">{milestone.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-700">
+                    {milestone.title}
+                  </h3>
+                  <Button
+                    onClick={() => onEditMilestone(milestone)}
+                    variant="ghost"
+                    className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+                  >
+                    <Edit2></Edit2>
+                  </Button>
                 </div>
 
                 {/* Main Image - Now clickable to open lightbox */}

@@ -67,6 +67,29 @@ export async function setPrimaryPhotoOnMilestone(
   };
 }
 
+export async function updateMilestone(
+  id: number,
+  data: Prisma.MilestoneUpdateInput
+): Promise<Milestone> {
+  const response = await fetch(`/api/milestones/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error || `Error: ${response.status} ${response.statusText}`
+    );
+  }
+  const milestoneUpdated = await response.json();
+  return {
+    ...milestoneUpdated,
+    date: new Date(milestoneUpdated.date),
+    createdAt: new Date(milestoneUpdated.createdAt),
+    updatedAt: new Date(milestoneUpdated.updatedAt),
+  };
+}
 
 export async function updateSecondaryPhotosOnMilestone(
   id: number,

@@ -20,42 +20,24 @@ export async function PUT(
 
   try {
     // Parse the request body
-    const { featuredImage, additionalImages } =
+    const { featuredImage, additionalImages, title, description, date } =
       (await request.json()) as Prisma.MilestoneUpdateInput;
 
     let updatedMilestone: Milestone | null = null;
-    // If amount is 0, delete the budget if it exists
-    if (featuredImage) {
-      // Check if budget exists
-      updatedMilestone = await prisma.milestone.update({
-        where: {
-          id: id,
-        },
-        data: {
-          featuredImage: featuredImage,
-        },
-      });
-    } else if (additionalImages) {
-      // Check if a budget already exists
-      updatedMilestone = await prisma.milestone.update({
-        where: {
-          id: id,
-        },
-        data: {
-          additionalImages: additionalImages,
-        },
-      });
-    }
-    if (updatedMilestone) {
-      return NextResponse.json(updatedMilestone);
-    } else {
-      return NextResponse.json(
-        {
-          error: "Nothing to update",
-        },
-        { status: 400 }
-      );
-    }
+    const data = {
+      ...(featuredImage && { featuredImage }),
+      ...(additionalImages && { additionalImages }),
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(date && { date }),
+    };
+    updatedMilestone = await prisma.milestone.update({
+      where: {
+        id: id,
+      },
+      data: data,
+    });
+    return NextResponse.json(updatedMilestone);
   } catch (error) {
     console.error("Error updating milestone:", error);
     return NextResponse.json(

@@ -4,87 +4,39 @@
 import React, { useEffect, useState } from "react";
 import BuildTimeline from "./BuildTimeline";
 import { Milestone as MilestoneIcon } from "lucide-react";
-import { createMilestone, getAllMilestones } from "../../../services/milestone.service";
+import {
+  createMilestone,
+  getAllMilestones,
+  updateMilestone,
+} from "../../../services/milestone.service";
 import { Milestone, Prisma } from "@prisma/client";
 import AddMilestoneModal from "./AddMilestoneModal";
-
-// const buildMilestones: Milestone[] = [
-//   {
-//     id: 1,
-//     title: "Kit Delivery Day",
-//     date: "April 5, 2025",
-//     description:
-//       "After months of anticipation, our Factory Five MK5 Roadster kit arrived! The excitement was overwhelming as we started unpacking all the components.",
-//     featuredImage: `/api/photos/${128166}`,
-//     additionalImages: [
-//       `/api/photos/${128166}`,
-//       `/api/photos/${128166}`,
-//       `/api/photos/${128166}`,
-//     ],
-//   },
-//   {
-//     id: 2,
-//     title: "Chassis Preparation",
-//     date: "April 20, 2025",
-//     description:
-//       "We began prepping the powder-coated chassis by installing the aluminum panels and preparing it for the drivetrain installation. The riveting process was surprisingly satisfying!",
-//     featuredImage: "/images/pexels-alexant-7004697.jpg",
-//     additionalImages: [
-//       "/images/pexels-alexant-7004697.jpg",
-//       "/images/pexels-alexant-7004697.jpg",
-//       "/images/pexels-alexant-7004697.jpg",
-//     ],
-//   },
-//   {
-//     id: 3,
-//     title: "Engine Installation",
-//     date: "May 15, 2025",
-//     description:
-//       "The big day arrived! We carefully lowered our 351W engine and TKO transmission into the chassis as a single unit. Getting everything aligned properly was challenging but rewarding.",
-//     featuredImage: "/images/pexels-alexant-7004697.jpg",
-//     additionalImages: [
-//       "/images/pexels-alexant-7004697.jpg",
-//       "/images/pexels-alexant-7004697.jpg",
-//       "/images/pexels-alexant-7004697.jpg",
-//       "/images/milestones/engine-complete.jpg",
-//     ],
-//   },
-//   {
-//     id: 4,
-//     title: "IRS Suspension Setup",
-//     date: "June 2, 2025",
-//     description:
-//       "Installing the independent rear suspension was complex but transformed the chassis into something that actually resembled a car! The precision required was impressive.",
-//     featuredImage: "/images/milestones/irs-main.jpg",
-//     additionalImages: [
-//       "/images/milestones/irs-components.jpg",
-//       "/images/milestones/irs-assembly.jpg",
-//       "/images/milestones/irs-installed.jpg",
-//     ],
-//   },
-//   {
-//     id: 5,
-//     title: "Rolling Chassis Complete",
-//     date: "June 28, 2025",
-//     description:
-//       "A major milestone achieved! With the front suspension installed and wheels mounted, we had our first rolling chassis. We couldn't resist pushing it around the garage a few times.",
-//     featuredImage: "/images/milestones/rolling-chassis.jpg",
-//     additionalImages: [
-//       "/images/milestones/wheels-mounted.jpg",
-//       "/images/milestones/first-roll.jpg",
-//     ],
-//   },
-//   // Add more milestones as your build progresses
-// ];
 
 const BuildProgress = () => {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [openModal, setOpenModal] = useState(false);
+  const [modalDetails, setModalDetails] = useState<Milestone | null>(null);
 
   const handleAddMilestone = async (data: Prisma.MilestoneCreateInput) => {
-    console.log(data);
     const newMilestone = await createMilestone(data);
     setMilestones([...milestones, newMilestone]);
+  };
+
+  const handleEditMilestone = async (
+    id: number,
+    data: Prisma.MilestoneUpdateInput
+  ) => {
+    const updatedMilestone = await updateMilestone(id, data);
+    setMilestones(
+      milestones.map((milestone) =>
+        milestone.id === updatedMilestone.id ? updatedMilestone : milestone
+      )
+    );
+  };
+
+  const handleEditClicked = (milestone: Milestone) => {
+    setModalDetails(milestone);
+    setOpenModal(true);
   };
 
   useEffect(() => {
@@ -105,7 +57,10 @@ const BuildProgress = () => {
         delivery to first drive. Each milestone captures a key moment in
         bringing this amazing car to life.
       </p>
-      <BuildTimeline milestones={milestones} />
+      <BuildTimeline
+        milestones={milestones}
+        onEditMilestone={handleEditClicked}
+      />
       {/* Add Milestone Button */}
       <div className="flex justify-center mt-8 mb-4">
         <button
@@ -118,8 +73,10 @@ const BuildProgress = () => {
       </div>
       <AddMilestoneModal
         open={openModal}
+        milestone={modalDetails}
         onOpenChange={setOpenModal}
-        onSubmit={handleAddMilestone}
+        onSubmitAdd={handleAddMilestone}
+        onSubmitEdit={handleEditMilestone}
       ></AddMilestoneModal>
     </div>
   );

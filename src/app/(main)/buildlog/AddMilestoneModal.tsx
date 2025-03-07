@@ -23,25 +23,32 @@ import { useEffect, useState } from "react";
 
 export default function AddMilestoneModal({
   open,
+  milestone,
   onOpenChange,
-  onSubmit,
+  onSubmitAdd,
+  onSubmitEdit,
 }: {
   open: boolean;
+  milestone: Milestone | null;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: Prisma.MilestoneCreateInput) => void;
+  onSubmitAdd: (data: Prisma.MilestoneCreateInput) => void;
+  onSubmitEdit: (id: number, data: Prisma.MilestoneUpdateInput) => void;
 }) {
   const [isFormValid, setIsFormValid] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [data, setData] = useState<Prisma.MilestoneCreateInput>({
-    title: "",
-    description: "",
-    date: new Date(),
+  const [data, setData] = useState<Prisma.MilestoneUncheckedCreateInput>({
+    title: milestone?.title || "",
+    description: milestone?.description || "",
+    date: milestone?.date || new Date(),
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    onSubmit(data);
+    if (milestone) {
+      onSubmitEdit(milestone.id, data);
+    }
+    onSubmitAdd(data);
     setData({ title: "", description: "", date: new Date() });
     onOpenChange(false);
   };
@@ -54,18 +61,38 @@ export default function AddMilestoneModal({
     });
   };
 
+  const handleClose = () => {
+    // Optionally reset when closing
+    setData({
+      title: "",
+      description: "",
+      date: new Date(),
+    });
+    onOpenChange(false);
+  };
+
   useEffect(() => {
     const isValid = !!data.title && !!data.description;
     setIsFormValid(isValid);
   }, [data]);
 
+  useEffect(() => {
+    setData({
+      title: milestone?.title || "",
+      description: milestone?.description || "",
+      date: milestone?.date || new Date(),
+    });
+  }, [milestone]);
+
   return (
-    <Dialog open={open} onOpenChange={() => onOpenChange(false)}>
+    <Dialog open={open} onOpenChange={() => handleClose()}>
       <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800 text-white">
         <DialogHeader className="flex justify-between items-center">
-          <DialogTitle className="text-white">Add New Milestone</DialogTitle>
+          <DialogTitle className="text-white">
+            {milestone ? "Update" : "Add New"} Milestone
+          </DialogTitle>
           <Button
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleClose()}
             variant="ghost"
             className="h-8 w-8 p-0 text-gray-400 hover:text-white"
           ></Button>
@@ -136,7 +163,7 @@ export default function AddMilestoneModal({
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleClose()}
               variant="outline"
               className="border-gray-600 text-white hover:bg-gray-800 hover:text-white"
             >
@@ -151,7 +178,7 @@ export default function AddMilestoneModal({
               }`}
               disabled={!isFormValid}
             >
-              Add Milestone
+              {milestone ? "Update" : "Add"} Milestone
             </Button>
           </div>
         </form>
