@@ -34,6 +34,7 @@ const PhotosPage = () => {
   const [selectedMilestone, setSelectedMilestone] = useState<
     Milestone | null | undefined
   >(null);
+  const [selectValue, setSelectValue] = useState<string | undefined>();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
 
   // Function to open the lightbox
@@ -46,6 +47,11 @@ const PhotosPage = () => {
   // Function to close the lightbox
   const closeLightbox = () => {
     setLightboxOpen(false);
+  };
+
+  const selectMilestone = (milestone?: Milestone | null ) => {
+    setSelectedMilestone(milestone);
+    setSelectValue(milestone?.id.toString());
   };
 
   const setPrimaryPhoto = async (photoUrl: string) => {
@@ -116,14 +122,14 @@ const PhotosPage = () => {
           {/* Milestone selector dropdown with explicit "None" option */}
           <div className="space-y-2">
             <Select
+              value={selectValue}
               onValueChange={(value) =>
-                setSelectedMilestone(
+                selectMilestone(
                   milestones.find(
                     (milestone) => milestone.id === parseInt(value)
                   )
                 )
               }
-              value={selectedMilestone?.id.toString()}
             >
               <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400">
                 <SelectValue placeholder="Add photos to milestone" />
@@ -140,12 +146,11 @@ const PhotosPage = () => {
               </SelectContent>
             </Select>
           </div>
-          <Select /* as above */ />
           {selectedMilestone && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setSelectedMilestone(null)}
+              onClick={() => selectMilestone(null)}
               className="text-gray-400 hover:text-white"
             >
               ✕
@@ -225,16 +230,18 @@ const PhotosPage = () => {
 
             {loading &&
               // Skeleton loaders for next batch of photos
-              [...Array(4)].map((_, i) => (
-                <Card key={`skeleton-${i}`} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <Skeleton className="w-full h-48" />
-                    <div className="p-2">
-                      <Skeleton className="h-4 w-20 mx-auto" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              [...Array(photos.length !== 0 ? photos.length : 4)].map(
+                (_, i) => (
+                  <Card key={`skeleton-${i}`} className="overflow-hidden">
+                    <CardContent className="p-0">
+                      <Skeleton className="w-full h-48" />
+                      <div className="p-2">
+                        <Skeleton className="h-4 w-20 mx-auto" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              )}
           </div>
         </div>
       </ScrollArea>
