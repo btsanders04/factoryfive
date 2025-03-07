@@ -34,7 +34,7 @@ const PhotosPage = () => {
   const [selectedMilestone, setSelectedMilestone] = useState<
     Milestone | null | undefined
   >(null);
-  const [selectValue, setSelectValue] = useState<string | undefined>();
+  const [selectValue, setSelectValue] = useState<string>("");
   const [milestones, setMilestones] = useState<Milestone[]>([]);
 
   // Function to open the lightbox
@@ -51,7 +51,7 @@ const PhotosPage = () => {
 
   const selectMilestone = (milestone?: Milestone | null ) => {
     setSelectedMilestone(milestone);
-    setSelectValue(milestone?.id.toString());
+    setSelectValue(milestone?.id.toString() || "");
   };
 
   const setPrimaryPhoto = async (photoUrl: string) => {

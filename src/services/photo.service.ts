@@ -19,6 +19,6 @@ export async function getPhotos(): Promise<PhotoData[]> {
   const data = (await response.json()) as PhotoData[];
   return data.map((photo) => ({
     ...photo,
-    url: `${photo.url}?cacheKey=${photo.cacheKey}`,
+    url: `${photo.url}`,
   }));
 }
