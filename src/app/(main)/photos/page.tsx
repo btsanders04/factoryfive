@@ -4,17 +4,37 @@ import React, { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, Star } from "lucide-react";
 import { getPhotos, PhotoData } from "@/services/photo.service";
 import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getAllMilestones,
+  setPrimaryPhotoOnMilestone,
+  updateSecondaryPhotosOnMilestone,
+} from "../../../services/milestone.service";
+import { Milestone } from "@prisma/client";
 
 const PhotosPage = () => {
   const [photos, setPhotos] = useState<PhotoData[]>([]);
   const [loading, setLoading] = useState(true);
-  // Add these state variables for the lightbox
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [lightboxImage, setLightboxImage] = useState<string>("");
   const [lightboxAlt, setLightboxAlt] = useState<string>("");
+
+  // Add these state variables for milestone feature
+  const [selectedMilestone, setSelectedMilestone] = useState<
+    Milestone | null | undefined
+  >(null);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
 
   // Function to open the lightbox
   const openLightbox = (imageSrc: string, alt: string) => {
@@ -27,57 +47,59 @@ const PhotosPage = () => {
   const closeLightbox = () => {
     setLightboxOpen(false);
   };
-  //   const [page, setPage] = useState(1);
-  //   const [hasMore, setHasMore] = useState(true);
 
-  //   // Mock photo data generator (replace with actual API call)
-  //   const fetchPhotos = (pageNum: number) => {
-  //     return new Promise((resolve) => {
-  //       setTimeout(() => {
-  //         // Generate mock photos (in a real app, you'd fetch from an API)
-  //         const newPhotos = Array.from({ length: 20 }, (_, i) => ({
-  //           id: (pageNum - 1) * 20 + i + 1,
-  //           url: `/api/placeholder/${400 + (i % 4) * 50}/${300 + (i % 3) * 50}`,
-  //           title: `Photo ${(pageNum - 1) * 20 + i + 1}`,
-  //         }));
+  const setPrimaryPhoto = async (photoUrl: string) => {
+    if (selectedMilestone) {
+      const updatedMilestone = await setPrimaryPhotoOnMilestone(
+        selectedMilestone.id,
+        photoUrl
+      );
+      setSelectedMilestone(updatedMilestone);
+      setMilestones(
+        milestones.map((milestone) =>
+          milestone.id === updatedMilestone.id ? updatedMilestone : milestone
+        )
+      );
+    }
+  };
 
-  //         // Simulate end of available photos after 5 pages
-  //         const noMorePhotos = pageNum >= 5;
-
-  //         resolve({
-  //           photos: newPhotos,
-  //           hasMore: !noMorePhotos
-  //         });
-  //       }, 800);
-  //     });
-  //   };
+  // Function to toggle milestone for a photo
+  const togglePhotoMilestone = async (photoUrl: string) => {
+    if (selectedMilestone) {
+      let updatedImages = [];
+      if (
+        selectedMilestone.additionalImages.find((image) => image === photoUrl)
+      ) {
+        updatedImages = selectedMilestone.additionalImages.filter(
+          (image) => image !== photoUrl
+        );
+      } else {
+        updatedImages = [...selectedMilestone.additionalImages, photoUrl];
+      }
+      const updatedMilestone = await updateSecondaryPhotosOnMilestone(
+        selectedMilestone.id,
+        updatedImages
+      );
+      setSelectedMilestone(updatedMilestone);
+      setMilestones(
+        milestones.map((milestone) =>
+          milestone.id === updatedMilestone.id ? updatedMilestone : milestone
+        )
+      );
+    }
+  };
 
   // Initial load
   useEffect(() => {
     getPhotos().then((data) => {
       setPhotos(data);
-      //   setHasMore();
       setLoading(false);
     });
+
+    getAllMilestones().then((data) => {
+      setMilestones(data);
+    });
   }, []);
-
-  // Infinite scroll handler
-  //   const handleScroll = (e) => {
-  // const { scrollTop, scrollHeight, clientHeight } = e.target;
-
-  // Load more when user scrolls near bottom (within 300px of bottom)
-  // if (scrollHeight - scrollTop - clientHeight < 300 && !loading && hasMore) {
-  //   setLoading(true);
-  //   const nextPage = page + 1;
-
-  //   fetchPhotos(nextPage).then(data => {
-  //     setPhotos(prev => [...prev, ...data.photos]);
-  //     setPage(nextPage);
-  //     setHasMore(data.hasMore);
-  //     setLoading(false);
-  //   });
-  //     }
-  //   };
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
@@ -87,12 +109,52 @@ const PhotosPage = () => {
         altText={lightboxAlt}
         onClose={closeLightbox}
       />
-      <h1 className="text-3xl font-bold mb-6">Photo Gallery</h1>
 
-      <ScrollArea
-        className="h-screen max-h-[800px] rounded-md border"
-        // onScroll={handleScroll}
-      >
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Photo Gallery</h1>
+        <div className="flex items-center gap-2">
+          {/* Milestone selector dropdown with explicit "None" option */}
+          <div className="space-y-2">
+            <Select
+              onValueChange={(value) =>
+                setSelectedMilestone(
+                  milestones.find(
+                    (milestone) => milestone.id === parseInt(value)
+                  )
+                )
+              }
+              value={selectedMilestone?.id.toString()}
+            >
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white focus:ring-primary-400">
+                <SelectValue placeholder="Add photos to milestone" />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                {milestones.map((milestone, index) => (
+                  <SelectItem
+                    key={milestone.id}
+                    value={milestone.id.toString()}
+                  >
+                    Milestone #{index + 1}: {milestone.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Select /* as above */ />
+          {selectedMilestone && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedMilestone(null)}
+              className="text-gray-400 hover:text-white"
+            >
+              ✕
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <ScrollArea className="h-screen max-h-[800px] rounded-md border">
         <div className="p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {photos.map((photo) => (
@@ -101,18 +163,61 @@ const PhotosPage = () => {
                 className="overflow-hidden transition-all duration-300 hover:shadow-lg"
               >
                 <CardContent className="p-0">
-                  <div
-                    className="relative w-full h-48"
-                    onClick={() => openLightbox(photo.url, photo.title)}
-                  >
-                    <Image
-                      src={photo.url}
-                      alt={photo.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      unoptimized={true}
-                    />
+                  <div className="relative w-full h-48">
+                    {/* Image */}
+                    <div
+                      onClick={() => openLightbox(photo.url, photo.title)}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={photo.url}
+                        alt={photo.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        unoptimized={true}
+                      />
+                    </div>
+
+                    {/* Button controls container */}
+                    {selectedMilestone && (
+                      <div className="absolute top-2 right-2 flex space-x-2">
+                        {/* Primary photo button - always shown */}
+                        <Button
+                          className={`p-1 rounded-full ${
+                            selectedMilestone.featuredImage === photo.url
+                              ? "bg-blue-500 text-white"
+                              : "bg-white text-gray-500"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPrimaryPhoto(photo.url);
+                          }}
+                          title="Set as primary photo"
+                        >
+                          <Star size={20} />
+                        </Button>
+
+                        {/* Checkmark button - only shown when milestone is selected */}
+
+                        <Button
+                          className={`p-1 rounded-full ${
+                            selectedMilestone.additionalImages.includes(
+                              photo.url
+                            )
+                              ? "bg-green-500 text-white"
+                              : "bg-white text-gray-500"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            togglePhotoMilestone(photo.url);
+                          }}
+                          title="Add to milestone"
+                        >
+                          <CheckCircle size={20} />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -131,12 +236,6 @@ const PhotosPage = () => {
                 </Card>
               ))}
           </div>
-
-          {/* {!hasMore && photos.length > 0 && (
-            <p className="text-center text-gray-500 mt-6">
-              No more photos to load
-            </p>
-          )} */}
         </div>
       </ScrollArea>
     </div>

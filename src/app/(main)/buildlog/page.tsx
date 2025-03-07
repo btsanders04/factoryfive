@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from "react";
 import BuildTimeline from "./BuildTimeline";
 import { Milestone as MilestoneIcon } from "lucide-react";
-import { createMilestone, getAllMilestones } from "./milestone.service";
+import { createMilestone, getAllMilestones } from "../../../services/milestone.service";
 import { Milestone, Prisma } from "@prisma/client";
 import AddMilestoneModal from "./AddMilestoneModal";
 

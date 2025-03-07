@@ -1,5 +1,5 @@
 export interface PhotoData {
-  id: string;
+  id: number;
   url: string;
   cacheKey: string;
   title: string;

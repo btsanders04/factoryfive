@@ -54,11 +54,9 @@ export async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith("/api/photos")) {
     if (isTokenExpiredOrMissing()) {
       const response = await fetchToken();
-      console.log(response);
       tokenCache = response;
     }
     if (tokenCache) {
-      console.log("Token", tokenCache.synotoken)
       requestHeaders.set("Authorization", `${tokenCache.synotoken}`);
       const existingCookies = request.headers.get('Cookie') || '';
       const mergedCookies = mergeAndDedupeCookies(existingCookies,tokenCache.cookies);
