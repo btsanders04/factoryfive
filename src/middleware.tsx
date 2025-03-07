@@ -32,15 +32,27 @@ function mergeAndDedupeCookies(existingCookiesStr: string, newCookiesArr: string
     .join('; ');
 }
 
+// Check if token is expired (or about to expire)
+function isTokenExpiredOrMissing(): boolean {
+  if (!tokenCache) return true;
+  
+  // Get current time in milliseconds
+  const now = Date.now();
+  
+  // Check if current time is past expiration
+  return now >= tokenCache.expiresAt;
+}
+
+
+
 export async function middleware(request: NextRequest) {
   const user = await stackServerApp.getUser();
   const requestHeaders = new Headers(request.headers);
   if (!user) {
     return NextResponse.redirect(new URL("/handler/sign-in", request.url));
   }
-  if (request.nextUrl.pathname.startsWith("/api/synology")) {
-    if (!tokenCache) {
-      // Construct the base URL properly
+  if (request.nextUrl.pathname.startsWith("/api/photos")) {
+    if (isTokenExpiredOrMissing()) {
       const response = await fetchToken();
       console.log(response);
       tokenCache = response;

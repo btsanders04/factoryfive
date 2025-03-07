@@ -8,11 +8,14 @@ export interface TokenData {
   sid: string;
   synotoken: string;
   cookies: string[];
+  expiresAt: number;
 }
+
+const TEN_MINUTES_MS = 10 * 60 * 1000;
 
 export async function fetchToken(): Promise<TokenData | null> {
   try {
-     const response = await fetch(
+    const response = await fetch(
       `https://${process.env.SYNOLOGY_HOST}/webapi/entry.cgi?api=SYNO.API.Auth&format=cookie&method=login&account=${process.env.SYNOLOGY_USER}&passwd=${process.env.SYNOLOGY_PASS}&session=webui&version=6&enable_syno_token=yes`,
       {
         method: "GET",
@@ -21,14 +24,17 @@ export async function fetchToken(): Promise<TokenData | null> {
       }
     );
 
-
     if (!response.ok) {
       throw new Error("Failed to fetch token");
     }
 
     const data = (await response.json()).data as TokenData;
     const headers = response.headers;
-    return { ...data, cookies: headers.getSetCookie() };
+    return {
+      ...data,
+      cookies: headers.getSetCookie(),
+      expiresAt: Date.now() + TEN_MINUTES_MS,
+    };
     // Store token with expiration (assuming your auth service returns expiresIn in seconds)
     // return data.synotoken;
   } catch (error) {

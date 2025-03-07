@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from "uuid";
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -12,7 +12,7 @@ export async function GET(
     const passphrase = process.env.SYNOLOGY_PASSKEY || "";
     const cacheKey = `${id}_${uuid()}`;
     const synoToken = request.headers.get("Authorization") as string;
-    const cookies = request.headers.get('Cookie') || '';
+    const cookies = request.headers.get("Cookie") || "";
     // Construct the target URL
     const targetUrl = new URL(
       `https://${process.env.SYNOLOGY_HOST}/synofoto/api/v2/p/Thumbnail/get`
@@ -31,12 +31,13 @@ export async function GET(
         accept:
           "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
         "accept-language": "en-US,en;q=0.9",
-        cookie: cookies
+        cookie: cookies,
       },
     };
 
     // Make the request to the Synology server
-    const response = await fetch(targetUrl.toString(), fetchOptions);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response = (await fetch(targetUrl.toString(), fetchOptions)) as any;
 
     // Get the image data as an array buffer
     const imageData = await response.arrayBuffer();
@@ -47,13 +48,6 @@ export async function GET(
       statusText: response.statusText,
     });
 
-    // // Copy all headers from the original response
-    // response.headers.forEach((value, key) => {
-    //   newResponse.headers.set(key, value);
-    // });
-
-    // Ensure the content-type header is set correctly for the image
-    // If the original response didn't provide a content type, set a default image type
     const contentType = response.headers.get("content-type");
     if (contentType) {
       newResponse.headers.set("content-type", contentType);
@@ -68,13 +62,10 @@ export async function GET(
     return newResponse;
   } catch (error) {
     console.error("Error fetching thumbnail:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "Failed to fetch thumbnail" }),
+    return NextResponse.json(
+      { error: "Failed to fetch thumbnail" },
       {
         status: 500,
-        headers: {
-          "content-type": "application/json",
-        },
       }
     );
   }
