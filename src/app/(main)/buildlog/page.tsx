@@ -32,6 +32,12 @@ const BuildProgress = () => {
         milestone.id === updatedMilestone.id ? updatedMilestone : milestone
       )
     );
+    setModalDetails(null);
+  };
+
+  const modalToggled = () => {
+    setModalDetails(null);
+    setOpenModal(false);
   };
 
   const handleEditClicked = (milestone: Milestone) => {
@@ -74,7 +80,7 @@ const BuildProgress = () => {
       <AddMilestoneModal
         open={openModal}
         milestone={modalDetails}
-        onOpenChange={setOpenModal}
+        onOpenChange={modalToggled}
         onSubmitAdd={handleAddMilestone}
         onSubmitEdit={handleEditMilestone}
       ></AddMilestoneModal>

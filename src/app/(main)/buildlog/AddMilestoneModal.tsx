@@ -63,12 +63,6 @@ export default function AddMilestoneModal({
   };
 
   const handleClose = () => {
-    // Optionally reset when closing
-    setData({
-      title: "",
-      description: "",
-      date: new Date(),
-    });
     onOpenChange(false);
   };
 
