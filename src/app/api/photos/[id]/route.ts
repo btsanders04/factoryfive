@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuid } from "uuid";
+
+const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -9,7 +12,7 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams;
     const id = (await params).id;
     const size = searchParams.get("size") || "xl";
-    // const cacheKey = searchParams.get("cacheKey");
+    const cacheKey = searchParams.get("cacheKey");
     const passphrase = process.env.SYNOLOGY_PASSKEY || "";
     const synoToken = request.headers.get("Authorization") as string;
     const cookies = request.headers.get("Cookie") || "";
@@ -18,7 +21,7 @@ export async function GET(
       `https://${process.env.SYNOLOGY_HOST}/synofoto/api/v2/p/Thumbnail/get`
     );
     targetUrl.searchParams.set("id", id);
-    targetUrl.searchParams.set("cache_key", uuid());
+    targetUrl.searchParams.set("cache_key", `${cacheKey}` || `${id}-${getRandomNumber(100000,900000)}`);
     targetUrl.searchParams.set("type", "unit");
     targetUrl.searchParams.set("size", size);
     targetUrl.searchParams.set("passphrase", passphrase);
@@ -39,27 +42,51 @@ export async function GET(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = (await fetch(targetUrl.toString(), fetchOptions)) as any;
 
-    // Get the image data as an array buffer
-    const imageData = await response.arrayBuffer();
-
-    // Create a new response with the image data
-    const newResponse = new NextResponse(imageData, {
-      status: response.status,
-      statusText: response.statusText,
-    });
-
+    // Check the content type of the response
     const contentType = response.headers.get("content-type");
-    if (contentType) {
-      newResponse.headers.set("content-type", contentType);
+
+    if (contentType && contentType.includes("application/json")) {
+      // Handle JSON response
+      try {
+        const jsonData = await response.json();
+        // Process your JSON data
+        return NextResponse.json(
+          { error: "Done Screwed up", ...jsonData },
+          { status: 500 }
+        );
+      } catch (error) {
+        console.error("Error parsing JSON response:", error);
+        throw new Error("Failed to parse JSON response");
+      }
     } else {
-      // Set a default image content type if none was provided
-      newResponse.headers.set("content-type", "image/jpeg");
+      // Handle binary/image data
+      try {
+        const imageData = await response.arrayBuffer();
+        // Process your image data
+
+        // Create a new response with the image data
+        const newResponse = new NextResponse(imageData, {
+          status: response.status,
+          statusText: response.statusText,
+        });
+
+        const contentType = response.headers.get("content-type");
+        if (contentType) {
+          newResponse.headers.set("content-type", contentType);
+        } else {
+          // Set a default image content type if none was provided
+          newResponse.headers.set("content-type", "image/jpeg");
+        }
+        // Add cache control headers to improve performance
+        newResponse.headers.set("cache-control", "public, max-age=3600");
+        return newResponse;
+      } catch (error) {
+        console.error("Error reading binary response:", error);
+        throw new Error("Failed to read binary response");
+      }
     }
 
-    // Add cache control headers to improve performance
-    newResponse.headers.set("cache-control", "public, max-age=3600");
-
-    return newResponse;
+    // Get the image data as an array buffer
   } catch (error) {
     console.error("Error fetching thumbnail:", error);
     return NextResponse.json(

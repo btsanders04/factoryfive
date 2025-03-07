@@ -47,8 +47,9 @@ export default function AddMilestoneModal({
     e.preventDefault();
     if (milestone) {
       onSubmitEdit(milestone.id, data);
+    } else {
+      onSubmitAdd(data);
     }
-    onSubmitAdd(data);
     setData({ title: "", description: "", date: new Date() });
     onOpenChange(false);
   };
@@ -82,17 +83,17 @@ export default function AddMilestoneModal({
       description: milestone?.description || "",
       date: milestone?.date || new Date(),
     });
-  }, [milestone]);
+  }, [milestone, open]);
 
   return (
-    <Dialog open={open} onOpenChange={() => handleClose()}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md bg-gray-900 border-gray-800 text-white">
         <DialogHeader className="flex justify-between items-center">
           <DialogTitle className="text-white">
             {milestone ? "Update" : "Add New"} Milestone
           </DialogTitle>
           <Button
-            onClick={() => handleClose()}
+            onClick={handleClose}
             variant="ghost"
             className="h-8 w-8 p-0 text-gray-400 hover:text-white"
           ></Button>
@@ -105,7 +106,7 @@ export default function AddMilestoneModal({
               Title
             </Label>
             <Input
-              id="name"
+              id="title"
               value={data.title}
               onChange={(e) => handleChange("title", e.target.value)}
               placeholder="Enter title"
@@ -163,7 +164,7 @@ export default function AddMilestoneModal({
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
-              onClick={() => handleClose()}
+              onClick={handleClose}
               variant="outline"
               className="border-gray-600 text-white hover:bg-gray-800 hover:text-white"
             >
