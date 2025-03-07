@@ -1,17 +1,12 @@
 "use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import ImageLightbox from "@/components/ImageLightbox";
+import { Milestone } from "@prisma/client";
+import { dateFormat } from "@/lib/utils";
 
-interface Milestone {
-  id: number;
-  title: string;
-  date: string;
-  description: string;
-  featuredImage: string;
-  additionalImages?: string[];
-}
 
 interface BuildTimelineProps {
   milestones: Milestone[];
@@ -28,8 +23,8 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones }) => {
   const [lightboxAlt, setLightboxAlt] = useState<string>("");
 
   // Function to open the lightbox
-  const openLightbox = (imageSrc: string, alt: string) => {
-    setLightboxImage(imageSrc);
+  const openLightbox = (imageSrc: string | null, alt: string) => {
+    setLightboxImage(imageSrc || "");
     setLightboxAlt(alt);
     setLightboxOpen(true);
   };
@@ -88,7 +83,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones }) => {
                     </span>
                   </motion.div>
                   <div className="text-sm font-medium text-gray-600">
-                    {milestone.date}
+                    {dateFormat(milestone.date)}
                   </div>
                 </div>
               </div>
@@ -102,7 +97,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones }) => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-xl font-bold">{milestone.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-700">{milestone.title}</h3>
                 </div>
 
                 {/* Main Image - Now clickable to open lightbox */}
@@ -113,7 +108,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones }) => {
                   }
                 >
                   <Image
-                    src={milestone.featuredImage}
+                    src={milestone.featuredImage || ""}
                     alt={milestone.title}
                     fill
                     unoptimized={true}

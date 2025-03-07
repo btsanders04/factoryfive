@@ -114,3 +114,14 @@ model TaskSection {
     description String
     tasks       Task[]
 }
+
+model Milestone {
+    id               Int      @id @default(autoincrement())
+    title            String
+    date             DateTime
+    description      String
+    featuredImage    String?
+    additionalImages String[]
+    createdAt        DateTime @default(now())
+    updatedAt        DateTime @updatedAt
+}

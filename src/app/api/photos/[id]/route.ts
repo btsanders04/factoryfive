@@ -9,8 +9,8 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams;
     const id = (await params).id;
     const size = searchParams.get("size") || "xl";
+    // const cacheKey = searchParams.get("cacheKey");
     const passphrase = process.env.SYNOLOGY_PASSKEY || "";
-    const cacheKey = `${id}_${uuid()}`;
     const synoToken = request.headers.get("Authorization") as string;
     const cookies = request.headers.get("Cookie") || "";
     // Construct the target URL
@@ -18,7 +18,7 @@ export async function GET(
       `https://${process.env.SYNOLOGY_HOST}/synofoto/api/v2/p/Thumbnail/get`
     );
     targetUrl.searchParams.set("id", id);
-    targetUrl.searchParams.set("cache_key", cacheKey);
+    targetUrl.searchParams.set("cache_key", uuid());
     targetUrl.searchParams.set("type", "unit");
     targetUrl.searchParams.set("size", size);
     targetUrl.searchParams.set("passphrase", passphrase);
