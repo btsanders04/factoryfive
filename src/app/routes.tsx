@@ -10,6 +10,7 @@ import {
   Calendar,
   CircleDashed,
   Puzzle,
+  BookText,
 } from "lucide-react";
 
 export const comingsoon = {
@@ -63,6 +64,11 @@ export const MAIN_ROUTES = {
     name: "Photos",
     // eslint-disable-next-line jsx-a11y/alt-text
     icon: <Image size={20} />,
+  },
+  manual: {
+    link: "/manual",
+    name: "Manual",
+    icon: <BookText size={20} />,
   },
   settings: {
     link: "/settings",
