@@ -1,14 +1,11 @@
-"use client"
+"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const PDFViewer = ({ pdfUrl, title }: { pdfUrl: string; title: string }) => {
   const [numPages, setNumPages] = useState(0);
@@ -25,15 +22,15 @@ const PDFViewer = ({ pdfUrl, title }: { pdfUrl: string; title: string }) => {
       if (containerRef.current) {
         const width = containerRef.current.clientWidth;
         setContainerWidth(width);
-        
+
         // Responsive pages per view
         setPagesPerView(width >= 768 ? 2 : 1);
       }
     };
 
     updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -57,8 +54,8 @@ const PDFViewer = ({ pdfUrl, title }: { pdfUrl: string; title: string }) => {
       const currentPage = pageNumber + i;
       if (currentPage <= numPages) {
         pagesToRender.push(
-          <div 
-            key={`page_${currentPage}`} 
+          <div
+            key={`page_${currentPage}`}
             className="flex-shrink-0 flex justify-center"
           >
             <Page
@@ -82,9 +79,7 @@ const PDFViewer = ({ pdfUrl, title }: { pdfUrl: string; title: string }) => {
 
   if (error) {
     return (
-      <div className="text-red-500 p-4">
-        Error loading PDF: {error.message}
-      </div>
+      <div className="text-red-500 p-4">Error loading PDF: {error.message}</div>
     );
   }
 
@@ -100,7 +95,7 @@ const PDFViewer = ({ pdfUrl, title }: { pdfUrl: string; title: string }) => {
         </div>
       )}
 
-      <div 
+      <div
         ref={containerRef}
         className="w-full overflow-auto bg-gray-100 p-2 sm:p-4 rounded mb-2 sm:mb-4"
       >
@@ -108,9 +103,7 @@ const PDFViewer = ({ pdfUrl, title }: { pdfUrl: string; title: string }) => {
           file={pdfUrl}
           onLoadSuccess={onDocumentLoadSuccess}
           loading={
-            <div className="text-center text-gray-600">
-              Loading PDF...
-            </div>
+            <div className="text-center text-gray-600">Loading PDF...</div>
           }
         >
           <div className="flex space-x-2 sm:space-x-4 justify-center">
@@ -136,7 +129,9 @@ const PDFViewer = ({ pdfUrl, title }: { pdfUrl: string; title: string }) => {
             Next
           </button>
           <span className="text-xs sm:text-sm">
-            Page {pageNumber} - {Math.min(pageNumber + pagesPerView - 1, numPages)} of {numPages || "--"}
+            Page {pageNumber} -{" "}
+            {Math.min(pageNumber + pagesPerView - 1, numPages)} of{" "}
+            {numPages || "--"}
           </span>
         </div>
       </div>
