@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PrimaryAddButton } from "@/components/PrimaryAddButton";
 import CreateSectionModal from "./components/CreateSectionModal";
+import { CarProgress } from "./components/CarProgress";
 
 const AssemblyProgressTracker = () => {
   // State to track completed tasks
@@ -133,9 +134,10 @@ const AssemblyProgressTracker = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-2 mb-4">
+          <TabsList className="grid grid-cols-3 mb-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="details">Detailed View</TabsTrigger>
+            <TabsTrigger value="car">Car View</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -307,6 +309,130 @@ const AssemblyProgressTracker = () => {
                 </div>
               );
             })}
+          </TabsContent>
+
+          <TabsContent value="car" className="space-y-4">
+            <div className="mb-6">
+              <div className="flex justify-between mb-2">
+                <h3 className="font-semibold">Car Assembly Progress</h3>
+                <span>{calculateOverallProgress().toFixed(0)}%</span>
+              </div>
+              <Progress value={calculateOverallProgress()} className="h-2" />
+            </div>
+
+            <Card className="p-6">
+              <CardHeader className="px-0 pt-0">
+                <CardTitle>Interactive Car Assembly View</CardTitle>
+              </CardHeader>
+              <CardContent className="px-0 pb-0">
+                <CarProgress 
+                  sections={
+                    taskSections.reduce((acc, section) => {
+                      const completedTasks = section.tasks.filter(task => task.isCompleted).length;
+                      const totalTasks = section.tasks.length;
+                      
+                      // Skip sections with no tasks
+                      if (totalTasks === 0) return acc;
+                      
+                      // Map section names to standard car sections
+                      let sectionName = section.name;
+                      
+                      // Front Suspension mapping
+                      if (
+                        sectionName.toLowerCase().includes("front") && 
+                        (sectionName.toLowerCase().includes("suspension") || 
+                         sectionName.toLowerCase().includes("wheel") || 
+                         sectionName.toLowerCase().includes("steering"))
+                      ) {
+                        sectionName = "Front Suspension";
+                      }
+                      
+                      // Engine mapping
+                      else if (
+                        sectionName.toLowerCase().includes("engine") || 
+                        sectionName.toLowerCase().includes("motor") || 
+                        sectionName.toLowerCase().includes("powertrain")
+                      ) {
+                        sectionName = "Engine";
+                      }
+                      
+                      // Interior mapping
+                      else if (
+                        sectionName.toLowerCase().includes("interior") || 
+                        sectionName.toLowerCase().includes("dashboard") || 
+                        sectionName.toLowerCase().includes("seat") || 
+                        sectionName.toLowerCase().includes("cockpit")
+                      ) {
+                        sectionName = "Interior";
+                      }
+                      
+                      // Rear Suspension mapping
+                      else if (
+                        sectionName.toLowerCase().includes("rear") && 
+                        (sectionName.toLowerCase().includes("suspension") || 
+                         sectionName.toLowerCase().includes("wheel") || 
+                         sectionName.toLowerCase().includes("axle"))
+                      ) {
+                        sectionName = "Rear Suspension";
+                      }
+                      
+                      // Body mapping
+                      else if (
+                        sectionName.toLowerCase().includes("body") || 
+                        sectionName.toLowerCase().includes("panel") || 
+                        sectionName.toLowerCase().includes("exterior") || 
+                        sectionName.toLowerCase().includes("paint")
+                      ) {
+                        sectionName = "Body";
+                      }
+                      
+                      // Electrical mapping
+                      else if (
+                        sectionName.toLowerCase().includes("electric") || 
+                        sectionName.toLowerCase().includes("wiring") || 
+                        sectionName.toLowerCase().includes("battery") || 
+                        sectionName.toLowerCase().includes("light")
+                      ) {
+                        sectionName = "Electrical";
+                      }
+                      
+                      // Brakes mapping
+                      else if (
+                        sectionName.toLowerCase().includes("brake") || 
+                        sectionName.toLowerCase().includes("stop")
+                      ) {
+                        sectionName = "Brakes";
+                      }
+                      
+                      // Drivetrain mapping
+                      else if (
+                        sectionName.toLowerCase().includes("drivetrain") || 
+                        sectionName.toLowerCase().includes("transmission") || 
+                        sectionName.toLowerCase().includes("differential") || 
+                        sectionName.toLowerCase().includes("driveshaft")
+                      ) {
+                        sectionName = "Drivetrain";
+                      }
+                      
+                      // If the section already exists, combine the stats
+                      if (acc[sectionName]) {
+                        acc[sectionName] = {
+                          completed: acc[sectionName].completed + completedTasks,
+                          total: acc[sectionName].total + totalTasks
+                        };
+                      } else {
+                        acc[sectionName] = {
+                          completed: completedTasks,
+                          total: totalTasks
+                        };
+                      }
+                      
+                      return acc;
+                    }, {} as {[key: string]: {completed: number, total: number}})
+                  } 
+                />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
