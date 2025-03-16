@@ -1,21 +1,71 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, useMemo } from "react";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
+  CaretSortIcon,
+  ChevronDownIcon,
+  DotsHorizontalIcon,
+} from "@radix-ui/react-icons";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 
-const PartsInventoryPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Parse the parts data from the text file
- const enhancedPartsData = [
+const enhancedPartsData = [
     // Initial Components
     {
         id: 1001,
@@ -2248,101 +2298,813 @@ const PartsInventoryPage = () => {
         inspectionNotes: ""
     }
 ];
-  // Get unique categories
-  const categories = [...new Set(partsData.map((item) => item.category))];
 
-  // Filter parts based on search term
-  const filteredParts = partsData.filter(
-    (part) =>
-      part.part.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      part.section.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      part.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+// Define the type for our parts data
+type Part = {
+  id: number;
+  part: string;
+  quantity: number;
+  quantityReceived: number;
+  status: string;
+  section: string;
+  category: string;
+  notes: string;
+  dependencies: number[];
+  estimatedInstallTime: string;
+  installDate: string | null;
+  installDifficulty: string;
+  manualPageReference: string;
+  image: string | null;
+  location: string | null;
+  isOptional: boolean;
+  inspectionNotes: string;
+};
+function StatusBadge({ status }: { status: string }) {
+  let variant: "default" | "secondary" | "destructive" | "outline" = "outline";
+  let className = "";
 
-  // Group parts by category
-  const groupedParts = categories
-    .map((category) => ({
-      category,
-      parts: filteredParts.filter((part) => part.category === category),
-    }))
-    .filter((group) => group.parts.length > 0);
-
-  // Count parts by category for badges
-  const categoryCount = categories.reduce(
-    (acc, category) => {
-      acc[category] = enhancedPartsData.filter(
-        (part) => part.category === category
-      ).length;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  switch (status) {
+    case "Received":
+      // Custom success style since it's not in your variants
+      variant = "outline";
+      className =
+        "border-green-400 bg-green-100 text-green-800 hover:bg-green-200";
+      break;
+    case "Installed":
+      variant = "default";
+      break;
+    case "Damaged":
+      variant = "destructive";
+      break;
+    case "Missing":
+      // Custom warning style
+      variant = "outline";
+      className =
+        "border-yellow-400 bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+      break;
+    case "Not Received":
+      variant = "outline";
+      break;
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-8xl">
-      <div className="flex flex-col space-y-8">
-        {/* Header */}
-        <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-          <div>
-            <h1 className="text-2xl font-bold">Parts Inventory</h1>
-            <p className="text-gray-500">I think we&apos;re missing a piece</p>
-          </div>
-        </div>
-        <div className="relative mt-2">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-slate-400" />
-            <Input
-              placeholder="Search parts, sections or categories..."
-              className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        <Accordion type="multiple" defaultValue={categories}>
-          {groupedParts.map((group) => (
-            <AccordionItem key={group.category} value={group.category}>
-              <AccordionTrigger className="text-lg font-semibold hover:no-underline">
-                <div className="flex items-center gap-2">
-                  {group.category}
-                  <Badge variant="secondary">
-                    {group.parts.length}/{categoryCount[group.category]}
-                  </Badge>
+    <Badge variant={variant} className={className}>
+      {status}
+    </Badge>
+  );
+}
+
+// Custom badge for difficulty
+function DifficultyBadge({ difficulty }: { difficulty: string }) {
+  let variant: "default" | "secondary" | "destructive" | "outline" = "outline";
+  let className = "";
+
+  switch (difficulty) {
+    case "Easy":
+      variant = "outline";
+      className = "border-green-400 bg-green-50 text-green-700";
+      break;
+    case "Medium":
+      variant = "secondary";
+      break;
+    case "Hard":
+      variant = "destructive";
+      break;
+    case "N/A":
+      variant = "outline";
+      break;
+  }
+
+  return (
+    <Badge variant={variant} className={className}>
+      {difficulty}
+    </Badge>
+  );
+}
+
+// Detailed part dialog component
+function PartDetailDialog({
+  part,
+  isOpen,
+  setIsOpen,
+  onUpdate,
+}: {
+  part: Part;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  onUpdate: (part: Part) => void;
+}) {
+  const [editedPart, setEditedPart] = useState<Part>({ ...part });
+
+  const handleStatusChange = (value: string) => {
+    setEditedPart({ ...editedPart, status: value });
+  };
+
+  const handleQuantityReceivedChange = (value: number) => {
+    setEditedPart({ ...editedPart, quantityReceived: value });
+  };
+
+  const handleLocationChange = (value: string) => {
+    setEditedPart({ ...editedPart, location: value });
+  };
+
+  const handleInspectionNotesChange = (value: string) => {
+    setEditedPart({ ...editedPart, inspectionNotes: value });
+  };
+
+  const handleSave = () => {
+    onUpdate(editedPart);
+    setIsOpen(false);
+  };
+
+  // Get dependent parts
+  const dependentParts = useMemo(() => {
+    return enhancedPartsData.filter((p) =>
+      editedPart.dependencies.includes(p.id)
+    );
+  }, [editedPart.dependencies]);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{editedPart.part}</DialogTitle>
+          <DialogDescription>ID: {editedPart.id}</DialogDescription>
+        </DialogHeader>
+
+        <Tabs defaultValue="details" className="mt-4">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="dependencies">Dependencies</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
+            <TabsTrigger value="installation">Installation</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="details" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <h4 className="text-sm font-medium">Section</h4>
+                <p className="text-sm text-gray-500">{editedPart.section}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Category</h4>
+                <p className="text-sm text-gray-500">{editedPart.category}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Manual Reference</h4>
+                <p className="text-sm text-gray-500">
+                  {editedPart.manualPageReference || "N/A"}
+                </p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium">Difficulty</h4>
+                <div className="mt-1">
+                  <DifficultyBadge difficulty={editedPart.installDifficulty} />
                 </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="overflow-x-auto">
-                  <div className="min-w-full border  rounded-md">
-                    <div className="grid grid-cols-12  p-3 font-medium text-primary-400">
-                      <div className="col-span-6">Part</div>
-                      <div className="col-span-2">Quantity</div>
-                      <div className="col-span-4">Assembly Section</div>
+              </div>
+              <div className="col-span-2">
+                <h4 className="text-sm font-medium">Notes</h4>
+                <p className="text-sm text-gray-500">
+                  {editedPart.notes || "No notes available"}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <h4 className="text-sm font-medium">Estimated Install Time</h4>
+                <p className="text-sm text-gray-500">
+                  {editedPart.estimatedInstallTime}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <h4 className="text-sm font-medium">Optional</h4>
+                <p className="text-sm text-gray-500">
+                  {editedPart.isOptional ? "Yes" : "No"}
+                </p>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="dependencies">
+            <div className="mt-4">
+              <h4 className="text-sm font-medium mb-2">Dependencies</h4>
+              {dependentParts.length === 0 ? (
+                <p className="text-sm text-gray-500">No dependencies</p>
+              ) : (
+                <div className="space-y-2">
+                  {dependentParts.map((depPart) => (
+                    <div
+                      key={depPart.id}
+                      className="flex items-center justify-between p-2 border rounded"
+                    >
+                      <div>
+                        <p className="font-medium">{depPart.part}</p>
+                        <p className="text-sm text-gray-500">
+                          {depPart.section}
+                        </p>
+                      </div>
+                      <StatusBadge status={depPart.status} />
                     </div>
-                    <div className="divide-y">
-                      {group.parts.map((part: { part: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; quantity: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; section: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }, idx: any) => (
-                        <div
-                          key={`${part.part}-${idx}`}
-                          className="grid grid-cols-12 p-3 hover:bg-accent/50"
-                        >
-                          <div className="col-span-6 font-medium">
-                            {part.part}
-                          </div>
-                          <div className="col-span-2">{part.quantity}</div>
-                          <div className="col-span-4">
-                            <Badge variant="outline" className="mr-1">
-                              {part.section}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="inventory">
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">
+                    Quantity Required
+                  </label>
+                  <Input
+                    value={editedPart.quantity}
+                    disabled
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">
+                    Quantity Received
+                  </label>
+                  <Input
+                    type="number"
+                    value={editedPart.quantityReceived}
+                    onChange={(e) =>
+                      handleQuantityReceivedChange(
+                        parseInt(e.target.value) || 0
+                      )
+                    }
+                    min={0}
+                    max={editedPart.quantity}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Status</label>
+                  <Select
+                    value={editedPart.status}
+                    onValueChange={handleStatusChange}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Not Received">Not Received</SelectItem>
+                      <SelectItem value="Received">Received</SelectItem>
+                      <SelectItem value="Installed">Installed</SelectItem>
+                      <SelectItem value="Damaged">Damaged</SelectItem>
+                      <SelectItem value="Missing">Missing</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">
+                    Storage Location
+                  </label>
+                  <Input
+                    value={editedPart.location || ""}
+                    onChange={(e) => handleLocationChange(e.target.value)}
+                    placeholder="Where is this part stored?"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Inspection Notes</label>
+                <textarea
+                  className="w-full mt-1 p-2 border rounded resize-y min-h-[100px]"
+                  value={editedPart.inspectionNotes || ""}
+                  onChange={(e) => handleInspectionNotesChange(e.target.value)}
+                  placeholder="Enter inspection notes here..."
+                />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="installation">
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium">
+                    Estimated Install Time
+                  </h4>
+                  <p className="text-sm text-gray-500">
+                    {editedPart.estimatedInstallTime}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium">Install Difficulty</h4>
+                  <div className="mt-1">
+                    <DifficultyBadge
+                      difficulty={editedPart.installDifficulty}
+                    />
                   </div>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
+                <div>
+                  <h4 className="text-sm font-medium">Install Date</h4>
+                  <p className="text-sm text-gray-500">
+                    {editedPart.installDate || "Not installed"}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium">Manual Reference</h4>
+                  <p className="text-sm text-gray-500">
+                    {editedPart.manualPageReference || "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave}>Save Changes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default function PartsInventory() {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [categoryFilter, setCategoryFilter] = useState<string>("All");
+  const [sectionFilter, setSectionFilter] = useState<string>("All");
+  const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPart, setSelectedPart] = useState<Part | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [partsData, setPartsData] = useState<Part[]>(enhancedPartsData);
+
+  // Get unique categories and sections for filters
+  const categories = useMemo(() => {
+    const uniqueCategories = Array.from(
+      new Set(enhancedPartsData.map((part) => part.category))
+    );
+    return ["All", ...uniqueCategories];
+  }, []);
+
+  const sections = useMemo(() => {
+    const uniqueSections = Array.from(
+      new Set(enhancedPartsData.map((part) => part.section))
+    );
+    return ["All", ...uniqueSections];
+  }, []);
+
+  // Calculate completion metrics
+  const metrics = useMemo(() => {
+    const totalParts = partsData.length;
+    const receivedParts = partsData.filter(
+      (p) => p.status === "Received" || p.status === "Installed"
+    ).length;
+    const installedParts = partsData.filter(
+      (p) => p.status === "Installed"
+    ).length;
+
+    return {
+      totalParts,
+      receivedParts,
+      installedParts,
+      receivedPercentage: Math.round((receivedParts / totalParts) * 100),
+      installedPercentage: Math.round((installedParts / totalParts) * 100),
+    };
+  }, [partsData]);
+
+  // Filter parts based on category, section, status and search query
+  const filteredParts = useMemo(() => {
+    return partsData.filter((part) => {
+      const matchesCategory =
+        categoryFilter === "All" || part.category === categoryFilter;
+      const matchesSection =
+        sectionFilter === "All" || part.section === sectionFilter;
+      const matchesStatus =
+        statusFilter === "All" || part.status === statusFilter;
+      const matchesSearch =
+        searchQuery === "" ||
+        part.part.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        part.notes.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return (
+        matchesCategory && matchesSection && matchesStatus && matchesSearch
+      );
+    });
+  }, [partsData, categoryFilter, sectionFilter, statusFilter, searchQuery]);
+
+  // Update part data
+  const handleUpdatePart = (updatedPart: Part) => {
+    setPartsData(
+      partsData.map((part) => (part.id === updatedPart.id ? updatedPart : part))
+    );
+  };
+
+  // Define table columns
+  const columns: ColumnDef<Part>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => <div className="text-right">{row.getValue("id")}</div>,
+    },
+    {
+      accessorKey: "part",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Part
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const isOptional = row.original.isOptional;
+        return (
+          <div className="flex items-center">
+            <span className={isOptional ? "text-gray-500 italic" : ""}>
+              {row.getValue("part")}
+              {isOptional && <span className="ml-2 text-xs">(Optional)</span>}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "section",
+      header: "Section",
+      cell: ({ row }) => <div>{row.getValue("section")}</div>,
+    },
+    {
+      accessorKey: "quantity",
+      header: "Qty",
+      cell: ({ row }) => (
+        <div className="text-center">
+          {row.original.quantityReceived}/{row.getValue("quantity")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => <StatusBadge status={row.getValue("status")} />,
+    },
+    {
+      accessorKey: "installDifficulty",
+      header: "Difficulty",
+      cell: ({ row }) => (
+        <div className="flex justify-center">
+          <DifficultyBadge difficulty={row.getValue("installDifficulty")} />
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const part = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSelectedPart(part);
+                  setIsDetailOpen(true);
+                }}
+              >
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  const updated = { ...part, status: "Received" };
+                  handleUpdatePart(updated);
+                }}
+              >
+                Mark as Received
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  const updated = {
+                    ...part,
+                    status: "Installed",
+                    installDate: new Date().toISOString(),
+                  };
+                  handleUpdatePart(updated);
+                }}
+              >
+                Mark as Installed
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  const table = useReactTable({
+    data: filteredParts,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>MK5 Roadster Build Progress</CardTitle>
+          <CardDescription>
+            Track your parts inventory and installation progress
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Parts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{metrics.totalParts}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Parts Received
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {metrics.receivedParts}
+                </div>
+                <Progress className="mt-2" value={metrics.receivedPercentage} />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {metrics.receivedPercentage}% of total
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Parts Installed
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {metrics.installedParts}
+                </div>
+                <Progress
+                  className="mt-2"
+                  value={metrics.installedPercentage}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {metrics.installedPercentage}% of total
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Parts Ready to Install
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {metrics.receivedParts - metrics.installedParts}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Parts Inventory</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="flex-1">
+              <Input
+                placeholder="Search parts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Statuses</SelectItem>
+                  <SelectItem value="Not Received">Not Received</SelectItem>
+                  <SelectItem value="Received">Received</SelectItem>
+                  <SelectItem value="Installed">Installed</SelectItem>
+                  <SelectItem value="Damaged">Damaged</SelectItem>
+                  <SelectItem value="Missing">Missing</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={sectionFilter} onValueChange={setSectionFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Section" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sections.map((section) => (
+                    <SelectItem key={section} value={section}>
+                      {section}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="ml-auto">
+                    Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) =>
+                            column.toggleVisibility(!!value)
+                          }
+                        >
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                      onClick={() => {
+                        setSelectedPart(row.original);
+                        setIsDetailOpen(true);
+                      }}
+                      className="cursor-pointer"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex-1 text-sm text-muted-foreground">
+              {table.getFilteredSelectedRowModel().rows.length} of{" "}
+              {table.getFilteredRowModel().rows.length} row(s) selected.
+            </div>
+            <div className="space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {selectedPart && (
+        <PartDetailDialog
+          part={selectedPart}
+          isOpen={isDetailOpen}
+          setIsOpen={setIsDetailOpen}
+          onUpdate={handleUpdatePart}
+        />
+      )}
     </div>
   );
-};
-
-export default PartsInventoryPage;
+}
