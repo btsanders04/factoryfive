@@ -13,6 +13,10 @@ export interface TokenData {
 
 const TEN_MINUTES_MS = 10 * 60 * 1000;
 
+/**
+ * Fetches an authentication token from the Synology API
+ * @returns Promise resolving to TokenData or null if the request fails
+ */
 export async function fetchToken(): Promise<TokenData | null> {
   try {
     const response = await fetch(
@@ -41,4 +45,4 @@ export async function fetchToken(): Promise<TokenData | null> {
     console.error("Error fetching token:", error);
     return null;
   }
-}
+} 

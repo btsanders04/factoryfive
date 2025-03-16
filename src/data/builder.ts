@@ -3,6 +3,11 @@ import { Builder } from "@prisma/client";
 export type BuilderWithSpend = Builder & {
   spend: number;
 };
+
+/**
+ * Fetches all builders from the API
+ * @returns Promise resolving to an array of Builder items
+ */
 export async function getAllBuilders(): Promise<Builder[]> {
   const response = await fetch("/api/builders", {
     method: "GET",
@@ -17,6 +22,10 @@ export async function getAllBuilders(): Promise<Builder[]> {
   return response.json() as Promise<Builder[]>;
 }
 
+/**
+ * Fetches all builders with their spend amounts
+ * @returns Promise resolving to an array of BuilderWithSpend items
+ */
 export async function getBuildersSpend(): Promise<BuilderWithSpend[]> {
   const response = await fetch("/api/builders/spend", {
     method: "GET",
@@ -29,4 +38,4 @@ export async function getBuildersSpend(): Promise<BuilderWithSpend[]> {
     );
   }
   return response.json() as Promise<BuilderWithSpend[]>;
-}
+} 

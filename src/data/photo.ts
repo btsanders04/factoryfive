@@ -5,6 +5,10 @@ export interface PhotoData {
   title: string;
 }
 
+/**
+ * Fetches all photos from the API
+ * @returns Promise resolving to an array of PhotoData items
+ */
 export async function getPhotos(): Promise<PhotoData[]> {
   const response = await fetch("/api/photos", {
     method: "GET",
@@ -21,4 +25,4 @@ export async function getPhotos(): Promise<PhotoData[]> {
     ...photo,
     url: `${photo.url}`,
   }));
-}
+} 

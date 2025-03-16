@@ -18,11 +18,11 @@ import {
   editTransaction,
 } from "@/app/(main)/transactions/transaction.service";
 import { TransactionWithRelations } from "@/lib/types/transactions";
-import { getAllCategories } from "@/services/category.service";
+import { getAllCategories } from "@/data/category";
 import { Builder, Category, Prisma } from "@prisma/client";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
-import { getAllBuilders } from "@/services/builder.service";
+import { getAllBuilders } from "@/data/builder";
 import { PrimaryAddButton } from "@/components/PrimaryAddButton";
 import TransactionForm from "./TransactionForm";
 

@@ -8,7 +8,7 @@ import {
   createMilestone,
   getAllMilestones,
   updateMilestone,
-} from "../../../services/milestone.service";
+} from "@/data/milestone";
 import { Milestone, Prisma } from "@prisma/client";
 import AddMilestoneModal from "./AddMilestoneModal";
 

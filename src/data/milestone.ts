@@ -1,5 +1,9 @@
 import { Milestone, Prisma } from "@prisma/client";
 
+/**
+ * Fetches all milestones from the API
+ * @returns Promise resolving to an array of Milestone items
+ */
 export async function getAllMilestones(): Promise<Milestone[]> {
   const response = await fetch("/api/milestones", {
     method: "GET",
@@ -20,6 +24,11 @@ export async function getAllMilestones(): Promise<Milestone[]> {
   })) as Milestone[];
 }
 
+/**
+ * Creates a new milestone
+ * @param milestone The milestone data to create
+ * @returns Promise resolving to the created Milestone
+ */
 export async function createMilestone(
   milestone: Prisma.MilestoneCreateInput
 ): Promise<Milestone> {
@@ -43,6 +52,12 @@ export async function createMilestone(
   };
 }
 
+/**
+ * Sets the primary photo for a milestone
+ * @param id The ID of the milestone to update
+ * @param url The URL of the photo to set as primary
+ * @returns Promise resolving to the updated Milestone
+ */
 export async function setPrimaryPhotoOnMilestone(
   id: number,
   url: string
@@ -67,6 +82,12 @@ export async function setPrimaryPhotoOnMilestone(
   };
 }
 
+/**
+ * Updates a milestone
+ * @param id The ID of the milestone to update
+ * @param data The data to update the milestone with
+ * @returns Promise resolving to the updated Milestone
+ */
 export async function updateMilestone(
   id: number,
   data: Prisma.MilestoneUpdateInput
@@ -91,6 +112,12 @@ export async function updateMilestone(
   };
 }
 
+/**
+ * Updates the secondary photos for a milestone
+ * @param id The ID of the milestone to update
+ * @param secondaryPhotos Array of photo URLs to set as secondary photos
+ * @returns Promise resolving to the updated Milestone
+ */
 export async function updateSecondaryPhotosOnMilestone(
   id: number,
   secondaryPhotos: string[]
@@ -113,4 +140,4 @@ export async function updateSecondaryPhotosOnMilestone(
     createdAt: new Date(milestoneUpdated.createdAt),
     updatedAt: new Date(milestoneUpdated.updatedAt),
   };
-}
+} 

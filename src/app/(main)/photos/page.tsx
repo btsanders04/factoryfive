@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Star } from "lucide-react";
-import { getPhotos, PhotoData } from "@/services/photo.service";
+import { getPhotos, PhotoData } from "@/data/photo";
 import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
 import {
@@ -20,7 +20,7 @@ import {
   getAllMilestones,
   setPrimaryPhotoOnMilestone,
   updateSecondaryPhotosOnMilestone,
-} from "../../../services/milestone.service";
+} from "@/data/milestone";
 import { Milestone } from "@prisma/client";
 
 const PhotosPage = () => {

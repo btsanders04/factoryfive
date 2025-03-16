@@ -125,3 +125,26 @@ model Milestone {
     createdAt        DateTime @default(now())
     updatedAt        DateTime @updatedAt
 }
+
+model PartsInventory {
+    id                   Int       @id @default(autoincrement())
+    part                 String
+    quantity             Int
+    quantityReceived     Int
+    status               String
+    section              String
+    category             String
+    notes                String
+    estimatedInstallTime String
+    installDifficulty    String
+    manualPageReference  String
+    isOptional           Boolean
+    installDate          DateTime?
+    dependencies         Int[]
+    inspectionNotes      String
+    image                String?
+    
+    // Timestamps
+    createdAt            DateTime  @default(now())
+    updatedAt            DateTime  @updatedAt
+}

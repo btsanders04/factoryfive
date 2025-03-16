@@ -1,5 +1,10 @@
 import { User } from '@stackframe/stack';
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
+
+/**
+ * Fetches all users
+ * @returns Promise resolving to an array of User items
+ */
 export async function getAllUsers(): Promise<User[]> {
     return new Promise((resolve) => {
         resolve([
@@ -13,4 +18,4 @@ export async function getAllUsers(): Promise<User[]> {
             }
         ] as User[])
     })
-}
+} 

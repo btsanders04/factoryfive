@@ -12,14 +12,14 @@ import {
   createCategory,
   getCategoriesWithoutBudget,
   updateCategory,
-} from "@/services/category.service";
+} from "@/data/category";
 import { CategoryWithTransactions } from "@/lib/types/category";
 import { ActionType } from "@/lib/types/enum";
 import CategoryForm from "@/components/CategoryForm";
 import BudgetRow from "./BudgetRow";
 import { PrimaryAddButton } from "@/components/PrimaryAddButton";
 import { Prisma } from "@prisma/client";
-import { BuilderWithSpend, getBuildersSpend } from "@/services/builder.service";
+import { BuilderWithSpend, getBuildersSpend } from "@/data/builder";
 
 export default function TransactionsPage() {
   const [open, setOpen] = useState(false);

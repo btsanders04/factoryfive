@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stackServerApp } from "./stack";
-import { fetchToken, TokenData } from "./services/synology-auth.service";
+import { fetchToken, TokenData } from "./data/synology-auth";
 
 let tokenCache: TokenData | null;
 
