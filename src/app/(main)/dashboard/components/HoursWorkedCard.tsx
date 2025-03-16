@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Clock, TrendingUp } from "lucide-react";
+import { Clock, TrendingUp, Calendar } from "lucide-react";
 import { getHoursData, HOURS_CONFIG } from "@/data/calendar";
 import Link from "next/link";
 
@@ -43,6 +43,10 @@ export default function HoursWorkedCard() {
   // Calculate percentages
   const totalPercentage = Math.min(Math.round((totalHours / config.targetHours) * 100), 100);
   const weeklyPercentage = Math.min(Math.round((weeklyHours / config.weeklyGoal) * 100), 100);
+  
+  // Calculate monthly percentage (assuming monthly goal is 4x weekly goal)
+  const monthlyGoal = config.weeklyGoal * 4;
+  const monthlyPercentage = Math.min(Math.round((monthlyHours / monthlyGoal) * 100), 100);
   
   // Estimate completion date based on current progress and weekly rate
   const estimateCompletionDate = () => {
@@ -97,6 +101,22 @@ export default function HoursWorkedCard() {
               <div className="flex justify-between mt-1">
                 <p className="text-xs text-muted-foreground">Goal: {config.weeklyGoal} hrs</p>
                 <p className="text-xs text-muted-foreground">{weeklyPercentage}%</p>
+              </div>
+            </div>
+            
+            {/* This Month Section */}
+            <div className="mb-4 pt-3 border-t border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium flex items-center">
+                  <Calendar className="h-3 w-3 mr-1 text-muted-foreground" />
+                  This Month
+                </div>
+                <div className="text-sm font-medium">{monthlyHours} hrs</div>
+              </div>
+              <Progress value={monthlyPercentage} className="h-2 mt-2" />
+              <div className="flex justify-between mt-1">
+                <p className="text-xs text-muted-foreground">Goal: {monthlyGoal} hrs</p>
+                <p className="text-xs text-muted-foreground">{monthlyPercentage}%</p>
               </div>
             </div>
             

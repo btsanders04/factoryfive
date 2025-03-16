@@ -4,6 +4,7 @@ import { Prisma, WorkHour } from "@prisma/client";
 export const HOURS_CONFIG = {
   targetHours: 500, // Total target hours for the project
   weeklyGoal: 16,   // Weekly goal in hours
+  monthlyGoal: 64,  // Monthly goal in hours (4 weeks)
 };
 
 export async function updateHoursForDate(
