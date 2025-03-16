@@ -32,8 +32,11 @@
     "@radix-ui/react-toggle": "^1.1.2",
     "@radix-ui/react-toggle-group": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
+    "@react-three/drei": "^10.0.4",
+    "@react-three/fiber": "^9.1.0",
     "@stackframe/stack": "^2.7.19",
     "@tanstack/react-table": "^8.21.2",
+    "@types/three": "^0.174.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
@@ -45,8 +48,11 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-pdf": "^9.2.1",
+    "react-three": "^0.9.7",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.174.0",
+    "three-stdlib": "^2.35.14",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
