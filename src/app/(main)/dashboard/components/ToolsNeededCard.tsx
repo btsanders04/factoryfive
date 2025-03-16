@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { getAllTools } from "@/data/tool";
 import { Tool } from "@prisma/client";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 const ToolsNeededCard = () => {
   const [neededTools, setNeededTools] = useState<Tool[]>([]);
@@ -30,8 +31,14 @@ const ToolsNeededCard = () => {
     fetchTools();
   }, []);
 
+  // Calculate completion percentage
+  const totalTools = totalAquiredTools + totalNeededTools;
+  const completionPercentage = totalTools > 0 
+    ? Math.round((totalAquiredTools / totalTools) * 100) 
+    : 100;
+
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full h-full">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Tools Needed</span>
@@ -53,7 +60,8 @@ const ToolsNeededCard = () => {
             All tools aquired
           </div>
         ) : (
-          neededTools.map((tool) => (
+          // Show only up to 5 tools in the dashboard card
+          neededTools.slice(0, 5).map((tool) => (
             <div key={tool.id} className="flex items-center gap-2">
               <div>
                 <Label
@@ -78,11 +86,28 @@ const ToolsNeededCard = () => {
             </div>
           ))
         )}
+        
+        {/* Show message if there are more tools than displayed */}
+        {neededTools.length > 5 && (
+          <div className="text-sm text-gray-500 italic">
+            +{neededTools.length - 5} more tools needed
+          </div>
+        )}
       </CardContent>
 
-      <CardFooter className="justify-between text-sm text-gray-500">
-        <div>{totalAquiredTools + totalNeededTools} total tools</div>
-        <div>{totalAquiredTools} acquired</div>
+      <CardFooter className="flex flex-col space-y-4">
+        <div className="flex justify-between w-full text-sm text-gray-500">
+          <div>{totalTools} total tools</div>
+          <div>{completionPercentage}% complete</div>
+        </div>
+        
+        {/* Link to tools page */}
+        <Link 
+          href="/tools" 
+          className="text-xs text-blue-600 hover:text-blue-800 hover:underline block w-full"
+        >
+          View all tools →
+        </Link>
       </CardFooter>
     </Card>
   );

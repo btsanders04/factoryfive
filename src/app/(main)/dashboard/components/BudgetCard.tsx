@@ -14,6 +14,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import Link from "next/link";
 
 interface CategoryIndividualContributions {
   builder: Builder;
@@ -129,9 +130,19 @@ const BudgetCard = () => {
     fetchBudgets();
   }, []);
 
+  // Calculate total budget and spent
+  const totalBudget = budgets.reduce((total, budget) => total + budget.amount, 0);
+  const totalSpent = budgets.reduce((total, budget) => {
+    const spent = budget.category.transactions.reduce(
+      (sum, transaction) => sum + Math.abs(transaction.amount),
+      0
+    );
+    return total + spent;
+  }, 0);
+
   return (
     <div className="flex justify-center w-full">
-      <Card className="shadow-md w-full max-w-md">
+      <Card className="shadow-md w-full h-full">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Budget</CardTitle>
         </CardHeader>
@@ -146,6 +157,24 @@ const BudgetCard = () => {
               )}
             />
           ))}
+          
+          {/* Summary and link to budget page */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="font-medium">Total Budget:</span>
+              <span>${totalBudget.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm mb-4">
+              <span className="font-medium">Total Spent:</span>
+              <span>${totalSpent.toLocaleString()}</span>
+            </div>
+            <Link 
+              href="/budget" 
+              className="text-xs text-blue-600 hover:text-blue-800 hover:underline block"
+            >
+              View full budget →
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
