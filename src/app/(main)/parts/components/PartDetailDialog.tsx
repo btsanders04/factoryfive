@@ -20,6 +20,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge, DifficultyBadge } from "./Badges";
 import { PartData, PartStatus } from "../types";
+import { usePdfViewer } from "@/components/PdfViewerContext";
+import { BookOpen } from "lucide-react";
 
 interface PartDetailDialogProps {
   part: PartData;
@@ -41,6 +43,8 @@ export function PartDetailDialog({
   sections,
 }: PartDetailDialogProps) {
   const [editedPart, setEditedPart] = useState<PartData>({ ...part });
+  const { navigateToPage } = usePdfViewer();
+
   const handleStatusChange = (value: PartStatus) => {
     setEditedPart({ ...editedPart, status: value });
   };
@@ -68,6 +72,17 @@ export function PartDetailDialog({
       editedPart.dependencies?.includes(p.id)
     );
   }, [editedPart.dependencies, partsData]);
+
+  const handleViewManualPage = () => {
+    if (editedPart.manualPageReference) {
+      const pageNumber = parseInt(editedPart.manualPageReference);
+      if (!isNaN(pageNumber)) {
+        navigateToPage(pageNumber);
+        // Close the dialog after navigating
+        setIsOpen(false);
+      }
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -216,9 +231,22 @@ export function PartDetailDialog({
               </div>
               <div>
                 <h4 className="text-sm font-medium">Manual Reference</h4>
-                <p className="text-sm text-gray-500">
-                  {editedPart.manualPageReference || "N/A"}
-                </p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm text-gray-500">
+                    {editedPart.manualPageReference || "N/A"}
+                  </p>
+                  {editedPart.manualPageReference && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleViewManualPage}
+                      className="flex items-center space-x-1"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      <span>View Page</span>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </TabsContent>
