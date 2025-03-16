@@ -1,196 +1,131 @@
-import Image from 'next/image';
-import { useState } from 'react';
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+"use client";
 
-interface SectionProgress {
-  name: string;
-  completed: number;
-  total: number;
-  position: {
-    top: string;
-    left: string;
-  };
-}
+import { useRef, Suspense } from 'react';
+import { Canvas, useFrame } from "@react-three/fiber";
+import { 
+  OrbitControls, 
+  useGLTF
+} from "@react-three/drei";
+import * as THREE from "three";
+import { GLTF } from 'three-stdlib';
+import React from 'react';
 
-// These positions will need to be adjusted based on the actual image and sections
-const SECTION_POSITIONS: SectionProgress[] = [
-  {
-    name: "Front Suspension",
-    completed: 0,
-    total: 0,
-    position: { top: "40%", left: "15%" }
-  },
-  {
-    name: "Engine",
-    completed: 0,
-    total: 0,
-    position: { top: "35%", left: "25%" }
-  },
-  {
-    name: "Interior",
-    completed: 0,
-    total: 0,
-    position: { top: "40%", left: "50%" }
-  },
-  {
-    name: "Rear Suspension",
-    completed: 0,
-    total: 0,
-    position: { top: "40%", left: "85%" }
-  },
-  {
-    name: "Body",
-    completed: 0,
-    total: 0,
-    position: { top: "30%", left: "50%" }
-  },
-  {
-    name: "Electrical",
-    completed: 0,
-    total: 0,
-    position: { top: "45%", left: "35%" }
-  },
-  {
-    name: "Brakes",
-    completed: 0,
-    total: 0,
-    position: { top: "60%", left: "50%" }
-  },
-  {
-    name: "Drivetrain",
-    completed: 0,
-    total: 0,
-    position: { top: "50%", left: "70%" }
-  }
-];
+// Define a more flexible type for the GLTF result
+type GLTFResult = GLTF & {
+  nodes: { [key: string]: THREE.Object3D };
+  materials: { [key: string]: THREE.Material };
+};
 
-interface CarProgressProps {
-  sections: {
-    [key: string]: {
-      completed: number;
-      total: number;
-    };
-  };
-}
-
-export function CarProgress({ sections }: CarProgressProps) {
-  const [selectedSection, setSelectedSection] = useState<string | null>(null);
-
-  // Update section data with actual progress
-  const sectionData = SECTION_POSITIONS.map(section => ({
-    ...section,
-    completed: sections[section.name]?.completed || 0,
-    total: sections[section.name]?.total || 0
-  }));
-
-  // Find sections that don't have predefined positions
-  const unmappedSections = Object.keys(sections).filter(
-    sectionName => !SECTION_POSITIONS.some(pos => pos.name === sectionName)
-  );
+// Model component
+function Model({ rotate = true }) {
+  const group = useRef<THREE.Group>(null);
+  const { nodes } = useGLTF("3d_model_classic_cobra_1965_vr_ready_gltf/scene.gltf") as GLTFResult;
+  
+  // Auto-rotate the model
+  useFrame(() => {
+    if (rotate && group.current) {
+      group.current.rotation.y += 0.003;
+    }
+  });
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto aspect-[2/1]">
-      <div className="relative w-full h-full">
-        <Image
-          src="/images/car-silhouette.png"
-          alt="Car Silhouette"
-          fill
-          className="object-contain"
-          priority
-        />
-        
-        {/* Section Indicators */}
-        {sectionData.map((section) => {
-          const percentage = section.total > 0 
-            ? Math.round((section.completed / section.total) * 100) 
-            : 0;
-
-          // Skip sections with no data
-          if (section.total === 0) return null;
-
+    <group ref={group} dispose={null} position={[0, 0, 0]} scale={1.5}>
+      {/* Render the model */}
+      {nodes && Object.keys(nodes).map((key) => {
+        const node = nodes[key];
+        // Check if the node is a mesh with geometry
+        if (node.type === 'Mesh' && (node as THREE.Mesh).geometry) {
+          const mesh = node as THREE.Mesh;
           return (
-            <TooltipProvider key={section.name}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    className={`absolute transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full 
-                      ${selectedSection === section.name 
-                        ? 'ring-2 ring-primary ring-offset-2' 
-                        : ''
-                      }
-                      ${percentage === 100 
-                        ? 'bg-green-500' 
-                        : percentage > 0 
-                          ? 'bg-yellow-500' 
-                          : 'bg-gray-300'
-                      }
-                      hover:scale-110 transition-transform cursor-pointer`}
-                    style={{
-                      top: section.position.top,
-                      left: section.position.left,
-                    }}
-                    onClick={() => setSelectedSection(
-                      selectedSection === section.name ? null : section.name
-                    )}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{section.name}</p>
-                  <p className="text-sm">{percentage}% Complete</p>
-                  <p className="text-xs text-gray-500">
-                    {section.completed} of {section.total} tasks completed
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <mesh
+              key={key}
+              geometry={mesh.geometry}
+              material={mesh.material}
+              position={mesh.position}
+              rotation={mesh.rotation}
+              scale={mesh.scale}
+            />
           );
-        })}
-      </div>
+        }
+        return null;
+      })}
+    </group>
+  );
+}
 
-      {/* Section Details Card */}
-      {selectedSection && (
-        <Card className="absolute bottom-0 left-1/2 transform -translate-x-1/2 p-4 w-64 bg-white shadow-lg">
-          <h3 className="font-semibold mb-2">{selectedSection}</h3>
-          {(() => {
-            // Check if it's a mapped section
-            const mappedSection = sectionData.find(s => s.name === selectedSection);
-            
-            if (mappedSection && mappedSection.total > 0) {
-              const percentage = Math.round((mappedSection.completed / mappedSection.total) * 100);
-              
-              return (
-                <>
-                  <Progress value={percentage} className="mb-2" />
-                  <p className="text-sm text-gray-600">
-                    {mappedSection.completed} of {mappedSection.total} tasks completed
-                  </p>
-                </>
-              );
-            }
-            
-            // Check if it's an unmapped section
-            if (unmappedSections.includes(selectedSection) && sections[selectedSection]) {
-              const section = sections[selectedSection];
-              const percentage = section.total > 0 
-                ? Math.round((section.completed / section.total) * 100) 
-                : 0;
-              
-              return (
-                <>
-                  <Progress value={percentage} className="mb-2" />
-                  <p className="text-sm text-gray-600">
-                    {section.completed} of {section.total} tasks completed
-                  </p>
-                </>
-              );
-            }
-            
-            return <p className="text-sm text-gray-600">No data available</p>;
-          })()}
-        </Card>
-      )}
+export function CarProgress() {
+  const cameraRef = useRef<THREE.Camera | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const controlsRef = useRef<any>(null);
+  
+  // Function to log camera position
+  const logCameraPosition = () => {
+    if (cameraRef.current) {
+      console.log('Camera position:', {
+        x: cameraRef.current.position.x,
+        y: cameraRef.current.position.y,
+        z: cameraRef.current.position.z
+      });
+    }
+  };
+  
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const resetView = () => {
+    if (controlsRef.current && typeof controlsRef.current.reset === 'function') {
+      controlsRef.current.reset();
+    }
+  };
+  
+  return (
+    <div className="relative w-full h-full">
+      
+      <div className="absolute bottom-4 left-4 z-10">
+        <button
+          onClick={logCameraPosition}
+          className="bg-white/80 backdrop-blur-sm px-3 py-1 rounded-md text-sm font-medium hover:bg-white transition-colors"
+        >
+          Log Camera Position
+        </button>
+      </div>
+      
+      <Canvas 
+        shadows 
+        camera={{ position: [-386, 99, 1], fov: 60 }}
+        onCreated={({ camera }) => { 
+          cameraRef.current = camera;
+          camera.lookAt(0, 0, 0);
+          console.log('Camera created at position:', {
+            x: camera.position.x,
+            y: camera.position.y,
+            z: camera.position.z
+          });
+        }}
+      >
+        <Suspense fallback={null}>
+          <ambientLight intensity={0.5} />
+          <directionalLight 
+            position={[10, 10, 5]} 
+            intensity={1} 
+            castShadow 
+            shadow-mapSize={[1024, 1024]}
+          />
+          <Model rotate={false}/>
+          <ambientLight intensity={1.0} />
+          <directionalLight position={[5, 10, 5]} intensity={1.5} />
+          <OrbitControls 
+            ref={controlsRef}
+            enablePan={true}
+            enableZoom={true}
+            enableRotate={true}
+            minDistance={3}
+            maxDistance={400}
+            minPolarAngle={Math.PI / 6}
+            maxPolarAngle={Math.PI / 1.5}
+            onChange={logCameraPosition}
+            makeDefault
+          />
+        </Suspense>
+      </Canvas>
     </div>
   );
 } 

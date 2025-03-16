@@ -320,117 +320,15 @@ const AssemblyProgressTracker = () => {
               <Progress value={calculateOverallProgress()} className="h-2" />
             </div>
 
-            <Card className="p-6">
-              <CardHeader className="px-0 pt-0">
-                <CardTitle>Interactive Car Assembly View</CardTitle>
+            <Card>
+              <CardHeader>
+                <CardTitle>Interactive 3D Car Assembly View</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Click on different parts of the car to see build progress for each section
+                </p>
               </CardHeader>
-              <CardContent className="px-0 pb-0">
-                <CarProgress 
-                  sections={
-                    taskSections.reduce((acc, section) => {
-                      const completedTasks = section.tasks.filter(task => task.isCompleted).length;
-                      const totalTasks = section.tasks.length;
-                      
-                      // Skip sections with no tasks
-                      if (totalTasks === 0) return acc;
-                      
-                      // Map section names to standard car sections
-                      let sectionName = section.name;
-                      
-                      // Front Suspension mapping
-                      if (
-                        sectionName.toLowerCase().includes("front") && 
-                        (sectionName.toLowerCase().includes("suspension") || 
-                         sectionName.toLowerCase().includes("wheel") || 
-                         sectionName.toLowerCase().includes("steering"))
-                      ) {
-                        sectionName = "Front Suspension";
-                      }
-                      
-                      // Engine mapping
-                      else if (
-                        sectionName.toLowerCase().includes("engine") || 
-                        sectionName.toLowerCase().includes("motor") || 
-                        sectionName.toLowerCase().includes("powertrain")
-                      ) {
-                        sectionName = "Engine";
-                      }
-                      
-                      // Interior mapping
-                      else if (
-                        sectionName.toLowerCase().includes("interior") || 
-                        sectionName.toLowerCase().includes("dashboard") || 
-                        sectionName.toLowerCase().includes("seat") || 
-                        sectionName.toLowerCase().includes("cockpit")
-                      ) {
-                        sectionName = "Interior";
-                      }
-                      
-                      // Rear Suspension mapping
-                      else if (
-                        sectionName.toLowerCase().includes("rear") && 
-                        (sectionName.toLowerCase().includes("suspension") || 
-                         sectionName.toLowerCase().includes("wheel") || 
-                         sectionName.toLowerCase().includes("axle"))
-                      ) {
-                        sectionName = "Rear Suspension";
-                      }
-                      
-                      // Body mapping
-                      else if (
-                        sectionName.toLowerCase().includes("body") || 
-                        sectionName.toLowerCase().includes("panel") || 
-                        sectionName.toLowerCase().includes("exterior") || 
-                        sectionName.toLowerCase().includes("paint")
-                      ) {
-                        sectionName = "Body";
-                      }
-                      
-                      // Electrical mapping
-                      else if (
-                        sectionName.toLowerCase().includes("electric") || 
-                        sectionName.toLowerCase().includes("wiring") || 
-                        sectionName.toLowerCase().includes("battery") || 
-                        sectionName.toLowerCase().includes("light")
-                      ) {
-                        sectionName = "Electrical";
-                      }
-                      
-                      // Brakes mapping
-                      else if (
-                        sectionName.toLowerCase().includes("brake") || 
-                        sectionName.toLowerCase().includes("stop")
-                      ) {
-                        sectionName = "Brakes";
-                      }
-                      
-                      // Drivetrain mapping
-                      else if (
-                        sectionName.toLowerCase().includes("drivetrain") || 
-                        sectionName.toLowerCase().includes("transmission") || 
-                        sectionName.toLowerCase().includes("differential") || 
-                        sectionName.toLowerCase().includes("driveshaft")
-                      ) {
-                        sectionName = "Drivetrain";
-                      }
-                      
-                      // If the section already exists, combine the stats
-                      if (acc[sectionName]) {
-                        acc[sectionName] = {
-                          completed: acc[sectionName].completed + completedTasks,
-                          total: acc[sectionName].total + totalTasks
-                        };
-                      } else {
-                        acc[sectionName] = {
-                          completed: completedTasks,
-                          total: totalTasks
-                        };
-                      }
-                      
-                      return acc;
-                    }, {} as {[key: string]: {completed: number, total: number}})
-                  } 
-                />
+              <CardContent className="h-[600px]">
+                <CarProgress />
               </CardContent>
             </Card>
           </TabsContent>
