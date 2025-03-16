@@ -4,13 +4,15 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Clock, TrendingUp, Calendar } from "lucide-react";
-import { getHoursData, HOURS_CONFIG } from "@/data/calendar";
+import { getHoursData, HOURS_CONFIG, getAllWorkHours } from "@/data/calendar";
+import { HoursHeatmap } from './HoursHeatmap';
 import Link from "next/link";
 
 export default function HoursWorkedCard() {
   const [totalHours, setTotalHours] = useState(0);
   const [weeklyHours, setWeeklyHours] = useState(0);
   const [monthlyHours, setMonthlyHours] = useState(0);
+  const [workHoursRecord, setWorkHoursRecord] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [config, setConfig] = useState(HOURS_CONFIG); // Default from import, will be updated
   
@@ -19,11 +21,15 @@ export default function HoursWorkedCard() {
     const fetchHoursData = async () => {
       setIsLoading(true);
       try {
-        const data = await getHoursData();
+        const [data, hoursRecord] = await Promise.all([
+          getHoursData(),
+          getAllWorkHours()
+        ]);
         
         setTotalHours(Math.round(data.totalHours));
         setWeeklyHours(Math.round(data.weeklyHours));
         setMonthlyHours(Math.round(data.monthlyHours));
+        setWorkHoursRecord(hoursRecord);
         setConfig(data.config); // Update config from API response
       } catch (error) {
         console.error("Error fetching hours data:", error);
@@ -31,6 +37,7 @@ export default function HoursWorkedCard() {
         setTotalHours(0);
         setWeeklyHours(0);
         setMonthlyHours(0);
+        setWorkHoursRecord({});
         // Config will remain as default from import
       } finally {
         setIsLoading(false);
@@ -116,6 +123,9 @@ export default function HoursWorkedCard() {
                 <p className="text-xs text-muted-foreground">{monthlyPercentage}%</p>
               </div>
             </div>
+            
+            {/* Hours Heatmap */}
+            <HoursHeatmap workHoursRecord={workHoursRecord} isLoading={isLoading} />
             
             {/* Estimated Completion */}
             <div className="text-sm mt-4">
