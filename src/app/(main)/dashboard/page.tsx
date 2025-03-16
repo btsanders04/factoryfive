@@ -1,5 +1,5 @@
-import BudgetCard from "./BudgetCard";
-import ToolsNeededCard from "./ToolsNeededCard";
+import BudgetCard from "./components/BudgetCard";
+import ToolsNeededCard from "./components/ToolsNeededCard";
 
 export default function Dashboard() {
   return (

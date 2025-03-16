@@ -13,13 +13,13 @@ import {
   deleteTask,
   getAllTaskSections,
   updateTask,
-} from "./task.service";
+} from "@/data/task";
 import { TaskSectionWithRelations } from "@/lib/types/tasks";
 import { Prisma, Task } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PrimaryAddButton } from "@/components/PrimaryAddButton";
-import CreateSectionModal from "./CreateSectionModal";
+import CreateSectionModal from "./components/CreateSectionModal";
 
 const AssemblyProgressTracker = () => {
   // State to track completed tasks

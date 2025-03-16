@@ -43,4 +43,4 @@ export async function upsertBudget(
     budget: BudgetWithRelations;
     action: ActionType;
   }>);
-}
+} 

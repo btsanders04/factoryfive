@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   getAllBudgets,
   upsertBudget,
-} from "@/app/(main)/budget/budget.service";
+} from "@/data/budget";
 import { BudgetWithRelations } from "@/lib/types/budget";
 import {
   createCategory,
@@ -16,7 +16,7 @@ import {
 import { CategoryWithTransactions } from "@/lib/types/category";
 import { ActionType } from "@/lib/types/enum";
 import CategoryForm from "@/components/CategoryForm";
-import BudgetRow from "./BudgetRow";
+import BudgetRow from "./components/BudgetRow";
 import { PrimaryAddButton } from "@/components/PrimaryAddButton";
 import { Prisma } from "@prisma/client";
 import { BuilderWithSpend, getBuildersSpend } from "@/data/builder";

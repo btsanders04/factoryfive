@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import BuildTimeline from "./BuildTimeline";
+import BuildTimeline from "./components/BuildTimeline";
 import { Milestone as MilestoneIcon } from "lucide-react";
 import {
   createMilestone,
@@ -10,7 +10,7 @@ import {
   updateMilestone,
 } from "@/data/milestone";
 import { Milestone, Prisma } from "@prisma/client";
-import AddMilestoneModal from "./AddMilestoneModal";
+import AddMilestoneModal from "./components/AddMilestoneModal";
 
 const BuildProgress = () => {
   const [milestones, setMilestones] = useState<Milestone[]>([]);

@@ -43,4 +43,4 @@ export async function getAllWorkHours(): Promise<Record<string, WorkHour>> {
     {} as Record<string, WorkHour>
   );
   return workHourRecord;
-}
+} 

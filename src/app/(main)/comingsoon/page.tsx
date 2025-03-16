@@ -1,4 +1,4 @@
-import ComingSoon from "@/app/(main)/comingsoon/ComingSoon";
+import ComingSoon from "@/app/(main)/comingsoon/components/ComingSoon";
 
 export default function ComingSoonPage() {
   return (

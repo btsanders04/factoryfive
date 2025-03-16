@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { BudgetWithRelations } from "@/lib/types/budget";
-import { getAllBudgets } from "@/app/(main)/budget/budget.service";
+import { getAllBudgets } from "@/data/budget";
 import { TransactionWithBuilder } from "@/lib/types/transactions";
 import { Builder } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

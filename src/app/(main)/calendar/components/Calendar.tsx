@@ -6,9 +6,9 @@ import {
   ChevronRight,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import HoursWorkedModal from "./HoursWorkedModal";
-import { getAllWorkHours, updateHoursForDate } from "./calendar.service";
+import { getAllWorkHours, updateHoursForDate } from "@/data/calendar";
 import { WorkHour } from "@prisma/client";
+import HoursWorkedModal from "./HoursWorkedModal";
 
 export default function Calendar() {
   // State for current date and displayed month/year

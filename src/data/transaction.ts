@@ -66,4 +66,4 @@ export async function deleteTransaction(id: number): Promise<Transaction> {
     );
   }
   return response.json() as Promise<Transaction>;
-}
+} 

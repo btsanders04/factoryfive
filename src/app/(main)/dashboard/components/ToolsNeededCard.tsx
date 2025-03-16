@@ -10,7 +10,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getAllTools } from "../tools/tool.service";
+import { getAllTools } from "@/data/tool";
 import { Tool } from "@prisma/client";
 import { Label } from "@/components/ui/label";
 

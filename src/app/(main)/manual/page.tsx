@@ -1,6 +1,6 @@
 "use client"
 
-import Manual from "./manual";
+import Manual from "./components/manual";
 
 
 export default function ManualPage() {

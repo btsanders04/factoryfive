@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ExternalLink, Trash2 } from "lucide-react";
-import { ToolModal } from "@/app/(main)/tools/ToolModal";
+import { ToolModal } from "@/app/(main)/tools/components/ToolModal";
 import { Prisma, Tool } from "@prisma/client";
 import {
   checkTool,
   createTool,
   deleteTool,
   getAllTools,
-} from "@/app/(main)/tools/tool.service";
+} from "@/data/tool";
 
 const ToolsChecklistPage = () => {
   const [tools, setTools] = useState<Tool[]>([]);

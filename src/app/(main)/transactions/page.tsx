@@ -16,15 +16,15 @@ import {
   deleteTransaction,
   getAllTransactions,
   editTransaction,
-} from "@/app/(main)/transactions/transaction.service";
+} from "@/data/transaction";
 import { TransactionWithRelations } from "@/lib/types/transactions";
 import { getAllCategories } from "@/data/category";
 import { Builder, Category, Prisma } from "@prisma/client";
-import { DataTable } from "./data-table";
-import { createColumns } from "./columns";
+import { DataTable } from "./components/data-table";
+import { createColumns } from "./components/columns";
 import { getAllBuilders } from "@/data/builder";
 import { PrimaryAddButton } from "@/components/PrimaryAddButton";
-import TransactionForm from "./TransactionForm";
+import TransactionForm from "./components/TransactionForm";
 
 export default function TransactionsPage() {
   const [openTransactionModal, setOpenTransactionModal] = useState(false);

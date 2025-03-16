@@ -54,4 +54,4 @@ export async function checkTool(id: number, aquired: boolean): Promise<Tool> {
     );
   }
   return response.json() as Promise<Tool>;
-}
+} 
