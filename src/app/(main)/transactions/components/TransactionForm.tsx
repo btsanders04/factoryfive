@@ -23,7 +23,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
-import { Calendar } from "../../../components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { dateFormat } from "@/lib/utils";
 import { TransactionWithRelations } from "@/lib/types/transactions";
 
