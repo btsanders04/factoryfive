@@ -12,7 +12,7 @@ export async function GET() {
     id: builder.id,
     name: builder.name,
     spend: builder.transactions.reduce(
-      (acc, transaction) => acc + transaction.amount,
+      (acc, transaction) => acc - transaction.amount,
       0
     ),
   }));

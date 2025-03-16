@@ -36,12 +36,12 @@ const getIndividualContributions = (transactions: TransactionWithBuilder[]) => {
 
     if (existingBuilder) {
       // If builder exists, add to their amount
-      existingBuilder.amount += transaction.amount;
+      existingBuilder.amount -= transaction.amount;
     } else {
       // If builder doesn't exist, add new entry
       acc.push({
         builder: transaction.builder,
-        amount: transaction.amount,
+        amount: Math.abs(transaction.amount),
       });
     }
 

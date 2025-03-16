@@ -152,7 +152,7 @@ export default function TransactionsPage() {
                 {builder.name}
               </div>
               <div className="text-lg sm:text-2xl font-bold text-white">
-                ${Math.abs(builder.spend).toLocaleString()}
+                ${builder.spend.toLocaleString()}
               </div>
             </div>
           ))}
