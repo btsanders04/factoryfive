@@ -43,10 +43,7 @@ export default function HoursWorkedCard() {
   // Calculate percentages
   const totalPercentage = Math.min(Math.round((totalHours / config.targetHours) * 100), 100);
   const weeklyPercentage = Math.min(Math.round((weeklyHours / config.weeklyGoal) * 100), 100);
-  
-  // Calculate monthly percentage (assuming monthly goal is 4x weekly goal)
-  const monthlyGoal = config.weeklyGoal * 4;
-  const monthlyPercentage = Math.min(Math.round((monthlyHours / monthlyGoal) * 100), 100);
+  const monthlyPercentage = Math.min(Math.round((monthlyHours / config.monthlyGoal) * 100), 100);
   
   // Estimate completion date based on current progress and weekly rate
   const estimateCompletionDate = () => {
@@ -115,7 +112,7 @@ export default function HoursWorkedCard() {
               </div>
               <Progress value={monthlyPercentage} className="h-2 mt-2" />
               <div className="flex justify-between mt-1">
-                <p className="text-xs text-muted-foreground">Goal: {monthlyGoal} hrs</p>
+                <p className="text-xs text-muted-foreground">Goal: {config.monthlyGoal} hrs</p>
                 <p className="text-xs text-muted-foreground">{monthlyPercentage}%</p>
               </div>
             </div>
