@@ -14,18 +14,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePdfViewer } from "@/components/PdfViewerContext";
+import { PdfTableOfContents } from "@/components/PdfTableOfContents";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface BookmarkItem {
   pageNumber: number;
   title: string;
-}
-
-interface OutlineItem {
-  title: string;
-  dest?: Array<{num: number}>;
-  items?: OutlineItem[];
 }
 
 const PDFViewer = ({ pdfUrl, title, initialPage }: { 
@@ -41,7 +36,6 @@ const PDFViewer = ({ pdfUrl, title, initialPage }: {
   const [pagesPerView, setPagesPerView] = useState(2);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [outline, setOutline] = useState<OutlineItem[]>([]);
   const [showOutline, setShowOutline] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<number[]>([]);
@@ -50,104 +44,6 @@ const PDFViewer = ({ pdfUrl, title, initialPage }: {
   const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [showBookmarks, setShowBookmarks] = useState(false);
   const [jumpToPage, setJumpToPage] = useState("");
-  const [useCustomToc, setUseCustomToc] = useState(false);
-
-  // Factory Five Mk5 Manual custom table of contents
-  const factoryFiveToc: OutlineItem[] = [
-    {
-      title: "Introduction",
-      dest: [{ num: 3 }],
-      items: [
-        { title: "Welcome", dest: [{ num: 3 }] },
-        { title: "About This Manual", dest: [{ num: 4 }] },
-        { title: "Safety Information", dest: [{ num: 5 }] }
-      ]
-    },
-    {
-      title: "Getting Started",
-      dest: [{ num: 8 }],
-      items: [
-        { title: "Tools Required", dest: [{ num: 8 }] },
-        { title: "Parts Inventory", dest: [{ num: 10 }] },
-        { title: "Workspace Preparation", dest: [{ num: 12 }] }
-      ]
-    },
-    {
-      title: "Chassis Assembly",
-      dest: [{ num: 15 }],
-      items: [
-        { title: "Frame Preparation", dest: [{ num: 15 }] },
-        { title: "Suspension Mounting", dest: [{ num: 18 }] },
-        { title: "Steering Installation", dest: [{ num: 25 }] },
-        { title: "Brake System", dest: [{ num: 32 }] }
-      ]
-    },
-    {
-      title: "Drivetrain",
-      dest: [{ num: 40 }],
-      items: [
-        { title: "Engine Installation", dest: [{ num: 40 }] },
-        { title: "Transmission Mounting", dest: [{ num: 48 }] },
-        { title: "Driveshaft", dest: [{ num: 55 }] },
-        { title: "Cooling System", dest: [{ num: 60 }] }
-      ]
-    },
-    {
-      title: "Body Installation",
-      dest: [{ num: 68 }],
-      items: [
-        { title: "Body Preparation", dest: [{ num: 68 }] },
-        { title: "Mounting the Body", dest: [{ num: 72 }] },
-        { title: "Door Installation", dest: [{ num: 80 }] },
-        { title: "Hood and Trunk", dest: [{ num: 85 }] }
-      ]
-    },
-    {
-      title: "Interior",
-      dest: [{ num: 90 }],
-      items: [
-        { title: "Dashboard Installation", dest: [{ num: 90 }] },
-        { title: "Seats and Harnesses", dest: [{ num: 95 }] },
-        { title: "Carpet and Trim", dest: [{ num: 100 }] }
-      ]
-    },
-    {
-      title: "Electrical System",
-      dest: [{ num: 105 }],
-      items: [
-        { title: "Wiring Harness", dest: [{ num: 105 }] },
-        { title: "Gauges and Switches", dest: [{ num: 110 }] },
-        { title: "Lighting", dest: [{ num: 115 }] }
-      ]
-    },
-    {
-      title: "Final Assembly",
-      dest: [{ num: 120 }],
-      items: [
-        { title: "Wheels and Tires", dest: [{ num: 120 }] },
-        { title: "Alignment", dest: [{ num: 125 }] },
-        { title: "Fluid Fill", dest: [{ num: 130 }] }
-      ]
-    },
-    {
-      title: "Testing and Tuning",
-      dest: [{ num: 135 }],
-      items: [
-        { title: "Initial Startup", dest: [{ num: 135 }] },
-        { title: "Break-in Procedure", dest: [{ num: 140 }] },
-        { title: "Troubleshooting", dest: [{ num: 145 }] }
-      ]
-    },
-    {
-      title: "Appendices",
-      dest: [{ num: 150 }],
-      items: [
-        { title: "Torque Specifications", dest: [{ num: 150 }] },
-        { title: "Maintenance Schedule", dest: [{ num: 155 }] },
-        { title: "Parts List", dest: [{ num: 160 }] }
-      ]
-    }
-  ];
 
   // Load bookmarks from localStorage
   useEffect(() => {
@@ -190,22 +86,10 @@ const PDFViewer = ({ pdfUrl, title, initialPage }: {
     }
   }, [initialPage, numPages]);
 
-  function onDocumentLoadSuccess({ numPages, outline }: { numPages: number, outline?: OutlineItem[] }) {
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
     setIsLoading(false);
     setError(null);
-    
-    // Check if the PDF has an outline, if not and it's the Factory Five manual, use our custom TOC
-    if (outline && outline.length > 0) {
-      setOutline(outline);
-      setUseCustomToc(false);
-    } else if (title.toLowerCase().includes("factory five") || title.toLowerCase().includes("mk5")) {
-      setOutline(factoryFiveToc);
-      setUseCustomToc(true);
-    } else {
-      setOutline([]);
-      setUseCustomToc(false);
-    }
   }
 
   function changePage(offset: number) {
@@ -307,28 +191,6 @@ const PDFViewer = ({ pdfUrl, title, initialPage }: {
       }
     }
     return pagesToRender;
-  };
-
-  const renderOutlineItem = (item: OutlineItem, level = 0) => {
-    if (!item) return null;
-    
-    const pageNum = item.dest?.[0]?.num;
-    
-    return (
-      <div key={`${item.title}-${level}`} className="mb-1">
-        <button
-          className={`text-left w-full px-2 py-1 rounded hover:bg-blue-50 text-sm flex justify-between items-center text-black ${
-            level === 0 ? 'font-medium' : 'font-normal'
-          }`}
-          style={{ paddingLeft: `${(level * 12) + 8}px` }}
-          onClick={() => pageNum && goToPage(pageNum)}
-        >
-          <span className={level === 0 ? 'text-blue-800' : 'text-black'}>{item.title}</span>
-          {pageNum && <span className="text-gray-500 text-xs ml-2">p.{pageNum}</span>}
-        </button>
-        {item.items && item.items.map((subItem) => renderOutlineItem(subItem, level + 1))}
-      </div>
-    );
   };
 
   // Export a function to navigate to a specific page
@@ -464,32 +326,12 @@ const PDFViewer = ({ pdfUrl, title, initialPage }: {
           </div>
 
           {/* Table of Contents */}
-          {showOutline && (
-            <div className="border p-3 rounded-md bg-white max-h-[calc(100vh-300px)] overflow-y-auto shadow-md">
-              <div className="flex justify-between items-center mb-3 pb-2 border-b">
-                <h3 className="font-medium text-blue-900">Table of Contents</h3>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setShowOutline(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              {outline.length > 0 ? (
-                <div className="space-y-1 text-black">
-                  {useCustomToc && (
-                    <div className="mb-3 text-xs text-blue-600 italic px-2">
-                      Custom table of contents for Factory Five Mk5 Manual
-                    </div>
-                  )}
-                  {outline.map((item) => renderOutlineItem(item))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">No table of contents available</p>
-              )}
-            </div>
-          )}
+          <PdfTableOfContents 
+            pdfUrl={pdfUrl}
+            isOpen={showOutline}
+            onClose={() => setShowOutline(false)}
+            onPageSelect={goToPage}
+          />
 
           {/* Search panel */}
           {showSearch && (
