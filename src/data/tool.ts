@@ -1,57 +1,85 @@
 import { Prisma, Tool } from "@prisma/client";
 
+// Get all tools
 export async function getAllTools(): Promise<Tool[]> {
-  const response = await fetch("/api/tools", {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(
-      errorData?.error || `Error: ${response.status} ${response.statusText}`
-    );
+  try {
+    const response = await fetch("/api/tools", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch tools");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error in getAllTools:", error);
+    return [];
   }
-  return response.json() as Promise<Tool[]>;
 }
 
+// Create a new tool
 export async function createTool(tool: Prisma.ToolCreateInput): Promise<Tool> {
-  const response = await fetch("/api/tools", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(tool),
-  });
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(
-      errorData?.error || `Error: ${response.status} ${response.statusText}`
-    );
+  try {
+    const response = await fetch("/api/tools", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(tool),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create tool");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error in createTool:", error);
+    throw error;
   }
-  return response.json() as Promise<Tool>;
 }
 
-export async function deleteTool(id: number): Promise<Tool> {
-  const response = await fetch(`/api/tools/${id}`, {
-    method: "DELETE",
-  });
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(
-      errorData?.error || `Error: ${response.status} ${response.statusText}`
-    );
+// Update a tool's acquired status
+export async function checkTool(id: number, acquired: boolean): Promise<Tool> {
+  try {
+    const response = await fetch(`/api/tools/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ aquired: acquired }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update tool");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error in checkTool:", error);
+    throw error;
   }
-  return response.json() as Promise<Tool>;
 }
 
-export async function checkTool(id: number, aquired: boolean): Promise<Tool> {
-  const response = await fetch(`/api/tools/${id}`, {
-    method: "PUT",
-    body: JSON.stringify({ aquired }),
-  });
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(
-      errorData?.error || `Error: ${response.status} ${response.statusText}`
-    );
+// Delete a tool
+export async function deleteTool(id: number): Promise<void> {
+  try {
+    const response = await fetch(`/api/tools/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete tool");
+    }
+  } catch (error) {
+    console.error("Error in deleteTool:", error);
+    throw error;
   }
-  return response.json() as Promise<Tool>;
 } 
