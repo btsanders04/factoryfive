@@ -85,7 +85,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     setIsFormValid(isValid);
   }, [transactionData]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (
     field: keyof (Transaction & { transferBuilderId?: number }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

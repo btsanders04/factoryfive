@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type PartStatus = "Pending" | "Received" | "Installed" | "Damaged" | "Missing" | "Not Received";
 
 export interface PartData {

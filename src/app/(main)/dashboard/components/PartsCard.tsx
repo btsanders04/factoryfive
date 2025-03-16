@@ -21,7 +21,7 @@ export function PartsCard() {
     receivedPercentage: 0,
     installedPercentage: 0,
   });
-  const [isLoading, setIsLoading] = useState(true);
+//   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -31,7 +31,7 @@ export function PartsCard() {
       } catch (error) {
         console.error("Error fetching parts metrics:", error);
       } finally {
-        setIsLoading(false);
+        // setIsLoading(false);
       }
     };
 

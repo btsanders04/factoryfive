@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+"use client";
+
 import { useState, useEffect } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WorkHour } from "@prisma/client";
