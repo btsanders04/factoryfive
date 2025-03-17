@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { CheckCircle2, Circle, Plus, Trash2 } from "lucide-react";
 import {
   createTask,
   createTaskSection,
@@ -16,11 +11,11 @@ import {
 } from "@/data/task";
 import { TaskSectionWithRelations } from "@/lib/types/tasks";
 import { Prisma, Task } from "@prisma/client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { PrimaryAddButton } from "@/components/PrimaryAddButton";
 import CreateSectionModal from "./components/CreateSectionModal";
-import { CarProgress } from "./components/CarProgress";
+import { OverviewTab } from "./components/OverviewTab";
+import { DetailedTab } from "./components/DetailedTab";
+import { CarTab } from "./components/CarTab";
 
 const AssemblyProgressTracker = () => {
   // State to track completed tasks
@@ -140,197 +135,31 @@ const AssemblyProgressTracker = () => {
             <TabsTrigger value="car">Car View</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-4">
-            <div className="mb-6">
-              <div className="flex justify-between mb-2">
-                <h3 className="font-semibold">Overall Progress</h3>
-                <span>{calculateOverallProgress().toFixed(0)}%</span>
-              </div>
-              <Progress value={calculateOverallProgress()} className="h-2" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {taskSections.map((section, sectionIndex) => {
-                const progress = calculateSectionProgress(sectionIndex);
-
-                return (
-                  <Card key={sectionIndex} className="overflow-hidden">
-                    <CardHeader className="p-4 pb-2">
-                      <CardTitle className="text-base font-medium">
-                        {section.name}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <div className="relative pt-8 pb-2">
-                        <svg
-                          className="w-24 h-24 mx-auto"
-                          viewBox="0 0 100 100"
-                        >
-                          {/* Background circle */}
-                          <circle
-                            cx="50"
-                            cy="50"
-                            r="40"
-                            fill="none"
-                            stroke="#e2e8f0"
-                            strokeWidth="8"
-                          />
-                          {/* Progress circle */}
-                          {progress > 0 && (
-                            <circle
-                              cx="50"
-                              cy="50"
-                              r="40"
-                              fill="none"
-                              stroke="#3b82f6"
-                              strokeWidth="8"
-                              strokeDasharray={`${40 * 2 * Math.PI * (progress / 100)} ${40 * 2 * Math.PI * (1 - progress / 100)}`}
-                              strokeDashoffset={40 * 2 * Math.PI * 0.25}
-                              transform="rotate(-90 50 50)"
-                            />
-                          )}
-                          {/* Percentage text */}
-                          <text
-                            x="50"
-                            y="50"
-                            fontSize="16"
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            fill="#1e293b"
-                            fontWeight="bold"
-                          >
-                            {progress.toFixed(0)}%
-                          </text>
-                        </svg>
-                        <div className="text-center mt-2">
-                          <span className="text-sm text-gray-500">
-                            {
-                              section.tasks.filter((task) => task.isCompleted)
-                                .length
-                            }{" "}
-                            of {section.tasks.length} tasks
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+          <TabsContent value="overview">
+            <OverviewTab 
+              taskSections={taskSections}
+              calculateSectionProgress={calculateSectionProgress}
+              calculateOverallProgress={calculateOverallProgress}
+            />
           </TabsContent>
 
           <TabsContent value="details">
-            {taskSections.map((section, sectionIndex) => {
-              const progress = calculateSectionProgress(sectionIndex);
-
-              return (
-                <div key={section.id} className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-lg flex items-center gap-2">
-                      {progress === 100 ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <Circle className="h-5 w-5 text-gray-300" />
-                      )}
-                      {section.name}
-                    </h3>
-                    <span>{progress.toFixed(0)}%</span>
-                  </div>
-                  <Progress value={progress} className="h-2 mb-3" />
-
-                  <div className="ml-6 mt-3 space-y-2">
-                    {section.tasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className="flex items-start justify-between"
-                      >
-                        <div className="flex items-start space-x-2">
-                          <Checkbox
-                            id={`task-${section.id}-${task.id}`}
-                            checked={task.isCompleted}
-                            onCheckedChange={() => toggleTask(task)}
-                          />
-                          <Label
-                            htmlFor={`task-${section.id}-${task.id}`}
-                            className={`text-sm ${task.isCompleted ? "line-through text-gray-400" : ""}`}
-                          >
-                            {task.name}
-                          </Label>
-                        </div>
-                        <button
-                          onClick={() => onTrashClicked(task.id)}
-                          className="text-red-500 hover:text-red-600 transition-colors"
-                          aria-label="Delete task"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    ))}
-                    {/* New task input section */}
-                    <div className="flex items-center space-x-2 mt-2">
-                      <Input
-                        id={`new-task-${section.id}`}
-                        placeholder="Add new task..."
-                        value={newTaskText[section.id] ?? ""}
-                        onChange={(e) =>
-                          updateNewTaskText(section.id, e.target.value)
-                        }
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            newTaskText[section.id]?.trim()
-                          ) {
-                            addNewTask(
-                              sectionIndex,
-                              section.id,
-                              newTaskText[section.id]?.trim()
-                            );
-                          }
-                        }}
-                        className="text-sm h-8"
-                      />
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          if (newTaskText[section.id]?.trim()) {
-                            addNewTask(
-                              sectionIndex,
-                              section.id,
-                              newTaskText[section.id]?.trim()
-                            );
-                          }
-                        }}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            <DetailedTab 
+              taskSections={taskSections}
+              calculateSectionProgress={calculateSectionProgress}
+              toggleTask={toggleTask}
+              onTrashClicked={onTrashClicked}
+              newTaskText={newTaskText}
+              updateNewTaskText={updateNewTaskText}
+              addNewTask={addNewTask}
+            />
           </TabsContent>
 
-          <TabsContent value="car" className="space-y-4">
-            <div className="mb-6">
-              <div className="flex justify-between mb-2">
-                <h3 className="font-semibold">Car Assembly Progress</h3>
-                <span>{calculateOverallProgress().toFixed(0)}%</span>
-              </div>
-              <Progress value={calculateOverallProgress()} className="h-2" />
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Interactive 3D Car Assembly View</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Click on different parts of the car to see build progress for each section
-                </p>
-              </CardHeader>
-              <CardContent className="h-[600px]">
-                <CarProgress />
-              </CardContent>
-            </Card>
+          <TabsContent value="car">
+            <CarTab 
+              taskSections={taskSections}
+              calculateOverallProgress={calculateOverallProgress}
+            />
           </TabsContent>
         </Tabs>
       </div>

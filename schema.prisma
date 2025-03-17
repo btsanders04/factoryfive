@@ -112,6 +112,7 @@ model TaskSection {
     id          Int    @id @default(autoincrement())
     name        String
     description String
+    position    Int[]
     tasks       Task[]
 }
 
@@ -143,8 +144,8 @@ model PartsInventory {
     dependencies         Int[]
     inspectionNotes      String
     image                String?
-    
+
     // Timestamps
-    createdAt            DateTime  @default(now())
-    updatedAt            DateTime  @updatedAt
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
