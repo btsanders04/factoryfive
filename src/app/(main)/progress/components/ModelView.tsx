@@ -10,14 +10,21 @@ import { TaskSectionWithRelations } from "@/lib/types/tasks";
 
 interface ModelViewProps {
   taskSections: TaskSectionWithRelations[];
+  onTaskSectionsUpdate?: (updatedSections: TaskSectionWithRelations[]) => void;
 }
 
-export function ModelView({ taskSections }: ModelViewProps) {
+export function ModelView({ taskSections, onTaskSectionsUpdate }: ModelViewProps) {
   const [selectedSection, setSelectedSection] = useState<number | null>(null);
+  const [localTaskSections, setLocalTaskSections] = useState<TaskSectionWithRelations[]>(taskSections);
 
   const cameraRef = useRef<THREE.Camera | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const controlsRef = useRef<any>(null);
+
+  // Update local state when props change
+  React.useEffect(() => {
+    setLocalTaskSections(taskSections);
+  }, [taskSections]);
 
   // Function to log camera position
   const logCameraPosition = () => {
@@ -40,6 +47,28 @@ export function ModelView({ taskSections }: ModelViewProps) {
     }
   };
 
+  // Handle section position change
+  const handleSectionPositionChange = async (sectionId: number, newPosition: [number, number, number]) => {
+    // Update local state first for immediate UI feedback
+    const updatedSections = localTaskSections.map(section => 
+      section.id === sectionId 
+        ? { ...section, position: newPosition } 
+        : section
+    );
+    
+    setLocalTaskSections(updatedSections);
+    
+    // Notify parent component if callback exists
+    if (onTaskSectionsUpdate) {
+      onTaskSectionsUpdate(updatedSections);
+    }
+    
+    // Note: We need to implement a proper updateTaskSection function in the data/task.ts file
+    // For now, we'll just update the local state and log the change
+    console.log(`Position updated for section ${sectionId}:`, newPosition);
+    console.log("Note: Database update not implemented yet - need to add updateTaskSection function");
+  };
+
   return (
     <div className="relative w-full h-full">
       <div className="absolute bottom-4 left-4 z-10">
@@ -53,7 +82,7 @@ export function ModelView({ taskSections }: ModelViewProps) {
 
       <Canvas
         shadows
-        camera={{ position: [-386, 99, 1], fov: 60 }}
+        camera={{ position: [338, 205, 12], fov: 60 }}
         onCreated={({ camera }) => {
           cameraRef.current = camera;
           camera.lookAt(0, 0, 0);
@@ -73,9 +102,10 @@ export function ModelView({ taskSections }: ModelViewProps) {
             shadow-mapSize={[1024, 1024]}
           />
           <Model
-            taskSections={taskSections}
+            taskSections={localTaskSections}
             selectedSection={selectedSection}
             setSelectedSection={setSelectedSection}
+            onSectionPositionChange={handleSectionPositionChange}
           />
           <ambientLight intensity={1.0} />
           <directionalLight position={[5, 10, 5]} intensity={1.5} />

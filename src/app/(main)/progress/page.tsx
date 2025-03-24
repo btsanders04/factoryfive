@@ -159,6 +159,7 @@ const AssemblyProgressTracker = () => {
             <CarTab 
               taskSections={taskSections}
               calculateOverallProgress={calculateOverallProgress}
+              onTaskSectionsUpdate={(updatedSections) => setTaskSections(updatedSections)}
             />
           </TabsContent>
         </Tabs>

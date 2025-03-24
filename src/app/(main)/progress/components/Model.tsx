@@ -19,6 +19,7 @@ interface ModelProps {
   taskSections: TaskSectionWithRelations[];
   selectedSection: number | null;
   setSelectedSection: (id: number | null) => void;
+  onSectionPositionChange?: (sectionId: number, newPosition: [number, number, number]) => void;
 }
 
 
@@ -27,6 +28,7 @@ export function Model({
   taskSections,
   selectedSection,
   setSelectedSection,
+  onSectionPositionChange
 }: ModelProps) {
   const group = useRef<THREE.Group>(null);
   const { nodes } = useGLTF(
@@ -41,7 +43,12 @@ export function Model({
     return Math.round((completedTasks / section.tasks.length) * 100);
   };
 
-
+  // Handle position change for a section indicator
+  const handlePositionChange = (sectionId: number, newPosition: [number, number, number]) => {
+    if (onSectionPositionChange) {
+      onSectionPositionChange(sectionId, newPosition);
+    }
+  };
 
   return (
     <group ref={group} dispose={null} position={[0, 0, 0]} scale={1.5}>
@@ -81,6 +88,7 @@ export function Model({
             progress={progress}
             isSelected={selectedSection === section.id}
             onClick={() => setSelectedSection(selectedSection === section.id ? null : section.id)}
+            onPositionChange={(newPosition) => handlePositionChange(section.id, newPosition)}
           />
         );
       })}
