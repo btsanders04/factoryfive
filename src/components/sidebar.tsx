@@ -15,12 +15,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className="h-full flex flex-col py-6 px-4">
+    <div className="h-full flex flex-col py-6 px-4 overflow-hidden">
       <div className="mb-8">
         <h2 className="text-lg font-semibold px-4">Menu</h2>
       </div>
 
-      <nav className="space-y-1 flex-1">
+      <nav className="space-y-1 flex-1 overflow-y-auto">
         {Object.values(MAIN_ROUTES).map((route, index) => {
           return (
             <NavItem
@@ -35,7 +35,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         })}
       </nav>
 
-      <div className="mt-auto space-y-4">
+      <div className="mt-auto space-y-4 pt-4 border-t">
         <UserButton />
         <InstallPrompt />
       </div>

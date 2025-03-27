@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Share2, Plus } from "lucide-react";
+import { Download, Share, Plus } from "lucide-react";
 
 interface CustomWindow extends Window {
   MSStream?: unknown;
@@ -41,7 +41,7 @@ export default function InstallPrompt() {
           <div className="text-xs text-muted-foreground space-y-1">
             <p>To install this app on your iOS device:</p>
             <ol className="list-decimal list-inside space-y-0.5">
-              <li>Tap the share button <Share2 className="inline-block h-3 w-3" /></li>
+              <li>Tap the share button <Share className="inline-block h-3 w-3" /></li>
               <li>Select &quot;Add to Home Screen&quot; <Plus className="inline-block h-3 w-3" /></li>
             </ol>
           </div>
