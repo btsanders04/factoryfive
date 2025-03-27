@@ -17,17 +17,19 @@ export default function MainLayout({
           <PdfViewerProvider>
             {/* Main content area */}
             <main>
-              <div className="flex min-h-screen bg-background">
-                {/* Desktop left sidebar - hidden on mobile */}
-                <div className="hidden md:block w-64 border-l">
-                  <Sidebar />
+              <div>
+                <div className="flex min-h-screen bg-background">
+                  {/* Desktop left sidebar - hidden on mobile */}
+                  <div className="hidden md:block w-64 border-l">
+                    <Sidebar />
+                  </div>
+                  {/* Mobile navigation - visible only on mobile */}
+                  <div className="md:hidden">
+                    <MobileNavigation />
+                  </div>
+                  {children}
                 </div>
-                {/* Mobile navigation - visible only on mobile */}
-                <div className="md:hidden">
-                  <MobileNavigation />  
-                </div>
-                {children}
-              </div>  
+              </div>
             </main>
           </PdfViewerProvider>
         </ThemeWrapper>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MAIN_ROUTES } from "@/app/routes";
 import { UserButton } from "@stackframe/stack";
+import InstallPrompt from "./InstallPrompt";
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -14,12 +15,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className="h-full py-6 px-4">
+    <div className="h-full flex flex-col py-6 px-4">
       <div className="mb-8">
         <h2 className="text-lg font-semibold px-4">Menu</h2>
       </div>
 
-      <nav className="space-y-1">
+      <nav className="space-y-1 flex-1">
         {Object.values(MAIN_ROUTES).map((route, index) => {
           return (
             <NavItem
@@ -34,8 +35,9 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         })}
       </nav>
 
-      <div className="mt-auto pt-8">
+      <div className="mt-auto space-y-4">
         <UserButton />
+        <InstallPrompt />
       </div>
     </div>
   );
