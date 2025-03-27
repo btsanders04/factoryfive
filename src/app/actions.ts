@@ -30,8 +30,17 @@ export async function sendNotification(message: string) {
   }
  
   try {
+    const p256dh = subscription.getKey('p256dh');
+    const auth = subscription.getKey('auth');
+    
     await webpush.sendNotification(
-      subscription,
+      {
+        endpoint: subscription.endpoint,
+        keys: {
+          p256dh: p256dh ? Buffer.from(p256dh).toString('base64') : '',
+          auth: auth ? Buffer.from(auth).toString('base64') : ''
+        }
+      },
       JSON.stringify({
         title: 'Test Notification',
         body: message,
