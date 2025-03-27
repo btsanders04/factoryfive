@@ -1,4 +1,7 @@
-{
+import type { MetadataRoute } from 'next'
+ 
+export default function manifest(): MetadataRoute.Manifest {
+  return {
   "name": "Factory Five",
   "short_name": "Factory Five",
   "description": "Factory Five Application",
@@ -18,4 +21,5 @@
       "type": "image/png"
     }
   ]
-} 
+  };
+}
