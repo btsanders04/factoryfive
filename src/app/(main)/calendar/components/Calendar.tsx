@@ -134,7 +134,7 @@ export default function Calendar() {
   };
 
   const compareDates = (date1: Date, date2: Date) => {
-    return date1.toDateString() === date2.toDateString();
+    return date1.toISOString().split('T')[0] === date2.toISOString().split('T')[0];
   };
 
   const goToToday = () => {
@@ -144,7 +144,7 @@ export default function Calendar() {
   };
 
   const getHoursForSelectedDate = (date: Date) => {
-    return workHours[date.toISOString()]?.hours || 0;
+    return workHours[date.toISOString().split('T')[0]]?.hours || 0;
   };
 
   // Handle date selection
