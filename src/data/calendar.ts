@@ -41,9 +41,9 @@ export async function getAllWorkHours(): Promise<Record<string, WorkHour>> {
     (record, workhour) => {
       // Format the date as a string (YYYY-MM-DD)
       const timestamp = workhour.date as unknown as string;
-
+      const dateKey = timestamp.split('T')[0];
       // Add to the record with the date string as the key
-      record[timestamp] = workhour;
+      record[dateKey] = workhour;
 
       return record;
     },

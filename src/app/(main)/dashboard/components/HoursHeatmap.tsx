@@ -24,7 +24,6 @@ export function HoursHeatmap({ workHoursRecord, isLoading }: HoursHeatmapProps) 
         const date = new Date();
         date.setDate(today.getDate() - i);
         date.setHours(0, 0, 0, 0);
-        
         // Format date as YYYY-MM-DD for lookup in workHoursRecord
         const dateKey = date.toISOString().split('T')[0];
         const hours = workHoursRecord[dateKey]?.hours || 0;
