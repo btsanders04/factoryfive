@@ -24,6 +24,11 @@ export const MAIN_ROUTES = {
     name: "Dashboard",
     icon: <Home size={20} />,
   },
+  buildlog: {
+    link: "/buildlog",
+    name: "Build Log",
+    icon: <User size={20} />,
+  },
   progress: {
     link: "/progress",
     name: "Progress",
@@ -33,11 +38,6 @@ export const MAIN_ROUTES = {
     link: "/calendar",
     name: "Calendar",
     icon: <Calendar size={20} />,
-  },
-  buildlog: {
-    link: "/buildlog",
-    name: "Build Log",
-    icon: <User size={20} />,
   },
   budget: {
     link: "/budget",
@@ -81,3 +81,27 @@ export const MAIN_ROUTES = {
     icon: <HelpCircle size={20} />,
   },
 };
+
+export const PUBLIC_ROUTES = {
+  buildlog: {
+    link: "/buildlog",
+    name: "Build Log",
+    icon: <User size={20} />,
+  },
+  progress: {
+    link: "/progress",
+    name: "Progress",
+    icon: <CircleDashed size={20}></CircleDashed>,
+  },
+  photos: {
+    link: "/photos",
+    name: "Photos",
+    // eslint-disable-next-line jsx-a11y/alt-text
+    icon: <Image size={20} />,
+  },
+  manual: {
+    link: "/manual",
+    name: "Manual",
+    icon: <BookText size={20} />,
+  },
+}

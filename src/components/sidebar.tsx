@@ -3,17 +3,19 @@
 // components/sidebar.tsx
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MAIN_ROUTES } from "@/app/routes";
-import { UserButton } from "@stackframe/stack";
+import { MAIN_ROUTES, PUBLIC_ROUTES } from "@/app/routes";
+import { UserButton, useUser } from "@stackframe/stack";
 import InstallPrompt from "./InstallPrompt";
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   onNavigate?: () => void;
+  routes?: Array<{ link: string; name: string; icon: React.ReactNode }>;
+  isAuthenticated?: boolean;
 }
 
-export function Sidebar({ onNavigate }: SidebarProps) {
+export function Sidebar({ onNavigate, routes, isAuthenticated }: SidebarProps) {
   const pathname = usePathname();
-
   return (
     <div className="h-full flex flex-col py-6 px-4 overflow-hidden">
       <div className="mb-8">
@@ -21,14 +23,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       </div>
 
       <nav className="space-y-1 flex-1 overflow-y-auto">
-        {Object.values(MAIN_ROUTES).map((route, index) => {
+        {(isAuthenticated ? Object.values(MAIN_ROUTES) : Object.values(PUBLIC_ROUTES)).map((route, index) => {
           return (
             <NavItem
               key={index}
               href={route.link}
               icon={route.icon}
               label={route.name}
-              active={pathname.includes(route.link)}
+              active={!!pathname && pathname.includes(route.link)}
               onClick={onNavigate}
             />
           );
@@ -36,7 +38,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       </nav>
 
       <div className="mt-auto space-y-4 pt-4 border-t">
-        <UserButton />
+        {isAuthenticated && <UserButton />}
+        {!isAuthenticated && (
+            <Link href="/handler/sign-in">
+              <Button variant="secondary" size="sm">
+                Sign In
+              </Button>
+            </Link>
+        )}
         <InstallPrompt />
       </div>
     </div>
@@ -78,3 +87,4 @@ function NavItem({
     </Link>
   );
 }
+

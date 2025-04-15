@@ -5,11 +5,12 @@ import { Sidebar } from "@/components/sidebar";
 import { MobileNavigation } from "@/components/mobile-navigation";
 import { PdfViewerProvider } from "@/components/PdfViewerContext";
 
-export default function MainLayout({
+export default async function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isAuthenticated = !!(await stackServerApp.getUser());
   return (
     <StackProvider app={stackServerApp}>
       <StackTheme>
@@ -21,13 +22,13 @@ export default function MainLayout({
                 <div className="flex min-h-screen bg-background">
                   {/* Desktop left sidebar - hidden on mobile */}
                   <div className="hidden md:block w-64 border-l">
-                    <Sidebar />
+                    <Sidebar isAuthenticated={isAuthenticated} />
                   </div>
                   {/* Mobile navigation - visible only on mobile */}
                   <div className="md:hidden">
-                    <MobileNavigation />
+                    <MobileNavigation isAuthenticated={isAuthenticated} />
                   </div>
-                  {children}
+    {children}
                 </div>
               </div>
             </main>

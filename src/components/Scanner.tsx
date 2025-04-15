@@ -42,7 +42,7 @@ const Scanner: React.FC = () => {
       setOcrText(JSON.stringify(json, null, 2));
       console.log(json);
     } catch (err) {
-      setError('Failed to process image with Claude API.');
+      setError('Failed to process image with Claude API: ' + err);
     } finally {
       setLoading(false);
     }

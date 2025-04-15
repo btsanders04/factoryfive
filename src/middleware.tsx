@@ -48,7 +48,7 @@ function isTokenExpiredOrMissing(): boolean {
 export async function middleware(request: NextRequest) {
   const user = await stackServerApp.getUser();
   const requestHeaders = new Headers(request.headers);
-  if (!user) {
+  if (!request.nextUrl.pathname.startsWith("/api/photos") && !user) {
     return NextResponse.redirect(new URL("/handler/sign-in", request.url));
   }
   if (request.nextUrl.pathname.startsWith("/api/photos")) {
@@ -72,7 +72,19 @@ export async function middleware(request: NextRequest) {
 export const config = {
   // You can add your own route protection logic here
   // Make sure not to protect the root URL, as it would prevent users from accessing static Next.js files or Stack's /handler path
-  matcher: "/((?!handler|_next|static|.*\\..*).*)",
+  matcher: [
+    "/budget/:path*",
+    "/dashboard/:path*",
+    "/calendar/:path*",
+    "/transactions/:path*",
+    "/tools/:path*",
+    "/api/budget/:path*",
+    "/api/builders/:path*",
+    "/api/categories/:path*",
+    "/api/transactions/:path*",
+    "/api/workhours/:path*",
+    '/api/photos/:path*' 
+  ]
 };
 
 // 42vcYVFfZrO6jw4ghkPHr83-TCwxeDPmrdhY44XcdFoW4bAfPlzn9lZ5L2yt68pHOEQo7_zcsFDaWYcdMirovg;

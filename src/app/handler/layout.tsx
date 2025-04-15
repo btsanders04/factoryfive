@@ -12,9 +12,11 @@ export default function AuthLayout({
       <StackTheme>
         <ThemeWrapper>
           {/* Auth pages layout without sidebar */}
-          <main className="flex min-h-screen bg-background">
-            <div className="flex-1 flex items-center justify-center">
-              {children}
+          <main className="flex min-h-screen w-full h-screen items-center justify-center bg-background">
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full h-full">
+                {children}
+              </div>
             </div>
           </main>
         </ThemeWrapper>

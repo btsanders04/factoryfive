@@ -63,7 +63,6 @@ const BudgetCategory: React.FC<BudgetCategoryProps> = ({
   ));
   const percentageSpent = Math.min(100, (spent / budget) * 100);
   const remaining = budget - spent;
-  console.log(remaining);
   const isOverBudget = remaining < 0;
   const color = isOverBudget ? negativeColor : postiveColor;
   const [isOpen, setIsOpen] = React.useState(false);

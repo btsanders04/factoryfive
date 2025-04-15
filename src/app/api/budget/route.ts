@@ -1,9 +1,9 @@
 
 import { NextResponse } from "next/server";
 import prisma from "../prismaClient";
+import { stackServerApp } from "@/stack";
 
 export async function GET() {
-
   // Get a budget with its category and related transactions
   const budgetWithTransactions = await prisma.budget.findMany({
     include: {
