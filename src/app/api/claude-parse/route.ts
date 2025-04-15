@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
       parsed = JSON.parse(aiResult.content[0].text);
     } catch (e) {
       // If not valid JSON, return raw text
+      console.log(e);
       parsed = { raw: aiResult.content[0].text };
     }
     return NextResponse.json(parsed);
