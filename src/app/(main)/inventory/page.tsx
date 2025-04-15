@@ -165,7 +165,7 @@ export default function PartsPage() {
           Scan
         </button>
       </div>
-      <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onSubmit={function (data: any): void {
+      <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onSubmit={function (): void {
         throw new Error("Function not implemented.");
       } } />
       

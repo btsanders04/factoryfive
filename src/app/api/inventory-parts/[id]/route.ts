@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../prismaClient";
 
@@ -6,7 +8,6 @@ import prisma from "../../prismaClient";
  * Retrieves a specific inventory part by ID
  */
 export async function GET(
-  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {

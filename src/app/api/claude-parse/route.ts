@@ -21,11 +21,6 @@ interface BoxData {
   }>;
 }
 
-interface FailedFile {
-  file: string;
-  error: string;
-}
-
 export async function POST(req: NextRequest) {
   try {
     // Parse multipart/form-data
@@ -157,7 +152,7 @@ export async function POST(req: NextRequest) {
     } catch (parseError) {
       console.error('Failed to parse Claude response as JSON:', content);
       return NextResponse.json(
-        { error: 'Failed to parse Claude response as JSON', rawContent: content },
+        { error: 'Failed to parse Claude response as JSON: ' + parseError, rawContent: content },
         { status: 500 }
       );
     }

@@ -36,7 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 interface ScannerModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: BoxData[]) => void;
 }
 
 interface ResultData {
@@ -46,7 +46,7 @@ interface ResultData {
 }
 
 
-interface BoxData {
+export interface BoxData {
   box_number?: string;
   categories?: Array<{
     category_name?: string;
@@ -65,7 +65,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [ocrText, setOcrText] = useState<string>('');
-  const [parsedData, setParsedData] = useState<any>(null);
+  const [parsedData, setParsedData] = useState<BoxData[]>([]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -78,7 +78,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
       // Reset previous results when new files are selected
       setOcrText('');
       setError('');
-      setParsedData(null);
+      setParsedData([]);
     }
   };
 
@@ -88,7 +88,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
     setLoading(true);
     setError('');
     setOcrText('');
-    setParsedData(null);
+    setParsedData([]);
     
     try {
       // Send images to Claude API endpoint
