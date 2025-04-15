@@ -21,8 +21,6 @@ export interface PartData {
 export interface PartsTableProps {
   data: PartData[];
   isLoading: boolean;
-  setSelectedPart: (part: PartData) => void;
-  setIsDetailOpen: (open: boolean) => void;
   handleUpdatePart: (part: PartData) => void;
 }
 

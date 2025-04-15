@@ -9,84 +9,120 @@ datasource db {
 }
 
 model Category {
-  id          Int       @id(map: "Categories_pkey") @default(autoincrement())
-  name        String?
-  icon        String?
-  createdAt   DateTime? @db.Timestamptz(6)
-  updatedAt   DateTime? @updatedAt @db.Timestamptz(6)
-  description String?
-  hidden      Boolean   @default(false)
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  // Timestamps
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+  Budget       Budget?
+  hidden       Boolean       @default(false)
+
+  // Ensure category names are unique per user
+  @@unique([name])
 }
 
 model Builder {
   id   Int     @id(map: "Builders_pkey") @default(autoincrement())
-  name String?
+  name String
+  transactions Transaction[] @relation("Builder")
+
+  // Ensure category names are unique per user
+  @@unique([name])
 }
 
+// Transaction model
 model Transaction {
-  amount               Float
-  date                 DateTime  @db.Timestamptz(6)
-  notes                String?
-  description          String?
-  tags                 String[]
-  categoryId           Int
-  builderId            Int?
-  id                   Int       @id(map: "Transactions_pkey") @default(autoincrement())
-  createdAt            DateTime? @db.Timestamptz(6)
-  updatedAt            DateTime? @updatedAt @db.Timestamptz(6)
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  date        DateTime
+  description String
+  notes       String?
+  tags        String[]
+
+  // Relations
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  builder              Builder       @relation("Builder", fields: [builderId], references: [id])
+  builderId            Int
+
+  // Self-referential relationship - fixed
   relatedTransactionId Int?
+  relatedTransaction   Transaction?  @relation("TransferRelation", fields: [relatedTransactionId], references: [id])
+  relatedTo            Transaction[] @relation("TransferRelation")
+
+  Tool Tool[]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes for better query performance
+  @@index([categoryId])
+  @@index([builderId])
+  @@index([date])
 }
 
 model Budget {
-  id         Int   @id @default(autoincrement())
-  amount     Float @default(0)
-  categoryId Int
+  id         Int      @id @default(autoincrement())
+  amount     Float    @default(0)
+  categoryId Int      @unique
+  category   Category @relation(fields: [categoryId], references: [id])
 }
 
 model Tool {
-  id            Int       @id @default(autoincrement())
-  name          String?
-  link          String?
-  aquired       Boolean   @default(false)
-  createdAt     DateTime? @db.Timestamptz(6)
-  updatedAt     DateTime? @updatedAt @db.Timestamptz(6)
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  link    String?
+  aquired Boolean @default(false)
+
+  // Relations
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
   transactionId Int?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model WorkHour {
-  id    Int       @id @default(autoincrement())
-  hours Float     @default(0)
-  date  DateTime? @unique @db.Timestamptz(6)
+  id    Int      @id @default(autoincrement())
+  hours Float    @default(0) @db.DoublePrecision
+  date  DateTime @unique @db.Timestamptz
+
+  @@index([date])
 }
 
 model Task {
-  id                  Int       @id @default(autoincrement())
-  name                String
-  isCompleted         Boolean   @default(false)
-  completionDate      DateTime? @db.Timestamptz(6)
-  createdAt           DateTime? @db.Timestamptz(6)
-  updatedAt           DateTime? @updatedAt @db.Timestamptz(6)
-  taskSectionId       Int?
-  parts               Int[]
-  manualPageReference String?
-  tools               Int[]
+  id             Int          @id @default(autoincrement())
+  name           String
+  isCompleted    Boolean      @default(false)
+  completionDate DateTime?    @db.Timestamptz
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  taskSectionId  Int?
+  taskSection    TaskSection? @relation(fields: [taskSectionId], references: [id])
+  @@index([id])
 }
 
 model TaskSection {
-  id          Int     @id(map: "TaskCategory_pkey") @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   name        String
-  description String?
+  description String
   position    Int[]
+  tasks       Task[]
 }
 
 model Milestone {
   id               Int      @id @default(autoincrement())
-  title            String
-  date             DateTime @db.Timestamptz(6)
+  title            String   @unique
+  date             DateTime 
   description      String
   featuredImage    String?
   additionalImages String[]
-  createdAt        DateTime @db.Timestamptz(6)
+  createdAt        DateTime @db.Timestamptz(6) @default(now())
   updatedAt        DateTime @updatedAt @db.Timestamptz(6)
 }
 

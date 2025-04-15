@@ -14,14 +14,10 @@ import { StatusBadge } from "./Badges";
 import { PartData, PartStatus } from "../types";
 
 interface CreateColumnsProps {
-  setSelectedPart: (part: PartData) => void;
-  setIsDetailOpen: (open: boolean) => void;
   handleUpdatePart: (part: PartData) => void;
 }
 
 export const createColumns = ({
-  setSelectedPart,
-  setIsDetailOpen,
   handleUpdatePart,
 }: CreateColumnsProps): ColumnDef<PartData>[] => [
   {
@@ -142,14 +138,6 @@ export const createColumns = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                setSelectedPart(part);
-                setIsDetailOpen(true);
-              }}
-            >
-              View Details
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {

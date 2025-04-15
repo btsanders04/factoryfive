@@ -26,8 +26,6 @@ import { createColumns } from "./columns";
 export function PartsTable({
   data,
   isLoading,
-  setSelectedPart,
-  setIsDetailOpen,
   handleUpdatePart,
 }: PartsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -36,9 +34,7 @@ export function PartsTable({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const columns = createColumns({
-    setSelectedPart,
-    setIsDetailOpen,
-    handleUpdatePart,
+    handleUpdatePart
   });
 
   const table = useReactTable({

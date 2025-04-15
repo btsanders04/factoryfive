@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { PartsTable } from "./components/PartsTable";
 import { FilterBar } from "./components/FilterBar";
 import { MetricsCards } from "./components/MetricsCards";
-import { PartDetailDialog } from "./components/PartDetailDialog";
 import { PartData, PartStatus } from "./types";
 import { getAllInventoryParts, InventoryPartWithRelations } from "@/data/inventoryParts";
 
@@ -44,8 +43,8 @@ export default function PartsPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [boxFilter, setBoxFilter] = useState("");
-  const [selectedPart, setSelectedPart] = useState<PartData | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  // const [selectedPart, setSelectedPart] = useState<PartData | null>(null);
+  // const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   
   // State for filter options
@@ -147,7 +146,7 @@ export default function PartsPage() {
       setParts((prevParts) =>
         prevParts.map((part) => (part.id === updatedPart.id ? updatedPart : part))
       );
-      setSelectedPart(updatedPart);
+      // setSelectedPart(updatedPart);
     } catch (error) {
       console.error("Error updating part:", error);
     }
@@ -194,21 +193,10 @@ export default function PartsPage() {
       <PartsTable
         data={filteredParts}
         isLoading={isLoading}
-        setSelectedPart={setSelectedPart}
-        setIsDetailOpen={setIsDetailOpen}
+        // setSelectedPart={setSelectedPart}
+        // setIsDetailOpen={setIsDetailOpen}
         handleUpdatePart={handleUpdatePart}
       />
-      {selectedPart && (
-        <PartDetailDialog
-          isOpen={isDetailOpen}
-          setIsOpen={setIsDetailOpen}
-          part={selectedPart}
-          onUpdate={handleUpdatePart}
-          partsData={parts}
-          categories={categories}
-          sections={sections}
-        />
-      )}
     </div>
   );
 }

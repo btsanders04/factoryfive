@@ -126,7 +126,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
     setLoading(false);
     setError('');
     setOcrText('');
-    setParsedData(null);
+    setParsedData([]);
     
     // Call the parent's onClose function
     onClose();
@@ -184,7 +184,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
                   variant="outline" 
                   size="sm" 
                   onClick={() => {
-                    setParsedData(null);
+                    setParsedData([]);
                     setOcrText('');
                   }}
                   className="text-xs"

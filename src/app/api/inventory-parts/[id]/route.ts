@@ -8,10 +8,11 @@ import prisma from "../../prismaClient";
  * Retrieves a specific inventory part by ID
  */
 export async function GET(
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const id = parseInt((await params).id);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: "Invalid ID format" },
@@ -53,13 +54,13 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // In a real app, we would check authentication here
     // For now, we'll skip authentication checks
 
-    const id = parseInt(params.id);
+    const id = parseInt((await params).id);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: "Invalid ID format" },
@@ -117,14 +118,14 @@ export async function PUT(
  * Deletes a specific inventory part
  */
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // In a real app, we would check admin authentication here
     // For now, we'll skip authentication checks
 
-    const id = parseInt(params.id);
+    const id = parseInt((await params).id);
     if (isNaN(id)) {
       return NextResponse.json(
         { error: "Invalid ID format" },
