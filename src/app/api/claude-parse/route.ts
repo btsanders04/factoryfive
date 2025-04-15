@@ -7,99 +7,171 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'edge'; // Or 'nodejs' if you need Node APIs
 
+// Define types for our results
+interface BoxData {
+  box_number?: string;
+  categories?: Array<{
+    category_name?: string;
+    category_number?: string;
+    parts?: Array<{
+      part_number?: string;
+      description?: string;
+      quantity?: number;
+    }>;
+  }>;
+}
+
+interface FailedFile {
+  file: string;
+  error: string;
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Parse multipart/form-data
     const formData = await req.formData();
-    const file = formData.get('file');
-    if (!file || typeof file === 'string') {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    
+    // Get all files from the form data
+    const files: File[] = [];
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith('file-') && value instanceof File) {
+        files.push(value);
+      }
     }
-
-    // Read file as ArrayBuffer and convert to base64
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const base64Image = buffer.toString('base64');
-
-    // Prepare Claude API request
-    const apiKey = process.env.CLAUDE_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Claude API key not set' }, { status: 500 });
+    
+    if (files.length === 0) {
+      return NextResponse.json({ error: 'No files uploaded' }, { status: 400 });
     }
 
     // Prepare the prompt for Claude
     const prompt = `
-      The uploaded file is a kit pack list, and may be either an image or a PDF. It may contain one or more box numbers, each as a header. Under each box number, there will be part numbers, part descriptions, and the expected quantity for each part. 
-      
-      Please extract all this information and return a structured JSON array in the following format:
-      [
-        {
-          "box_number": "<box number>",
-          "parts": [
-            {
-              "part_number": "<part number>",
-              "description": "<part description>",
-              "quantity": <quantity as a number>
-            },
-            ...
-          ]
-        },
-        ...
-      ]
-      
-      Only return the JSON array. Do not include any explanation or extra text. If any fields are missing, leave them blank or null. If the file is not readable, return an empty array.
+     The uploaded image is a kit pack list from Factory Five. Extract all parts information in a structured JSON array using the following format:
+    [
+      {
+        "box_number": "<box number>",
+        "categories": [
+          {
+            "category_name": "<category name from the bold/emphasized line>",
+            "category_number": "<category number from the bold/emphasized line>",
+            "parts": [
+              {
+                "part_number": "<part number>",
+                "description": "<part description>",
+                "quantity": <quantity as a number>
+              },
+              ...
+            ]
+          },
+          ...
+        ]
+      },
+      ...
+    ]
+
+    Notes for parsing:
+    - Bold/emphasized lines represent CATEGORIES, not individual parts
+    - There will always be a line break above a bold/emphasized line
+    - Each box may contain multiple categories
+    - Each category contains multiple parts
+    - The part number is to the left of the description
+    - Ignore any text between the description and quantity
+    - If fields are missing, leave them blank or null
+
+    ONLY return the JSON array with no explanations or additional text.
     `;
 
+    // Read all files as base64
+    const imageContents = await Promise.all(
+      files.map(async (file) => {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64Image = buffer.toString('base64');
+        return {
+          type: 'image' as const,
+          source: {
+            type: 'base64' as const,
+            media_type: file.type,
+            data: base64Image,
+          },
+        };
+      })
+    );
+    
+    // Prepare Claude API request with all images
+    const apiKey = process.env.CLAUDE_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Claude API key not set' }, { status: 500 });
+    }
+    
+    // Create the content array with the prompt text first, followed by all images
+    const contentArray = [
+      { type: 'text' as const, text: prompt },
+      ...imageContents
+    ];
+    
     // Claude Vision API endpoint and payload
     const anthropicUrl = 'https://api.anthropic.com/v1/messages';
     const anthropicPayload = {
-      model: 'claude-3-opus-20240229', // or another Claude 3 vision model
-      max_tokens: 1024,
+      model: 'claude-3-7-sonnet-20250219',
+      max_tokens: 4096, // Increased token limit for multiple images
       messages: [
         {
           role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: file.type,
-                data: base64Image,
-              },
-            },
-          ],
+          content: contentArray,
         },
       ],
     };
-
+    
+    // Make request to Claude API
     const response = await fetch(anthropicUrl, {
       method: 'POST',
       headers: {
-        'x-api-key': apiKey,
+        'Content-Type': 'application/json',
         'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
+        'x-api-key': apiKey,
       },
       body: JSON.stringify(anthropicPayload),
     });
-
+    
     if (!response.ok) {
       const errorText = await response.text();
-      return NextResponse.json({ error: 'Claude API error', details: errorText }, { status: 500 });
+      return NextResponse.json(
+        { error: `Claude API error: ${response.status} ${errorText}` },
+        { status: 500 }
+      );
     }
-
-    const aiResult = await response.json();
-    // Claude's response is usually in aiResult.content[0].text
-    let parsed;
+    
+    const result = await response.json();
+    const content = result.content[0].text;
+    
+    // Parse the JSON response
+    let parsedData: BoxData[] = [];
     try {
-      parsed = JSON.parse(aiResult.content[0].text);
-    } catch (e) {
-      // If not valid JSON, return raw text
-      console.log(e);
-      parsed = { raw: aiResult.content[0].text };
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed)) {
+        parsedData = parsed;
+      } else {
+        // If it's not an array but a valid object, wrap it in an array
+        parsedData = [parsed];
+      }
+    } catch (parseError) {
+      console.error('Failed to parse Claude response as JSON:', content);
+      return NextResponse.json(
+        { error: 'Failed to parse Claude response as JSON', rawContent: content },
+        { status: 500 }
+      );
     }
-    return NextResponse.json(parsed);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 });
+    
+    // Return the results
+    return NextResponse.json({
+      results: parsedData,
+      processed: files.length,
+      successful: files.length,
+      failed: []
+    });
+    
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

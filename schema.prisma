@@ -1,151 +1,154 @@
-datasource db {
-    provider = "postgresql"
-    // Uses environment variable from .env file
-    url      = env("POSTGRES_PRISMA_URL")
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
-generator client {
-    provider        = "prisma-client-js"
-    // For Edge compatibility
-    previewFeatures = ["driverAdapters"]
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
 }
 
 model Category {
-    id           Int           @id @default(autoincrement())
-    name         String
-    description  String?
-    // Timestamps
-    createdAt    DateTime      @default(now())
-    updatedAt    DateTime      @updatedAt
-    transactions Transaction[]
-    Budget       Budget?
-    hidden       Boolean       @default(false)
-
-    // Ensure category names are unique per user
-    @@unique([name])
+  id          Int       @id(map: "Categories_pkey") @default(autoincrement())
+  name        String?
+  icon        String?
+  createdAt   DateTime? @db.Timestamptz(6)
+  updatedAt   DateTime? @updatedAt @db.Timestamptz(6)
+  description String?
+  hidden      Boolean   @default(false)
 }
 
 model Builder {
-    id           Int           @id @default(autoincrement())
-    name         String
-    transactions Transaction[] @relation("Builder")
-
-    // Ensure category names are unique per user
-    @@unique([name])
+  id   Int     @id(map: "Builders_pkey") @default(autoincrement())
+  name String?
 }
 
 model Transaction {
-    id          Int      @id @default(autoincrement())
-    amount      Float
-    date        DateTime
-    description String
-    notes       String?
-    tags        String[]
-
-    // Relations
-    category   Category @relation(fields: [categoryId], references: [id])
-    categoryId Int
-
-    builder              Builder       @relation("Builder", fields: [builderId], references: [id])
-    builderId            Int
-    // Self-referential relationship - fixed
-    relatedTransactionId Int?
-    relatedTransaction   Transaction?  @relation("TransferRelation", fields: [relatedTransactionId], references: [id])
-    relatedTo            Transaction[] @relation("TransferRelation")
-
-    Tool Tool[]
-
-    // Timestamps
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    // Indexes for better query performance
-    @@index([categoryId])
-    @@index([builderId])
-    @@index([date])
+  amount               Float
+  date                 DateTime  @db.Timestamptz(6)
+  notes                String?
+  description          String?
+  tags                 String[]
+  categoryId           Int
+  builderId            Int?
+  id                   Int       @id(map: "Transactions_pkey") @default(autoincrement())
+  createdAt            DateTime? @db.Timestamptz(6)
+  updatedAt            DateTime? @updatedAt @db.Timestamptz(6)
+  relatedTransactionId Int?
 }
 
 model Budget {
-    id         Int      @id @default(autoincrement())
-    amount     Float    @default(0)
-    categoryId Int      @unique
-    category   Category @relation(fields: [categoryId], references: [id])
+  id         Int   @id @default(autoincrement())
+  amount     Float @default(0)
+  categoryId Int
 }
 
 model Tool {
-    id      Int     @id @default(autoincrement())
-    name    String
-    link    String?
-    aquired Boolean @default(false)
-
-    // Relations
-    transaction   Transaction? @relation(fields: [transactionId], references: [id])
-    transactionId Int?
-
-    // Timestamps
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id            Int       @id @default(autoincrement())
+  name          String?
+  link          String?
+  aquired       Boolean   @default(false)
+  createdAt     DateTime? @db.Timestamptz(6)
+  updatedAt     DateTime? @updatedAt @db.Timestamptz(6)
+  transactionId Int?
 }
 
 model WorkHour {
-    id    Int      @id @default(autoincrement())
-    hours Float    @default(0) @db.DoublePrecision
-    date  DateTime @unique @db.Timestamptz
-
-    @@index([date])
+  id    Int       @id @default(autoincrement())
+  hours Float     @default(0)
+  date  DateTime? @unique @db.Timestamptz(6)
 }
 
 model Task {
-    id             Int          @id @default(autoincrement())
-    name           String
-    isCompleted    Boolean      @default(false)
-    completionDate DateTime?    @db.Timestamptz
-    createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @updatedAt
-    taskSectionId  Int?
-    taskSection    TaskSection? @relation(fields: [taskSectionId], references: [id])
-
-    @@index([id])
+  id                  Int       @id @default(autoincrement())
+  name                String
+  isCompleted         Boolean   @default(false)
+  completionDate      DateTime? @db.Timestamptz(6)
+  createdAt           DateTime? @db.Timestamptz(6)
+  updatedAt           DateTime? @updatedAt @db.Timestamptz(6)
+  taskSectionId       Int?
+  parts               Int[]
+  manualPageReference String?
+  tools               Int[]
 }
 
 model TaskSection {
-    id          Int    @id @default(autoincrement())
-    name        String
-    description String
-    position    Int[]
-    tasks       Task[]
+  id          Int     @id(map: "TaskCategory_pkey") @default(autoincrement())
+  name        String
+  description String?
+  position    Int[]
 }
 
 model Milestone {
-    id               Int      @id @default(autoincrement())
-    title            String
-    date             DateTime
-    description      String
-    featuredImage    String?
-    additionalImages String[]
-    createdAt        DateTime @default(now())
-    updatedAt        DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  title            String
+  date             DateTime @db.Timestamptz(6)
+  description      String
+  featuredImage    String?
+  additionalImages String[]
+  createdAt        DateTime @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(6)
 }
 
 model PartsInventory {
-    id                   Int       @id @default(autoincrement())
-    part                 String
-    quantity             Int
-    quantityReceived     Int
-    status               String
-    section              String
-    category             String
-    notes                String
-    estimatedInstallTime String
-    installDifficulty    String
-    manualPageReference  String
-    isOptional           Boolean
-    installDate          DateTime?
-    dependencies         Int[]
-    inspectionNotes      String
-    image                String?
+  id                   Int       @id(map: "partsinventory_pkey") @default(autoincrement())
+  part                 String
+  quantity             Int
+  quantityReceived     Int       @default(0)
+  status               String    @default("Not Received")
+  section              String
+  category             String
+  notes                String?
+  estimatedInstallTime String?
+  installDifficulty    String?
+  manualPageReference  String?
+  isOptional           Boolean   @default(false)
+  installDate          DateTime? @db.Timestamptz(6)
+  createdAt            DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt            DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  dependencies         Int[]
+  inspectionNotes      String?
+  image                String?
+}
 
+model InventoryBox {
+    id              Int               @id @default(autoincrement())
+    boxNumber       String            @unique
+    description     String?
+    categories      InventoryCategory[]
+    
     // Timestamps
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @updatedAt
+}
+
+model InventoryCategory {
+    id              Int               @id @default(autoincrement())
+    categoryNumber  String
+    categoryName    String
+    parts           InventoryPart[]
+    box             InventoryBox      @relation(fields: [boxId], references: [id], onDelete: Cascade)
+    boxId           Int
+    
+    // Timestamps
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @updatedAt
+    
+    @@unique([boxId, categoryNumber])
+}
+
+model InventoryPart {
+    id               Int               @id @default(autoincrement())
+    partNumber       String
+    description      String
+    quantityExpected Int               @default(1)
+    quantityReceived Int               @default(0)
+    category         InventoryCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    categoryId       Int
+    
+    // Timestamps
+    createdAt        DateTime          @default(now())
+    updatedAt        DateTime          @updatedAt
+    
+    @@unique([categoryId, partNumber])
 }

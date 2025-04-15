@@ -21,12 +21,12 @@ interface FilterBarProps {
   setSearchQuery: (query: string) => void;
   categoryFilter: string;
   setCategoryFilter: (category: string) => void;
-  sectionFilter: string;
-  setSectionFilter: (section: string) => void;
+  boxFilter: string;
+  setBoxFilter: (box: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
   categories: string[];
-  sections: string[];
+  boxes: string[];
   table?: any;
 }
 
@@ -35,12 +35,12 @@ export function FilterBar({
   setSearchQuery,
   categoryFilter,
   setCategoryFilter,
-  sectionFilter,
-  setSectionFilter,
+  boxFilter,
+  setBoxFilter,
   statusFilter,
   setStatusFilter,
   categories,
-  sections,
+  boxes,
   table,
 }: FilterBarProps) {
   return (
@@ -69,16 +69,16 @@ export function FilterBar({
             </SelectContent>
           </Select>
           <Select
-            value={sectionFilter}
-            onValueChange={setSectionFilter}
+            value={boxFilter}
+            onValueChange={setBoxFilter}
           >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Section" />
+              <SelectValue placeholder="Box" />
             </SelectTrigger>
             <SelectContent>
-              {sections.map((section) => (
-                <SelectItem key={section} value={section}>
-                  {section}
+              {boxes.map((box) => (
+                <SelectItem key={box} value={box}>
+                  {box}
                 </SelectItem>
               ))}
             </SelectContent>

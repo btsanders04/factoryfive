@@ -46,26 +46,39 @@ export const createColumns = ({
     enableSorting: false,
     enableHiding: false,
   },
+  // ID column removed as requested
   {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => <div className="w-[40px]">{row.getValue("id")}</div>,
-  },
-  {
-    accessorKey: "part",
+    accessorKey: "partNumber",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Part
+          Part Number
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("part")}</div>
+      <div className="font-medium">{row.getValue("partNumber")}</div>
+    ),
+  },
+  {
+    accessorKey: "description",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Description
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div>{row.getValue("description")}</div>
     ),
   },
   {
@@ -76,25 +89,35 @@ export const createColumns = ({
     ),
   },
   {
-    accessorKey: "section",
-    header: "Section",
-    cell: ({ row }) => <div>{row.getValue("section")}</div>,
+    accessorKey: "boxNumber",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Box
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => <div>{row.getValue("boxNumber")}</div>,
   },
   {
-    accessorKey: "category",
+    accessorKey: "categoryName",
     header: "Category",
-    cell: ({ row }) => <div>{row.getValue("category")}</div>,
+    cell: ({ row }) => <div>{row.getValue("categoryName")}</div>,
   },
   {
-    accessorKey: "quantity",
+    accessorKey: "quantityExpected",
     header: "Qty",
-    cell: ({ row }) => <div className="text-center">{row.getValue("quantity")}</div>,
+    cell: ({ row }) => <div className="text-center">{row.getValue("quantityExpected")}</div>,
   },
   {
     accessorKey: "quantityReceived",
     header: "Received",
     cell: ({ row }) => {
-      const quantity = row.getValue<number>("quantity");
+      const quantity = row.getValue<number>("quantityExpected");
       const received = row.getValue<number>("quantityReceived");
       return (
         <div className="text-center">
@@ -132,13 +155,13 @@ export const createColumns = ({
               onClick={() => {
                 const updatedPart = {
                   ...part,
-                  status: "Received" as PartStatus,
-                  quantityReceived: part.quantity,
+                  status: "Complete" as PartStatus,
+                  quantityReceived: part.quantityExpected,
                 };
                 handleUpdatePart(updatedPart);
               }}
             >
-              Mark as Received
+              Mark as Complete
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -156,4 +179,4 @@ export const createColumns = ({
       );
     },
   },
-]; 
+];

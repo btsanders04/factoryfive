@@ -1,29 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PartStatus = "Pending" | "Received" | "Installed" | "Damaged" | "Missing" | "Not Received";
+export type PartStatus = "Not Received" | "Partial" | "Complete" | "Installed" | "Damaged" | "Missing";
 
 export interface PartData {
   id: string;
-  part: string;
-  status: PartStatus;
-  section: string;
-  category: string;
-  quantity: number;
+  partNumber: string;
+  description: string;
+  quantityExpected: number;
   quantityReceived: number;
-  description?: string;
-  supplier?: string;
-  cost?: number;
-  orderDate?: string;
-  expectedDelivery?: string;
-  receivedDate?: string;
-  installedDate?: string;
+  status: PartStatus;
+  categoryId: number;
+  categoryName: string;
+  categoryNumber: string;
+  boxId: number;
+  boxNumber: string;
   notes?: string;
-  location?: string;
+  installDate?: string;
   inspectionNotes?: string;
-  dependencies?: string[];
-  isOptional?: boolean;
-  estimatedInstallTime?: string;
-  installDifficulty?: string;
-  manualPageReference?: string;
 }
 
 export interface PartsTableProps {
@@ -38,12 +30,12 @@ export interface FilterBarProps {
   setSearchQuery: (query: string) => void;
   setStatusFilter: (status: string) => void;
   setCategoryFilter: (category: string) => void;
-  setSectionFilter: (section: string) => void;
+  setBoxFilter: (box: string) => void;
   categories: string[];
-  sections: string[];
+  boxes: string[];
   searchQuery?: string;
   categoryFilter?: string;
-  sectionFilter?: string;
+  boxFilter?: string;
   statusFilter?: string;
   table?: any;
 }

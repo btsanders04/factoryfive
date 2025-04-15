@@ -6,29 +6,35 @@ import { FilterBar } from "./components/FilterBar";
 import { MetricsCards } from "./components/MetricsCards";
 import { PartDetailDialog } from "./components/PartDetailDialog";
 import { PartData, PartStatus } from "./types";
-import { getAllPartsInventory } from "@/data/partsinventory";
-import { PartsInventory } from "@prisma/client";
+import { getAllInventoryParts, InventoryPartWithRelations } from "@/data/inventoryParts";
 
-// Convert PartsInventory from Prisma to our PartData type
-const mapPartsInventoryToPartData = (part: PartsInventory): PartData => ({
-  id: part.id.toString(),
-  part: part.part,
-  status: part.status as PartStatus,
-  section: part.section,
-  category: part.category,
-  quantity: part.quantity,
-  quantityReceived: part.quantityReceived,
-  notes: part.notes,
-  estimatedInstallTime: part.estimatedInstallTime,
-  installDifficulty: part.installDifficulty,
-  manualPageReference: part.manualPageReference,
-  isOptional: part.isOptional,
-  installedDate: part.installDate ? part.installDate.toISOString().split('T')[0] : undefined,
-  dependencies: part.dependencies.map(id => id.toString()),
-  inspectionNotes: part.inspectionNotes,
-});
+// Convert InventoryPart from Prisma to our PartData type
+const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData => {
+  // Determine status based on quantities
+  let status: PartStatus = "Not Received";
+  if (part.quantityReceived > 0) {
+    status = part.quantityReceived < part.quantityExpected ? "Partial" : "Complete";
+  }
+  
+  return {
+    id: part.id.toString(),
+    partNumber: part.partNumber,
+    description: part.description,
+    quantityExpected: part.quantityExpected,
+    quantityReceived: part.quantityReceived,
+    status: status,
+    categoryId: part.categoryId,
+    categoryName: part.category.categoryName,
+    categoryNumber: part.category.categoryNumber,
+    boxId: part.category.boxId,
+    boxNumber: part.category.box.boxNumber,
+    notes: "", // Default empty string for now
+    installDate: undefined,
+    inspectionNotes: ""
+  };
+};
 
-import ScannerModal from "@/components/ScannerModal";
+import ScannerModal from "@/app/(main)/inventory/components/ScannerModal";
 
 export default function PartsPage() {
   const [parts, setParts] = useState<PartData[]>([]);
@@ -37,18 +43,29 @@ export default function PartsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [sectionFilter, setSectionFilter] = useState("");
+  const [boxFilter, setBoxFilter] = useState("");
   const [selectedPart, setSelectedPart] = useState<PartData | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  
+  // State for filter options
+  const [categories, setCategories] = useState<string[]>([]);
+  const [sections, setSections] = useState<string[]>([]);
+  
+  // State for metrics
+  const [totalParts, setTotalParts] = useState(0);
+  const [receivedParts, setReceivedParts] = useState(0);
+  const [installedParts, setInstalledParts] = useState(0);
+  const [receivedPercentage, setReceivedPercentage] = useState(0);
+  const [installedPercentage, setInstalledPercentage] = useState(0);
 
   // Fetch parts data
   useEffect(() => {
     const fetchParts = async () => {
       setIsLoading(true);
       try {
-        const partsInventory = await getAllPartsInventory();
-        const mappedParts = partsInventory.map(mapPartsInventoryToPartData);
+        const inventoryParts = await getAllInventoryParts();
+        const mappedParts = inventoryParts.map(mapInventoryPartToPartData);
         setParts(mappedParts);
         setFilteredParts(mappedParts);
       } catch (error) {
@@ -63,48 +80,65 @@ export default function PartsPage() {
 
   // Filter parts based on search query and filters
   useEffect(() => {
-    let result = [...parts];
+    let filtered = [...parts];
 
+    // Apply search filter
     if (searchQuery) {
-      result = result.filter(
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
         (part) =>
-          part.part.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          part.notes?.toLowerCase().includes(searchQuery.toLowerCase())
+          part.partNumber.toLowerCase().includes(query) ||
+          part.description.toLowerCase().includes(query) ||
+          part.notes?.toLowerCase().includes(query)
       );
     }
 
+    // Apply status filter
     if (statusFilter) {
-      result = result.filter((part) => part.status === statusFilter);
+      filtered = filtered.filter((part) => part.status === statusFilter);
     }
 
+    // Apply category filter
     if (categoryFilter) {
-      result = result.filter((part) => part.category === categoryFilter);
+      filtered = filtered.filter((part) => part.categoryName === categoryFilter);
     }
 
-    if (sectionFilter) {
-      result = result.filter((part) => part.section === sectionFilter);
+    // Apply box filter
+    if (boxFilter) {
+      filtered = filtered.filter((part) => part.boxNumber === boxFilter);
     }
 
-    setFilteredParts(result);
-  }, [parts, searchQuery, statusFilter, categoryFilter, sectionFilter]);
+    setFilteredParts(filtered);
+  }, [parts, searchQuery, statusFilter, categoryFilter, boxFilter]);
 
-  // Get unique categories and sections for filters
-  const categories = [...new Set(parts.map((part) => part.category))];
-  const sections = [...new Set(parts.map((part) => part.section))];
+  // Extract unique categories and boxes for filters
+  useEffect(() => {
+    const uniqueCategories = Array.from(new Set(parts.map((part) => part.categoryName)));
+    const uniqueBoxes = Array.from(new Set(parts.map((part) => part.boxNumber)));
 
-  // Calculate metrics
-  const totalParts = parts.reduce((acc, part) => acc + part.quantity, 0);
-  const receivedParts = parts.reduce((acc, part) => acc + part.quantityReceived, 0);
-  const installedParts = parts.filter((part) => part.status === "Installed").length;
-  const receivedPercentage = totalParts > 0 ? Math.round((receivedParts / totalParts) * 100) : 0;
-  const installedPercentage = totalParts > 0 ? Math.round((installedParts / totalParts) * 100) : 0;
+    setCategories(uniqueCategories);
+    setSections(uniqueBoxes);
+
+    // Calculate metrics
+    const total = parts.reduce((acc, part) => acc + part.quantityExpected, 0);
+    const received = parts.reduce((acc, part) => acc + part.quantityReceived, 0);
+    const installed = parts.filter((part) => part.status === "Installed").length;
+
+    setTotalParts(total);
+    setReceivedParts(received);
+    setInstalledParts(installed);
+    setReceivedPercentage(total > 0 ? Math.round((received / total) * 100) : 0);
+    setInstalledPercentage(
+      parts.length > 0 ? Math.round((installed / parts.length) * 100) : 0
+    );
+  }, [parts]);
 
   // Handle updating a part
   const handleUpdatePart = async (updatedPart: PartData) => {
     try {
-      // In a real app, you would call an API to update the part
-      // await fetch(`/api/partsinventory/${updatedPart.id}`, {
-      //   method: 'PUT',
+      // TODO: Update the part in the database
+      // const response = await fetch(`/api/inventory-parts/${updatedPart.id}`, {
+      //   method: "PUT",
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify(updatedPart)
       // });
@@ -131,7 +165,9 @@ export default function PartsPage() {
           Scan
         </button>
       </div>
-      <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} />
+      <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onSubmit={function (data: any): void {
+        throw new Error("Function not implemented.");
+      } } />
       
       <MetricsCards
         totalParts={totalParts}
@@ -148,10 +184,10 @@ export default function PartsPage() {
         setStatusFilter={setStatusFilter}
         categoryFilter={categoryFilter}
         setCategoryFilter={setCategoryFilter}
-        sectionFilter={sectionFilter}
-        setSectionFilter={setSectionFilter}
+        boxFilter={boxFilter}
+        setBoxFilter={setBoxFilter}
         categories={categories}
-        sections={sections}
+        boxes={sections}
         table={null}
       />
       
