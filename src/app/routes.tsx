@@ -10,7 +10,7 @@ import {
   Calendar,
   CircleDashed,
   Puzzle,
-  BookText,
+  BookText
 } from "lucide-react";
 
 export const comingsoon = {
@@ -49,9 +49,9 @@ export const MAIN_ROUTES = {
     name: "Transactions",
     icon: <CreditCard size={20} />,
   },
-  parts: {
-    link: "/parts",
-    name: "Parts",
+  inventory: {
+    link: "/inventory",
+    name: "Inventory",
     icon: <Puzzle size={20} />,
   },
   tools: {

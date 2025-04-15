@@ -28,6 +28,8 @@ const mapPartsInventoryToPartData = (part: PartsInventory): PartData => ({
   inspectionNotes: part.inspectionNotes,
 });
 
+import ScannerModal from "@/components/ScannerModal";
+
 export default function PartsPage() {
   const [parts, setParts] = useState<PartData[]>([]);
   const [filteredParts, setFilteredParts] = useState<PartData[]>([]);
@@ -38,6 +40,7 @@ export default function PartsPage() {
   const [sectionFilter, setSectionFilter] = useState("");
   const [selectedPart, setSelectedPart] = useState<PartData | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   // Fetch parts data
   useEffect(() => {
@@ -118,7 +121,17 @@ export default function PartsPage() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <h1 className="text-3xl font-bold">Parts Inventory</h1>
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-3xl font-bold">Parts Inventory</h1>
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
+          style={{ minWidth: 100 }}
+          onClick={() => setScannerOpen(true)}
+        >
+          Scan
+        </button>
+      </div>
+      <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} />
       
       <MetricsCards
         totalParts={totalParts}
