@@ -65,7 +65,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [ocrText, setOcrText] = useState<string>('');
-  const [parsedData, setParsedData] = useState<BoxData[]>([]);
+  const [parsedData, setParsedData] = useState<BoxData[] | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -78,7 +78,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
       // Reset previous results when new files are selected
       setOcrText('');
       setError('');
-      setParsedData([]);
+      setParsedData(null);
     }
   };
 
@@ -88,7 +88,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
     setLoading(true);
     setError('');
     setOcrText('');
-    setParsedData([]);
+    setParsedData(null);
     
     try {
       // Send images to Claude API endpoint
@@ -126,7 +126,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
     setLoading(false);
     setError('');
     setOcrText('');
-    setParsedData([]);
+    setParsedData(null);
     
     // Call the parent's onClose function
     onClose();
