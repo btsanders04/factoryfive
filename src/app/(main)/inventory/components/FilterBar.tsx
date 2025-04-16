@@ -7,8 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-// Removed dropdown menu imports
 
 interface FilterBarProps {
   searchQuery: string;

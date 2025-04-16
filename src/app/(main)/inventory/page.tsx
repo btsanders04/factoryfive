@@ -5,9 +5,8 @@ import { PartsTable } from "./components/PartsTable";
 import { FilterBar } from "./components/FilterBar";
 import { MetricsCards } from "./components/MetricsCards";
 import { PartData, PartStatus } from "./types";
-import { getAllInventoryParts, InventoryPartWithRelations, saveInventoryParts } from "@/data/inventoryParts";
+import { getAllInventoryParts, InventoryPartWithRelations } from "@/data/inventoryParts";
 import ScannerModal from "@/app/(main)/inventory/components/ScannerModal";
-import { BoxData } from "@/lib/types/inventory";
 
 // Convert InventoryPart from Prisma to our PartData type
 const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData => {
