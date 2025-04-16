@@ -46,14 +46,14 @@ The uploaded image(s) is a kit pack list from Factory Five Racing. Extract all p
     "box_number": "<box number>",
     "categories": [
       {
-        "category_name": "<category name from the bold/emphasized line>",
-        "category_number": "<category number from the bold/emphasized line>"
+        "category_name": "<category name>",
+        "category_number": "<category number>"
       }
     ],
     "parts": [
       {
         "part_number": "<part number>",
-        "category_number": "<category number from the bold/emphasized line> (if applicable)",
+        "category_number": "<category number>",
         "description": "<part description>",
         "quantity": <quantity as a number>
       }
@@ -62,10 +62,13 @@ The uploaded image(s) is a kit pack list from Factory Five Racing. Extract all p
 ]
 
 CRITICAL DETECTION INSTRUCTIONS:
-- A row is ONLY a category if it has bolder/darker font than regular parts
-- All rows that exist below a category row should be parts that are associated with that category.
-- If a box has no bold/emphasized rows, the "categories" array should be empty. Parts do not have to be associated with a category.
-- If multiple files, use the page numbers at the bottom right to understand order. Categories can carry over between pages. Line breaks will always be above a row that should be considered a category. 
+- The first row of each box might be a category (has bolder/darker font than regular parts)
+- IMPORTANT: Any row with a part number and description in bolder/darker font is a CATEGORY, not a part
+- All items below a category belong to that category until the next category is encountered
+- Associate each part with its parent category's category_number
+- If a box has no categories, the "categories" array should be empty
+- Use page numbers to determine ordering across multiple images
+- Line breaks above a row often indicate a new category
 
 ONLY return the JSON array with no explanations or additional text.
     `;
