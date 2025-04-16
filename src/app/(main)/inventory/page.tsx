@@ -93,17 +93,17 @@ export default function PartsPage() {
     }
 
     // Apply status filter
-    if (statusFilter) {
+    if (statusFilter && statusFilter !== 'all_statuses') {
       filtered = filtered.filter((part) => part.status === statusFilter);
     }
 
     // Apply category filter
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== 'all_categories') {
       filtered = filtered.filter((part) => part.categoryName === categoryFilter);
     }
 
     // Apply box filter
-    if (boxFilter) {
+    if (boxFilter && boxFilter !== 'all_boxes') {
       filtered = filtered.filter((part) => part.boxNumber === boxFilter);
     }
 
@@ -153,12 +153,11 @@ export default function PartsPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-3xl font-bold">Parts Inventory</h1>
+    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold">Parts Inventory</h1>
         <button
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
-          style={{ minWidth: 100 }}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow w-full sm:w-auto"
           onClick={() => setScannerOpen(true)}
         >
           Scan
@@ -168,35 +167,43 @@ export default function PartsPage() {
         throw new Error("Function not implemented.");
       } } />
       
-      <MetricsCards
-        totalParts={totalParts}
-        receivedParts={receivedParts}
-        installedParts={installedParts}
-        receivedPercentage={receivedPercentage}
-        installedPercentage={installedPercentage}
-      />
+      <div className="overflow-hidden">
+        <MetricsCards
+          totalParts={totalParts}
+          receivedParts={receivedParts}
+          installedParts={installedParts}
+          receivedPercentage={receivedPercentage}
+          installedPercentage={installedPercentage}
+        />
+      </div>
       
-      <FilterBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        boxFilter={boxFilter}
-        setBoxFilter={setBoxFilter}
-        categories={categories}
-        boxes={sections}
-        table={null}
-      />
+      <div className="overflow-x-auto">
+        <FilterBar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          boxFilter={boxFilter}
+          setBoxFilter={setBoxFilter}
+          categories={categories}
+          boxes={sections}
+          table={null}
+        />
+      </div>
       
-      <PartsTable
-        data={filteredParts}
-        isLoading={isLoading}
-        // setSelectedPart={setSelectedPart}
-        // setIsDetailOpen={setIsDetailOpen}
-        handleUpdatePart={handleUpdatePart}
-      />
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="min-w-full sm:rounded-lg">
+          <PartsTable
+            data={filteredParts}
+            isLoading={isLoading}
+            // setSelectedPart={setSelectedPart}
+            // setIsDetailOpen={setIsDetailOpen}
+            handleUpdatePart={handleUpdatePart}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -7,8 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { CameraIcon, XIcon, ImageIcon } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -141,27 +140,94 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
         <div className="overflow-y-auto flex-grow pr-2 space-y-4" style={{ maxHeight: 'calc(90vh - 180px)' }}>
           {!parsedData && (
             <>
-              <div className="space-y-2">
-                <Label htmlFor="scanner-upload">Upload Images</Label>
-                <Input
-                  id="scanner-upload"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  multiple={true}
-                  onChange={handleImageChange}
-                />
+              <div className="flex flex-col items-center justify-center space-y-4 mb-4">
+                <div className="flex items-center justify-center w-full gap-3">
+                  <input
+                    id="scanner-upload"
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    multiple={true}
+                    onChange={handleImageChange}
+                    className="hidden"
+                    ref={(input) => {
+                      // This is a workaround for the ref type
+                      const fileInput = input as HTMLInputElement | null;
+                      if (fileInput) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        (window as any).fileInput = fileInput;
+                      }
+                    }}
+                  />
+                  <Button 
+                    onClick={() => {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const fileInput = (window as any).fileInput;
+                      if (fileInput) fileInput.click();
+                    }}
+                    className="flex-1 py-6 flex flex-col items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary border-2 border-dashed border-primary/30 rounded-lg"
+                    variant="ghost"
+                    type="button"
+                  >
+                    <CameraIcon className="h-8 w-8" />
+                    <span className="text-sm font-medium">Take Photo</span>
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const fileInput = (window as any).fileInput;
+                      if (fileInput) {
+                        fileInput.removeAttribute('capture');
+                        fileInput.click();
+                        // Reset capture attribute after click
+                        setTimeout(() => {
+                          fileInput.setAttribute('capture', 'environment');
+                        }, 100);
+                      }
+                    }}
+                    className="flex-1 py-6 flex flex-col items-center justify-center gap-2 bg-secondary/10 hover:bg-secondary/20 text-secondary border-2 border-dashed border-secondary/30 rounded-lg"
+                    variant="ghost"
+                    type="button"
+                  >
+                    <ImageIcon className="h-8 w-8" />
+                    <span className="text-sm font-medium">Choose Files</span>
+                  </Button>
+                </div>
+                
+                {images.length > 0 && (
+                  <div className="text-sm text-center text-muted-foreground">
+                    {images.length} {images.length === 1 ? 'image' : 'images'} selected
+                  </div>
+                )}
               </div>
               
               {images.length > 0 && (
-                <div className="space-y-2 mt-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4">
                   {images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Captured ${index + 1}`}
-                      className="w-full rounded-md border border-border mt-2"
-                    />
+                    <div key={index} className="relative group">
+                      <img
+                        src={image}
+                        alt={`Captured ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-md border border-border"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => {
+                          const newImages = [...images];
+                          newImages.splice(index, 1);
+                          setImages(newImages);
+                          
+                          const newFiles = [...selectedFiles];
+                          newFiles.splice(index, 1);
+                          setSelectedFiles(newFiles);
+                        }}
+                      >
+                        <XIcon className="h-3 w-3" />
+                      </Button>
+                    </div>
                   ))}
                 </div>
               )}
@@ -271,13 +337,14 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
             </div>
           )}
         </div>
-        <DialogFooter className="flex justify-between mt-4">
-          <div>
+        <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 mt-4">
+          <div className="w-full sm:w-auto">
             {selectedFiles.length > 0 && !loading && !parsedData && (
               <Button 
                 onClick={processImages} 
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={loading}
+                size="lg"
               >
                 Analyze {selectedFiles.length > 1 ? `(${selectedFiles.length} files)` : ''}
               </Button>
@@ -311,14 +378,20 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
                     setLoading(false);
                   }
                 }} 
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={loading}
+                size="lg"
               >
                 Save to Inventory
               </Button>
             )}
           </div>
-          <Button variant="outline" onClick={handleClose} className="border-border hover:bg-accent hover:text-accent-foreground">
+          <Button 
+            variant="outline" 
+            onClick={handleClose} 
+            className="w-full sm:w-auto border-border hover:bg-accent hover:text-accent-foreground"
+            size="lg"
+          >
             Close
           </Button>
         </DialogFooter>

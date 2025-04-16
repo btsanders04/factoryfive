@@ -22,25 +22,25 @@ export function MetricsCards({
   installedPercentage,
 }: MetricsCardsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card>
-        <CardHeader className="pb-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <Card className="shadow-sm">
+        <CardHeader className="pb-1 sm:pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm font-medium">
             Total Parts
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalParts}</div>
+        <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
+          <div className="text-xl sm:text-2xl font-bold">{totalParts}</div>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="shadow-sm">
+        <CardHeader className="pb-1 sm:pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm font-medium">
             Parts Received
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
+          <div className="text-xl sm:text-2xl font-bold">
             {receivedParts} / {totalParts}
           </div>
           <Progress value={receivedPercentage} className="h-2 mt-2" />
@@ -49,14 +49,14 @@ export function MetricsCards({
           </p>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="shadow-sm sm:col-span-2 md:col-span-1">
+        <CardHeader className="pb-1 sm:pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm font-medium">
             Parts Installed
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
+          <div className="text-xl sm:text-2xl font-bold">
             {installedParts} / {totalParts}
           </div>
           <Progress value={installedPercentage} className="h-2 mt-2" />

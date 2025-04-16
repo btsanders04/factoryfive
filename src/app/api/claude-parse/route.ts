@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { NextRequest, NextResponse } from 'next/server';
 
 // For Node.js built-in fetch (Node 18+)
@@ -66,6 +64,7 @@ export async function POST(req: NextRequest) {
     Notes for parsing:
     - Bold/emphasized lines represent CATEGORIES, not individual parts
     - There will always be a line break above a bold/emphasized line
+    - Additionally to being bold, lines that should be classified as categories instead of parts will not have underscore lines to the right of the second barcode in the row. 
     - Each box may contain multiple categories
     - Each category contains multiple parts
     - The part number is to the left of the description
