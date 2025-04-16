@@ -106,7 +106,7 @@ CRITICAL DETECTION INSTRUCTIONS:
     const anthropicUrl = 'https://api.anthropic.com/v1/messages';
     const anthropicPayload = {
       model: 'claude-3-7-sonnet-20250219',
-      max_tokens: 4096, // Increased token limit for multiple images
+      max_tokens: 8000, // Increased token limit for multiple images
       messages: [
         {
           role: 'user',
