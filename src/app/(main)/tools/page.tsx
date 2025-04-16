@@ -6,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ExternalLink, Trash2 } from "lucide-react";
 import { ToolModal } from "@/app/(main)/tools/components/ToolModal";
-import { ToolsTimeline } from "./components/ToolsTimeline";
 import { Prisma, Tool } from "@prisma/client";
 import {
   checkTool,
@@ -14,7 +13,6 @@ import {
   deleteTool,
   getAllTools,
 } from "@/data/tool";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ToolsChecklistPage = () => {
   const [tools, setTools] = useState<Tool[]>([]);
@@ -61,26 +59,17 @@ const ToolsChecklistPage = () => {
           </div>
           <ToolModal submitTool={handleAddTool}></ToolModal>
         </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="checklist" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="checklist">Checklist</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="checklist" className="space-y-4">
-            <div className="space-y-2">
-              {tools.length === 0 ? (
-                <div className="text-center py-6 text-gray-500">
-                  No tools added yet. Click &#34;Add Tool&#34; to get started.
-                </div>
-              ) : (
-                tools.map((tool) => (
-                  <div
-                    key={tool.id}
-                    className="flex items-center justify-between p-2 border rounded hover:bg-accent"
-                  >
+        <div className="space-y-2">
+          {tools.length === 0 ? (
+            <div className="text-center py-6 text-gray-500">
+              No tools added yet. Click &#34;Add Tool&#34; to get started.
+            </div>
+          ) : (
+            tools.map((tool) => (
+              <div
+                key={tool.id}
+                className="flex items-center justify-between p-2 border rounded hover:bg-accent"
+              >
                     <div className="flex items-center gap-3">
                       <Checkbox
                         id={`tool-${tool.id}`}
@@ -120,12 +109,6 @@ const ToolsChecklistPage = () => {
                 ))
               )}
             </div>
-          </TabsContent>
-
-          <TabsContent value="timeline">
-            <ToolsTimeline />
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   );

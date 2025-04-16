@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { getPartsMetrics } from "@/data/partsinventory";
+import { getInventoryPartsMetrics } from "@/data/inventoryParts";
 
 interface PartsMetrics {
   totalParts: number;
@@ -26,7 +26,7 @@ export function PartsCard() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const data = await getPartsMetrics();
+        const data = await getInventoryPartsMetrics();
         setMetrics(data);
       } catch (error) {
         console.error("Error fetching parts metrics:", error);
