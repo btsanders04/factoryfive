@@ -139,10 +139,9 @@ export async function POST(req: NextRequest) {
 
             // Find the category for this part if it has a category_number
             let partCategoryRecord = null;
-            if (categoryNumber && box.categories) {
+            if (categoryNumber) {
               partCategoryRecord = await prisma.inventoryCategory.findFirst({
                 where: { 
-                  boxId: boxRecord.id,
                   categoryNumber: categoryNumber
                 }
               });

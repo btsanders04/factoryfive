@@ -25,8 +25,8 @@ const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData 
     quantityReceived: part.quantityReceived,
     status: status,
     categoryId: part.categoryId,
-    categoryName: part.category.categoryName,
-    categoryNumber: part.category.categoryNumber,
+    categoryName: part.category?.categoryName,
+    categoryNumber: part.category?.categoryNumber,
     boxId: part.box?.id,
     boxNumber: part.box?.boxNumber,
     notes: "", // Default empty string for now
@@ -78,15 +78,10 @@ export default function PartsPage() {
     fetchParts();
   }, [refreshTrigger]); // Only re-run when refreshTrigger changes
   
-  const onSubmit = async (data: BoxData[]) => {
-    try {
-      await saveInventoryParts(data);
+  const onSubmit = () => {
       setScannerOpen(false);
       // Increment the refresh trigger to fetch fresh data
       setRefreshTrigger(prev => prev + 1);
-    } catch (error) {
-      console.error("Error saving parts:", error);
-    }
   };
 
   // Filter parts based on search query and filters
@@ -125,7 +120,18 @@ export default function PartsPage() {
   // Extract unique categories and boxes for filters
   useEffect(() => {
     const uniqueCategories = Array.from(new Set(parts.filter((part) => part.categoryName !== undefined).map((part) => part.categoryName))) as string[];
-    const uniqueBoxes = Array.from(new Set(parts.map((part) => part.boxNumber)));
+    
+    // Get unique boxes and sort them numerically
+    const boxNumbers = parts
+      .filter(part => part.boxNumber) // Filter out undefined/null box numbers
+      .map(part => part.boxNumber as string);
+    const uniqueBoxes = Array.from(new Set(boxNumbers))
+      .sort((a, b) => {
+        // Convert box numbers to integers for proper numerical sorting
+        const numA = parseInt(a.replace(/\D/g, ''));
+        const numB = parseInt(b.replace(/\D/g, ''));
+        return numA - numB;
+      });
 
     setCategories(uniqueCategories);
     setSections(uniqueBoxes);

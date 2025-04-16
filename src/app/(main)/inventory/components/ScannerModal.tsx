@@ -32,6 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BoxData, Part } from "@/lib/types/inventory";
+import { saveInventoryParts } from "@/data/inventoryParts";
 
 interface ScannerModalProps {
   open: boolean;
@@ -123,11 +124,19 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
     onClose();
   };
 
-  const handleOnSubmit = () => {
+  const handleOnSubmit = async () => {
     if (parsedData){
-      onSubmit(parsedData);
+      try {
+        await saveInventoryParts(parsedData);
+        onSubmit(parsedData);
+        resetData();
+      } catch (error) {
+        setError('Failed to save parts: ' + error);
+        console.error("Error saving parts:", error);
+      }
+      
+      
     }
-    resetData();
   }
 
   return (

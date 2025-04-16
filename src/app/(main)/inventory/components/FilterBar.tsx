@@ -8,13 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// Removed dropdown menu imports
 
 interface FilterBarProps {
   searchQuery: string;
@@ -27,7 +21,7 @@ interface FilterBarProps {
   setStatusFilter: (status: string) => void;
   categories: string[];
   boxes: string[];
-  table?: any;
+  // Removed table prop
 }
 
 export function FilterBar({
@@ -41,7 +35,7 @@ export function FilterBar({
   setStatusFilter,
   categories,
   boxes,
-  table,
+  // Removed table parameter
 }: FilterBarProps) {
   return (
     <div className="flex flex-col space-y-4">
@@ -106,34 +100,7 @@ export function FilterBar({
           </SelectContent>
         </Select>
         
-        <div className="flex items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-full">
-                Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table && table
-                .getAllColumns()
-                .filter((column: any) => column.getCanHide())
-                .map((column: any) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {/* Columns filter removed */}
       </div>
     </div>
   );
