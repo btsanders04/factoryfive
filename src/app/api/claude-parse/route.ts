@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // Prepare the prompt for Claude
     const prompt = `
-The uploaded image is a kit pack list from Factory Five Racing. Extract all parts information in a structured JSON array using the following format:
+The uploaded image(s) is a kit pack list from Factory Five Racing. Extract all parts information in a structured JSON array using the following format:
 
 [
   {
@@ -62,37 +62,10 @@ The uploaded image is a kit pack list from Factory Five Racing. Extract all part
 ]
 
 CRITICAL DETECTION INSTRUCTIONS:
-- A line is ONLY a category if it has significantly bolder/darker font than regular parts
-- Categories are stored in a separate "categories" array at the box level
-- Parts are stored in a separate "parts" array at the box level
-- Parts should reference their category through the "category_number" field
-- If a box has no bold/emphasized lines, the "categories" array should be empty
-- The JSON structure must be maintained with "categories" and "parts" as separate arrays
-
-Example of correct JSON structure for BOX 00 in this image:
-{
-  "box_number": "00",
-  "categories": [
-    {
-      "category_name": "KIT DOCUMENTATION",
-      "category_number": "11049"
-    }
-  ],
-  "parts": [
-    {
-      "part_number": "10759",
-      "category_number": "11049",
-      "description": "CERTIFICATE OF ORIGIN",
-      "quantity": 1.00
-    },
-    {
-      "part_number": "13858",
-      "category_number": "11049",
-      "description": "NAMEPLATE",
-      "quantity": 1.00
-    }
-  ]
-}
+- A row is ONLY a category if it has bolder/darker font than regular parts
+- All rows that exist below a category row should be parts that are associated with that category.
+- If a box has no bold/emphasized rows, the "categories" array should be empty. Parts do not have to be associated with a category.
+- If multiple files, use the page numbers at the bottom right to understand order. Categories can carry over between pages. Line breaks will always be above a row that should be considered a category. 
 
 ONLY return the JSON array with no explanations or additional text.
     `;
