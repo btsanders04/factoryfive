@@ -71,6 +71,7 @@ CRITICAL DETECTION INSTRUCTIONS:
 - Parts at the top of a continuation page (like page 25) should be assigned to the category from the bottom of the previous page (page 24)
 - Pay attention to spacing and formatting - items with different alignment or text format may indicate structure
 - Use page numbers at bottom of images to determine sequence across multiple pages
+- ONLY return the JSON array with no explanations or additional text.
     `;
 
     // Read all files as base64
