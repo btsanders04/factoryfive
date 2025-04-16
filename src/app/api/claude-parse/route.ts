@@ -62,15 +62,15 @@ The uploaded image(s) is a kit pack list from Factory Five Racing. Extract all p
 ]
 
 CRITICAL DETECTION INSTRUCTIONS:
-- For Factory Five Racing kit lists, items with NO reference code beside the quantity field should be treated as CATEGORIES
-- Items that have reference codes (like BA0501, BA0503) beside the quantity field are regular PARTS
-- The category_number field for parts should be set to the part_number of their parent category (NOT the reference code)
+- For Factory Five Racing kit lists, ONLY items that have a barcode but NO reference code (like BF0401, BB0801) in the middle column AND do not have a parent category should be treated as CATEGORIES
+- All items with reference codes in the middle column are regular PARTS
+- The category_number field for parts should be set to the part_number of their parent category
+- If a part has no parent category, OMIT the category_number field entirely rather than including it as an empty string
 - Each part belongs to the most recently defined category above it
-- The reference codes (BA0501, BA0503, etc.) should NOT be used as category_number in the parts array
-- Pay close attention to the format of each line - the presence or absence of reference codes is the key identifier
+- When a new page starts, parts at the top still belong to the most recently defined category from the previous page unless a new category is explicitly defined
+- Parts at the top of a continuation page (like page 25) should be assigned to the category from the bottom of the previous page (page 24)
+- Pay attention to spacing and formatting - items with different alignment or text format may indicate structure
 - Use page numbers at bottom of images to determine sequence across multiple pages
-
-ONLY return the JSON array with no explanations or additional text.
     `;
 
     // Read all files as base64
