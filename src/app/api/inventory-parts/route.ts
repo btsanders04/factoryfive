@@ -13,11 +13,8 @@ export async function GET() {
     // Fetch all inventory parts with their related categories and boxes
     const inventoryParts = await prisma.inventoryPart.findMany({
       include: {
-        category: {
-          include: {
-            box: true
-          }
-        }
+        category: true,
+        box: true
       },
       orderBy: {
         partNumber: 'asc'

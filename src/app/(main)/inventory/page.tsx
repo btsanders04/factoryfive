@@ -6,6 +6,8 @@ import { FilterBar } from "./components/FilterBar";
 import { MetricsCards } from "./components/MetricsCards";
 import { PartData, PartStatus } from "./types";
 import { getAllInventoryParts, InventoryPartWithRelations, saveInventoryParts } from "@/data/inventoryParts";
+import ScannerModal from "@/app/(main)/inventory/components/ScannerModal";
+import { BoxData } from "@/lib/types/inventory";
 
 // Convert InventoryPart from Prisma to our PartData type
 const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData => {
@@ -32,8 +34,6 @@ const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData 
     inspectionNotes: ""
   };
 };
-
-import ScannerModal, { BoxData } from "@/app/(main)/inventory/components/ScannerModal";
 
 export default function PartsPage() {
   const [parts, setParts] = useState<PartData[]>([]);
@@ -124,7 +124,7 @@ export default function PartsPage() {
 
   // Extract unique categories and boxes for filters
   useEffect(() => {
-    const uniqueCategories = Array.from(new Set(parts.map((part) => part.categoryName)));
+    const uniqueCategories = Array.from(new Set(parts.filter((part) => part.categoryName !== undefined).map((part) => part.categoryName))) as string[];
     const uniqueBoxes = Array.from(new Set(parts.map((part) => part.boxNumber)));
 
     setCategories(uniqueCategories);

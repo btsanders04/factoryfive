@@ -1,4 +1,4 @@
-import { BoxData } from "@/app/(main)/inventory/components/ScannerModal";
+import { BoxData } from "@/lib/types/inventory";
 import { InventoryPart, InventoryCategory, InventoryBox } from "@prisma/client";
 
 /**

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BoxData, Part } from "@/lib/types/inventory";
 
 interface ScannerModalProps {
   open: boolean;
@@ -44,19 +45,6 @@ interface ResultData {
   processed: number;
 }
 
-
-export interface BoxData {
-  box_number?: string;
-  categories?: Array<{
-    category_name?: string;
-    category_number?: string;
-    parts?: Array<{
-      part_number?: string;
-      description?: string;
-      quantity?: number;
-    }>;
-  }>;
-}
 
 export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -118,18 +106,29 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
     }
   };
 
-  // Function to reset all state when the modal is closed
-  const handleClose = () => {
-    // Clear all data
+  const resetData = () => {
     setSelectedFiles([]);
     setLoading(false);
     setError('');
     setOcrText('');
     setParsedData(null);
+  }
+
+  // Function to reset all state when the modal is closed
+  const handleClose = () => {
+    // Clear all data
+    resetData();
     
     // Call the parent's onClose function
     onClose();
   };
+
+  const handleOnSubmit = () => {
+    if (parsedData){
+      onSubmit(parsedData);
+    }
+    resetData();
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -250,8 +249,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
                   variant="outline" 
                   size="sm" 
                   onClick={() => {
-                    setParsedData([]);
-                    setOcrText('');
+                    resetData();
                   }}
                   className="text-xs"
                 >
@@ -274,24 +272,73 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
                               Box {box.box_number || `#${boxIndex + 1}`}
                             </Badge>
                             <span className="text-sm text-muted-foreground">
-                              {box.categories?.reduce((total, category) => total + (category.parts?.length || 0), 0) || 0} parts
+                              {box.parts?.length || 0} parts
                             </span>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent>
-                          {box.categories?.map((category, categoryIndex) => (
-                            <Card key={categoryIndex} className="mb-3 border-border bg-card">
+                          {box.categories?.map((category, categoryIndex) => {
+                            // Filter parts that belong to this category
+                            const categoryParts = box.parts?.filter(
+                              part => part.category_number === category.category_number
+                            ) || [];
+                            
+                            return (
+                              <Card key={categoryIndex} className="mb-3 border-border bg-card">
+                                <CardHeader className="py-3 px-4">
+                                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                    {category.category_number && (
+                                      <Badge variant="secondary" className="font-mono text-xs">
+                                        {category.category_number}
+                                      </Badge>
+                                    )}
+                                    {category.category_name || `Category ${categoryIndex + 1}`}
+                                  </CardTitle>
+                                  <CardDescription className="text-xs">
+                                    {categoryParts.length} parts in this category
+                                  </CardDescription>
+                                </CardHeader>
+                                <CardContent className="py-0 px-0">
+                                  <div className="max-h-[200px] overflow-y-auto">
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow>
+                                          <TableHead className="w-[100px]">Part #</TableHead>
+                                          <TableHead>Description</TableHead>
+                                          <TableHead className="text-right w-[80px]">Qty</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {categoryParts.map((part: Part, partIndex: number) => (
+                                          <TableRow key={partIndex}>
+                                            <TableCell className="font-mono text-xs">
+                                              {part.part_number || '—'}
+                                            </TableCell>
+                                            <TableCell>{part.description || '—'}</TableCell>
+                                            <TableCell className="text-right">
+                                              {part.quantity !== undefined ? part.quantity : '—'}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                          
+                          {/* Display parts that are not in a category */}
+                          {box.parts && box.parts.some(part => !part.category_number) && (
+                            <Card className="mb-3 border-border bg-card">
                               <CardHeader className="py-3 px-4">
                                 <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                  {category.category_number && (
-                                    <Badge variant="secondary" className="font-mono text-xs">
-                                      {category.category_number}
-                                    </Badge>
-                                  )}
-                                  {category.category_name || `Category ${categoryIndex + 1}`}
+                                  <Badge variant="outline" className="bg-primary/10 text-primary font-mono text-xs">
+                                    Uncategorized
+                                  </Badge>
                                 </CardTitle>
                                 <CardDescription className="text-xs">
-                                  {category.parts?.length || 0} parts in this category
+                                  {box.parts.filter(part => !part.category_number).length} uncategorized parts
                                 </CardDescription>
                               </CardHeader>
                               <CardContent className="py-0 px-0">
@@ -305,23 +352,25 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                      {category.parts?.map((part, partIndex) => (
-                                        <TableRow key={partIndex}>
-                                          <TableCell className="font-mono text-xs">
-                                            {part.part_number || '—'}
-                                          </TableCell>
-                                          <TableCell>{part.description || '—'}</TableCell>
-                                          <TableCell className="text-right">
-                                            {part.quantity !== undefined ? part.quantity : '—'}
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
+                                      {box.parts
+                                        .filter(part => !part.category_number)
+                                        .map((part: Part, partIndex: number) => (
+                                          <TableRow key={partIndex}>
+                                            <TableCell className="font-mono text-xs">
+                                              {part.part_number || '—'}
+                                            </TableCell>
+                                            <TableCell>{part.description || '—'}</TableCell>
+                                            <TableCell className="text-right">
+                                              {part.quantity !== undefined ? part.quantity : '—'}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
                                     </TableBody>
                                   </Table>
                                 </div>
                               </CardContent>
                             </Card>
-                          ))}
+                          )}
                         </AccordionContent>
                       </AccordionItem>
                     ))}
@@ -351,7 +400,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
             )}
             {parsedData && (
               <Button 
-                onClick={() => onSubmit(parsedData)}
+                onClick={handleOnSubmit}
                 className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={loading}
                 size="lg"

@@ -152,6 +152,7 @@ model InventoryBox {
     boxNumber       String            @unique
     description     String?
     categories      InventoryCategory[]
+    parts           InventoryPart[]
     
     // Timestamps
     createdAt       DateTime          @default(now())
@@ -175,16 +176,18 @@ model InventoryCategory {
 
 model InventoryPart {
     id               Int               @id @default(autoincrement())
-    partNumber       String
+    partNumber       String            @unique  
     description      String
     quantityExpected Int               @default(1)
     quantityReceived Int               @default(0)
-    category         InventoryCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-    categoryId       Int
+    category         InventoryCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade) 
+    categoryId       Int? 
+    box              InventoryBox      @relation(fields: [boxId], references: [id], onDelete: Cascade)
+    boxId            Int
     
     // Timestamps
     createdAt        DateTime          @default(now())
     updatedAt        DateTime          @updatedAt
     
-    @@unique([categoryId, partNumber])
+    @@unique([boxId, partNumber])
 }

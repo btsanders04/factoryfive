@@ -11,11 +11,12 @@ interface BoxData {
   categories?: Array<{
     category_name?: string;
     category_number?: string;
-    parts?: Array<{
-      part_number?: string;
-      description?: string;
-      quantity?: number;
-    }>;
+  }>;
+  parts?: Array<{
+    part_number?: string;
+    category_number?: string;
+    description?: string;
+    quantity?: number;
   }>;
 }
 
@@ -38,40 +39,62 @@ export async function POST(req: NextRequest) {
 
     // Prepare the prompt for Claude
     const prompt = `
-     The uploaded image is a kit pack list from Factory Five. Extract all parts information in a structured JSON array using the following format:
-    [
+The uploaded image is a kit pack list from Factory Five Racing. Extract all parts information in a structured JSON array using the following format:
+
+[
+  {
+    "box_number": "<box number>",
+    "categories": [
       {
-        "box_number": "<box number>",
-        "categories": [
-          {
-            "category_name": "<category name from the bold/emphasized line>",
-            "category_number": "<category number from the bold/emphasized line>",
-            "parts": [
-              {
-                "part_number": "<part number>",
-                "description": "<part description>",
-                "quantity": <quantity as a number>
-              },
-              ...
-            ]
-          },
-          ...
-        ]
-      },
-      ...
+        "category_name": "<category name from the bold/emphasized line>",
+        "category_number": "<category number from the bold/emphasized line>"
+      }
+    ],
+    "parts": [
+      {
+        "part_number": "<part number>",
+        "category_number": "<category number from the bold/emphasized line> (if applicable)",
+        "description": "<part description>",
+        "quantity": <quantity as a number>
+      }
     ]
+  }
+]
 
-    Notes for parsing:
-    - Bold/emphasized lines represent CATEGORIES, not individual parts
-    - There will always be a line break above a bold/emphasized line
-    - Additionally to being bold, lines that should be classified as categories instead of parts will not have underscore lines to the right of the second barcode in the row. 
-    - Each box may contain multiple categories
-    - Each category contains multiple parts
-    - The part number is to the left of the description
-    - Ignore any text between the description and quantity
-    - If fields are missing, leave them blank or null
+CRITICAL DETECTION INSTRUCTIONS:
+- A line is ONLY a category if it has significantly bolder/darker font than regular parts
+- Categories are stored in a separate "categories" array at the box level
+- Parts are stored in a separate "parts" array at the box level
+- Parts should reference their category through the "category_number" field
+- If a box has no bold/emphasized lines, the "categories" array should be empty
+- The JSON structure must be maintained with "categories" and "parts" as separate arrays
 
-    ONLY return the JSON array with no explanations or additional text.
+Example of correct JSON structure for BOX 00 in this image:
+{
+  "box_number": "00",
+  "categories": [
+    {
+      "category_name": "KIT DOCUMENTATION",
+      "category_number": "11049"
+    }
+  ],
+  "parts": [
+    {
+      "part_number": "10759",
+      "category_number": "11049",
+      "description": "CERTIFICATE OF ORIGIN",
+      "quantity": 1.00
+    },
+    {
+      "part_number": "13858",
+      "category_number": "11049",
+      "description": "NAMEPLATE",
+      "quantity": 1.00
+    }
+  ]
+}
+
+ONLY return the JSON array with no explanations or additional text.
     `;
 
     // Read all files as base64

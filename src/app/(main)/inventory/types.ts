@@ -8,9 +8,9 @@ export interface PartData {
   quantityExpected: number;
   quantityReceived: number;
   status: PartStatus;
-  categoryId: number;
-  categoryName: string;
-  categoryNumber: string;
+  categoryId: number | null;
+  categoryName?: string;
+  categoryNumber?: string;
   boxId: number;
   boxNumber: string;
   notes?: string;
