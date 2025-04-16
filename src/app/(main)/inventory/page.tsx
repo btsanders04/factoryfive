@@ -27,8 +27,8 @@ const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData 
     categoryId: part.categoryId,
     categoryName: part.category.categoryName,
     categoryNumber: part.category.categoryNumber,
-    boxId: part.category.boxId,
-    boxNumber: part.category.box.boxNumber,
+    boxId: part.box?.id,
+    boxNumber: part.box?.boxNumber,
     notes: "", // Default empty string for now
     installDate: undefined,
     inspectionNotes: ""

@@ -1,14 +1,11 @@
-import { BoxData } from "@/lib/types/inventory";
 import { InventoryPart, InventoryCategory, InventoryBox } from "@prisma/client";
+import { BoxData } from "@/lib/types/inventory";
 
 /**
  * Type representing an InventoryPart with its related Category and Box
  */
 export type InventoryPartWithRelations = InventoryPart & {
-  category: InventoryCategory & {
-    box: InventoryBox;
-  };
-};
+  category: InventoryCategory} & { box: InventoryBox };
 
 /**
  * Fetches all inventory parts with their related categories and boxes
