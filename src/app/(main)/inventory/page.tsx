@@ -204,9 +204,7 @@ export default function PartsPage() {
           boxFilter={boxFilter}
           setBoxFilter={setBoxFilter}
           categories={categories}
-          boxes={sections}
-          table={null}
-        />
+          boxes={sections}        />
       </div>
       
       <div className="overflow-x-auto -mx-4 sm:mx-0">
