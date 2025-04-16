@@ -5,7 +5,7 @@ import { PartsTable } from "./components/PartsTable";
 import { FilterBar } from "./components/FilterBar";
 import { MetricsCards } from "./components/MetricsCards";
 import { PartData, PartStatus } from "./types";
-import { getAllInventoryParts, InventoryPartWithRelations } from "@/data/inventoryParts";
+import { getAllInventoryParts, InventoryPartWithRelations, saveInventoryParts } from "@/data/inventoryParts";
 
 // Convert InventoryPart from Prisma to our PartData type
 const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData => {
@@ -33,16 +33,16 @@ const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData 
   };
 };
 
-import ScannerModal from "@/app/(main)/inventory/components/ScannerModal";
+import ScannerModal, { BoxData } from "@/app/(main)/inventory/components/ScannerModal";
 
 export default function PartsPage() {
   const [parts, setParts] = useState<PartData[]>([]);
   const [filteredParts, setFilteredParts] = useState<PartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [boxFilter, setBoxFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all_statuses");
+  const [categoryFilter, setCategoryFilter] = useState("all_categories");
+  const [boxFilter, setBoxFilter] = useState("all_boxes");
   // const [selectedPart, setSelectedPart] = useState<PartData | null>(null);
   // const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -57,6 +57,7 @@ export default function PartsPage() {
   const [installedParts, setInstalledParts] = useState(0);
   const [receivedPercentage, setReceivedPercentage] = useState(0);
   const [installedPercentage, setInstalledPercentage] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Fetch parts data
   useEffect(() => {
@@ -75,7 +76,18 @@ export default function PartsPage() {
     };
 
     fetchParts();
-  }, []);
+  }, [refreshTrigger]); // Only re-run when refreshTrigger changes
+  
+  const onSubmit = async (data: BoxData[]) => {
+    try {
+      await saveInventoryParts(data);
+      setScannerOpen(false);
+      // Increment the refresh trigger to fetch fresh data
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Error saving parts:", error);
+    }
+  };
 
   // Filter parts based on search query and filters
   useEffect(() => {
@@ -163,9 +175,7 @@ export default function PartsPage() {
           Scan
         </button>
       </div>
-      <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onSubmit={function (): void {
-        throw new Error("Function not implemented.");
-      } } />
+      <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onSubmit={onSubmit} />
       
       <div className="overflow-hidden">
         <MetricsCards

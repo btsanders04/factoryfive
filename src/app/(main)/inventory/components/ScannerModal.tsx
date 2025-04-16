@@ -351,33 +351,7 @@ export default function ScannerModal({ open, onClose, onSubmit }: ScannerModalPr
             )}
             {parsedData && (
               <Button 
-                onClick={async () => {
-                  try {
-                    setLoading(true);
-                    const response = await fetch('/api/inventory', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify(parsedData)
-                    });
-                    
-                    if (!response.ok) {
-                      throw new Error('Failed to save inventory data');
-                    }
-                    
-                    const result = await response.json();
-                    console.log('Inventory saved:', result);
-                    onSubmit(parsedData);
-                    
-                    // Close the modal on success
-                    handleClose();
-                  } catch (err) {
-                    setError(`Failed to save inventory: ${err}`);
-                  } finally {
-                    setLoading(false);
-                  }
-                }} 
+                onClick={() => onSubmit(parsedData)}
                 className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={loading}
                 size="lg"

@@ -1,3 +1,4 @@
+import { BoxData } from "@/app/(main)/inventory/components/ScannerModal";
 import { InventoryPart, InventoryCategory, InventoryBox } from "@prisma/client";
 
 /**
@@ -60,4 +61,21 @@ export async function getInventoryPartsMetrics() {
       installedPercentage: 0,
     };
   }
+}
+
+export async function saveInventoryParts(parts: BoxData[]) {
+  const response = await fetch("/api/inventory-parts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(parts),
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error || `Error: ${response.status} ${response.statusText}`
+    );
+  }
+  
+  return response.json() as Promise<InventoryPartWithRelations[]>;
 }
