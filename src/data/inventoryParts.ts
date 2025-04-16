@@ -64,7 +64,7 @@ export async function getInventoryPartsMetrics() {
 }
 
 export async function saveInventoryParts(parts: BoxData[]) {
-  const response = await fetch("/api/inventory-parts", {
+  const response = await fetch("/api/inventory", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(parts),
