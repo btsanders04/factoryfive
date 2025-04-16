@@ -68,8 +68,7 @@ CRITICAL DETECTION INSTRUCTIONS:
 - If a part has no parent category, OMIT the category_number field entirely rather than including it as an empty string
 - Each part belongs to the most recently defined category above it
 - When a new page starts, parts at the top still belong to the most recently defined category from the previous page unless a new category is explicitly defined
-- Parts at the top of a continuation page (like page 25) should be assigned to the category from the bottom of the previous page (page 24)
-- Pay attention to spacing and formatting - items with different alignment or text format may indicate structure
+- Parts at the top of a continuation page should be assigned to the category from the bottom of the previous page
 - Use page numbers at bottom of images to determine sequence across multiple pages
 - ONLY return the JSON array with no explanations or additional text.
     `;
