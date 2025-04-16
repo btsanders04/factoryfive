@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
                 data: {
                   description: description,
                   quantityExpected: quantity,
-                  categoryId: partCategoryRecord ? partCategoryRecord.id : null,
+                  categoryId: partCategoryRecord?.id,
                   boxId: boxRecord.id
                 }
               });
@@ -192,11 +192,8 @@ export async function POST(req: NextRequest) {
         const updatedBox = await prisma.inventoryBox.findUnique({
           where: { id: boxRecord.id },
           include: {
-            categories: {
-              include: {
-                parts: true
-              }
-            }
+            categories: true,
+            parts: true
           }
         });
         console.log(`Processed box: ${boxRecord.id}`);
