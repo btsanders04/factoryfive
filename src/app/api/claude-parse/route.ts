@@ -39,7 +39,6 @@ export async function POST(req: NextRequest) {
 
     // Prepare the prompt for Claude
     const prompt = `
-Based on my analysis of this new image, I need to update the prompt to properly detect that the first line is a category. Here's my adjusted prompt:
 The uploaded image(s) is a kit pack list from Factory Five Racing. Extract all parts information in a structured JSON array using the following format:
 
 [
@@ -54,7 +53,7 @@ The uploaded image(s) is a kit pack list from Factory Five Racing. Extract all p
     "parts": [
       {
         "part_number": "<part number>",
-        "category_number": "<category number>",   
+        "category_number": "<parent category number>",   
         "description": "<part description>",
         "quantity": <quantity as a number>
       }
@@ -63,12 +62,12 @@ The uploaded image(s) is a kit pack list from Factory Five Racing. Extract all p
 ]
 
 CRITICAL DETECTION INSTRUCTIONS:
-- The first item in each box is a CATEGORY if it appears in bolder/darker font or has larger spacing before it
-- Look for visual cues like line spacing or font weight to identify categories
-- IMPORTANT: In this particular format, the first line under the BOX header is typically a category
-- All parts listed after a category belong to that category until another category is encountered
-- Each part must be associated with its parent category using the category_number field
-- If a box has no bold/emphasized items, the "categories" array should be empty
+- For Factory Five Racing kit lists, items with NO reference code beside the quantity field should be treated as CATEGORIES
+- Items that have reference codes (like BA0501, BA0503) beside the quantity field are regular PARTS
+- The category_number field for parts should be set to the part_number of their parent category (NOT the reference code)
+- Each part belongs to the most recently defined category above it
+- The reference codes (BA0501, BA0503, etc.) should NOT be used as category_number in the parts array
+- Pay close attention to the format of each line - the presence or absence of reference codes is the key identifier
 - Use page numbers at bottom of images to determine sequence across multiple pages
 
 ONLY return the JSON array with no explanations or additional text.
