@@ -233,8 +233,10 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
               if (/^\d+$/.test(code)) {
                 // For numeric codes, only accept if they're in a reasonable range for part numbers
                 // and have a minimum confidence level - lower threshold for mobile
-                const confidenceThreshold = navigator.standalone || 
-                  window.matchMedia('(display-mode: standalone)').matches ? 0.45 : 0.6;
+                // Check if app is in standalone mode (iOS Safari) or installed as PWA
+                const isStandalone = (window.navigator as any).standalone || 
+                  window.matchMedia('(display-mode: standalone)').matches;
+                const confidenceThreshold = isStandalone ? 0.45 : 0.6;
                 
                 if (code.length >= 4 && code.length <= 10 && result.codeResult.confidence > confidenceThreshold) {
                   console.log("Numeric part number detected:", code);
@@ -272,15 +274,6 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Scan Barcode</DialogTitle>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="absolute right-4 top-4" 
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
         </DialogHeader>
         
         <div className="relative aspect-video bg-black rounded-md overflow-hidden">
