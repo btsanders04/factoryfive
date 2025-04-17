@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Camera, FlipHorizontal, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+// Import the library directly - no dynamic imports
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 interface BarcodeScannerProps {
   open: boolean;
@@ -13,15 +14,16 @@ interface BarcodeScannerProps {
 }
 
 export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): React.ReactElement {
-  const [scanning, setScanning] = useState(false);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [error, setError] = useState<string | null>(null);
   const [scanSuccess, setScanSuccess] = useState(false);
   const [scannedCode, setScannedCode] = useState<string | null>(null);
   const [initializing, setInitializing] = useState(false);
   
-  // Use a string ID instead of a ref for html5-qrcode
-  const scannerContainerId = "barcode-scanner";
+  // Use a ref to store the scanner instance
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  
+  // Scanner container ID - must be unique
+  const scannerContainerId = "barcode-scanner-container";
   
   // Clean up and validate barcode - simpler approach
   const cleanAndValidateBarcode = (code: string): string | null => {
@@ -39,149 +41,104 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
     return null;
   };
 
-  // We've moved the success handling directly into the startScanner method
-  // for better iOS compatibility
+  // Handle successful scan
+  const onScanSuccess = (decodedText: string) => {
+    console.log(`Code matched = ${decodedText}`);
+    
+    // Clean and validate the barcode
+    const validBarcode = cleanAndValidateBarcode(decodedText);
+    
+    if (validBarcode) {
+      // Show success UI
+      setScanSuccess(true);
+      setScannedCode(validBarcode);
+      
+      // Call the callback with the result
+      onScan(validBarcode);
+      
+      // Close after a delay
+      setTimeout(() => {
+        onClose();
+        setScanSuccess(false);
+        setScannedCode(null);
+      }, 1500);
+    }
+  };
 
-  // Start the scanner - simplified for maximum mobile compatibility
-  const startScanner = async () => {
-    try {
+  // Handle scan failure
+  const onScanFailure = (error: string) => {
+    // Just log errors, don't display to user unless critical
+    console.warn(`Code scan error = ${error}`);
+    
+    if (error && typeof error === 'string' && 
+        (error.includes('Camera access') || error.includes('permission'))) {
+      setError("Camera access denied. Please check permissions.");
+    }
+  };
+
+  // Initialize scanner when dialog opens
+  useEffect(() => {
+    // Only initialize when dialog is open and in the browser
+    if (open && typeof window !== 'undefined') {
       setInitializing(true);
       setError(null);
       
-      // Create a new instance with a simple ID
-      const html5QrCode = new Html5Qrcode(scannerContainerId);
-      
-      // Very basic configuration that works on most devices
-      const config = {
-        fps: 5, // Lower FPS for better stability
-        qrbox: 250, // Simple square scanning area
-        // Only include essential formats to reduce processing
-        formatsToSupport: [
-          Html5QrcodeSupportedFormats.CODE_128
-        ]
-      };
-      
-      console.log("Starting camera with facing mode:", facingMode);
-      
-      await html5QrCode.start(
-        { facingMode }, 
-        config,
-        (decodedText) => {
-          // Success callback
-          console.log("Scan result:", decodedText);
-          const validBarcode = cleanAndValidateBarcode(decodedText);
-          
-          if (validBarcode) {
-            setScanSuccess(true);
-            setScannedCode(validBarcode);
-            
-            try {
-              // Stop scanner safely
-              html5QrCode.stop().catch(e => console.error("Error stopping scanner:", e));
-              
-              // Call the callback with the result
-              onScan(validBarcode);
-              
-              // Close after a delay
-              setTimeout(() => {
-                onClose();
-                setScanSuccess(false);
-                setScannedCode(null);
-              }, 1500);
-            } catch (stopErr) {
-              console.error("Error in success handling:", stopErr);
-            }
-          }
-        },
-        (errorMessage) => {
-          // Ignore most errors as they're just frames that couldn't be scanned
-          // Only log to avoid console spam
-          if (errorMessage.includes("permission")) {
-            console.error("Permission error:", errorMessage);
-          }
-        }
-      );
-      
-      setScanning(true);
-      setInitializing(false);
-    } catch (err) {
-      console.error("Camera initialization error:", err);
-      setError(`Camera error: ${err instanceof Error ? err.message : 'Please check camera permissions'}`);
-      setScanning(false);
-      setInitializing(false);
-    }
-  };
-
-  // Stop the scanner - with better error handling
-  const stopScanner = () => {
-    try {
-      // Create a new instance - this is safer than trying to access an existing one
-      const scanner = new Html5Qrcode(scannerContainerId);
-      
-      // Wrap in try-catch to handle any potential errors
       try {
-        if (scanner.isScanning) {
-          scanner.stop().catch(() => {
-            // Silently ignore stop errors - they're usually harmless
-          });
+        // Clear any existing scanner
+        const container = document.getElementById(scannerContainerId);
+        if (container) {
+          container.innerHTML = '';
         }
-      } catch (innerError) {
-        console.error("Error stopping scanner:", innerError);
-
-        // Ignore inner errors - they're usually due to the scanner not being initialized
+        
+        // Create a new scanner with basic config from docs
+        setTimeout(() => {
+          try {
+            // Create the scanner with simple configuration
+            const scanner = new Html5QrcodeScanner(
+              scannerContainerId,
+              { 
+                fps: 10, 
+                qrbox: {width: 250, height: 100}, // Wider for Code 128 barcodes
+                formatsToSupport: [0, 1, 2, 3, 4, 5, 6, 7], // Support common barcode formats
+                rememberLastUsedCamera: true,
+                showTorchButtonIfSupported: true,
+              },
+              false // verbose mode off
+            );
+            
+            // Store scanner in ref
+            scannerRef.current = scanner;
+            
+            // Render the scanner UI
+            scanner.render(onScanSuccess, onScanFailure);
+            
+            setInitializing(false);
+          } catch (err) {
+            console.error("Error creating scanner:", err);
+            setError(`Camera error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+            setInitializing(false);
+          }
+        }, 1000); // Delay to ensure DOM is ready
+      } catch (err) {
+        console.error("Scanner initialization error:", err);
+        setError(`Camera error: ${err instanceof Error ? err.message : 'Please check camera permissions'}`);
+        setInitializing(false);
       }
-      
-      // Always set scanning to false regardless of success/failure
-      setScanning(false);
-    } catch (error) {
-      // Just log the error and continue
-      console.error("Error in stopScanner:", error);
-      setScanning(false);
-    }
-  };
-
-  // Toggle between front and back camera - with better error handling
-  const toggleCamera = () => {
-    // Update the facing mode state
-    setFacingMode(prev => prev === "user" ? "environment" : "user");
-    
-    // Clear any existing errors
-    setError(null);
-    
-    // Set initializing state to show loading indicator
-    setInitializing(true);
-    
-    // Always stop scanner first
-    stopScanner();
-    
-    // Use a longer delay for iOS to properly release camera resources
-    setTimeout(() => {
-      startScanner();
-    }, 1000); // Even longer delay for more reliable camera switching
-  };
-
-  // Single useEffect for all scanner management - simpler and more reliable
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    // Only start scanner when dialog is open
-    if (open) {
-      // Use a delay to ensure DOM is fully rendered
-      timeoutId = setTimeout(() => {
-        startScanner();
-      }, 500);
-    } else {
-      // Always stop scanner when dialog closes
-      stopScanner();
     }
     
-    // Clean up on unmount or when dependencies change
+    // Clean up when dialog closes
     return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      stopScanner();
+      try {
+        if (scannerRef.current) {
+          scannerRef.current.clear();
+          scannerRef.current = null;
+        }
+      } catch (err) {
+        console.error("Error cleaning up scanner:", err);
+      }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, facingMode]); // Only re-run when dialog state or camera changes
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -191,23 +148,16 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
         </DialogHeader>
         
         <div className="flex flex-col items-center">
-          {/* Scanner Container */}
-          <div 
-            id={scannerContainerId}
-            className="w-full h-64 overflow-hidden relative bg-gray-100 rounded-md"
-          >
+          {/* Scanner Container - Html5QrcodeScanner will render its UI here */}
+          <div className="w-full relative">
+            {/* The scanner will render inside this div */}
+            <div id={scannerContainerId} className="w-full"></div>
+            
             {/* Show when scanner is initializing */}
             {initializing && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-blue-50 z-20">
-                <RefreshCw className="h-12 w-12 text-blue-500 mb-2 animate-spin" />
+                <Loader2 className="h-12 w-12 text-blue-500 animate-spin mb-2" />
                 <p className="text-blue-700 font-medium">Starting camera...</p>
-              </div>
-            )}
-            
-            {/* Show when scanner is not active */}
-            {!scanning && !initializing && !error && !scanSuccess && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Camera className="h-16 w-16 text-gray-400" />
               </div>
             )}
             
@@ -236,7 +186,39 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
                   size="sm"
                   onClick={() => {
                     setError(null);
-                    startScanner();
+                    // Try to reinitialize the scanner
+                    if (scannerRef.current) {
+                      try {
+                        scannerRef.current.clear();
+                        scannerRef.current = null;
+                        
+                        // Force a small delay then try again
+                        setInitializing(true);
+                        setTimeout(() => {
+                          const container = document.getElementById(scannerContainerId);
+                          if (container) container.innerHTML = '';
+                          
+                          const scanner = new Html5QrcodeScanner(
+                            scannerContainerId,
+                            { 
+                              fps: 10, 
+                              qrbox: {width: 250, height: 100},
+                              formatsToSupport: [0, 1, 2, 3, 4, 5, 6, 7],
+                              rememberLastUsedCamera: true,
+                            },
+                            false
+                          );
+                          
+                          scannerRef.current = scanner;
+                          scanner.render(onScanSuccess, onScanFailure);
+                          setInitializing(false);
+                        }, 1000);
+                      } catch (err) {
+                        console.error("Error reinitializing scanner:", err);
+                        setError(`Failed to restart camera: ${err instanceof Error ? err.message : 'Unknown error'}`);
+                        setInitializing(false);
+                      }
+                    }
                   }}
                   className="mt-4"
                 >
@@ -254,16 +236,6 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
               className="mr-2"
             >
               Cancel
-            </Button>
-            
-            <Button
-              variant="outline" 
-              onClick={toggleCamera}
-              disabled={scanSuccess || initializing}
-              className="flex items-center gap-2"
-            >
-              <FlipHorizontal className="h-4 w-4" />
-              {facingMode === "user" ? "Back Camera" : "Front Camera"}
             </Button>
           </div>
         </div>
