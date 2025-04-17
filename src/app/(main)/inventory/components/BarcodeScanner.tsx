@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Camera, FlipHorizontal, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
@@ -49,7 +49,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
       setError(null);
       
       // Always create a new instance for iOS
-      let html5QrCode = new Html5Qrcode(scannerContainerId);
+      const html5QrCode = new Html5Qrcode(scannerContainerId);
       
       // Simple configuration that works better on iOS
       const config = {
