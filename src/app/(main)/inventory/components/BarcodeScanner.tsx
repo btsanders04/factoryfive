@@ -12,6 +12,7 @@ interface TesseractWorker {
   loadLanguage: (language: string) => Promise<void>;
   initialize: (language: string) => Promise<void>;
   setParameters: (params: { tessedit_char_whitelist?: string; tessedit_pageseg_mode?: string }) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   recognize: (image: string | ImageData) => Promise<any>;
   terminate: () => Promise<void>;
 }
@@ -69,6 +70,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
             setOcrProgress(Math.round(progress.progress * 100));
           }
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any); // Type assertion to bypass type checking for createWorker options
       
       // Set recognition options optimized for part numbers
@@ -357,6 +359,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
               focusDistance: 30, // Focus at a moderate distance
               exposureMode: 'continuous', // Continuous exposure adjustment
               whiteBalanceMode: 'continuous' // Continuous white balance adjustment
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any : {})
           },
           audio: false
