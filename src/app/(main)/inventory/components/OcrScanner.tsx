@@ -4,7 +4,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle2, Loader2, Camera } from "lucide-react";
-import { createWorker } from 'tesseract.js';
+// Import Tesseract.js
+import * as Tesseract from 'tesseract.js';
 
 // Add type definitions for missing MediaTrack capabilities
 declare global {
@@ -31,6 +32,8 @@ export function OcrScanner({ open, onClose, onScan }: OcrScannerProps): React.Re
   const [processing, setProcessing] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const [torchEnabled, setTorchEnabled] = useState(false);
+  const [autoCapturing, setAutoCapturing] = useState(true);
+  const [lastProcessingTime, setLastProcessingTime] = useState(0);
   
   // Refs for video and canvas elements
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -111,8 +114,31 @@ export function OcrScanner({ open, onClose, onScan }: OcrScannerProps): React.Re
       // Reset states
       setCameraReady(false);
       setTorchEnabled(false);
+      setAutoCapturing(true);
     };
   }, [open]);
+  
+  // Auto-capture effect
+  useEffect(() => {
+    let captureInterval: NodeJS.Timeout | null = null;
+    
+    if (open && cameraReady && autoCapturing && !processing && !scanSuccess && !error) {
+      // Set up interval for auto-capture
+      captureInterval = setInterval(() => {
+        // Only process if not already processing and enough time has passed since last processing
+        const now = Date.now();
+        if (!processing && now - lastProcessingTime > 1500) {
+          captureAndProcess();
+        }
+      }, 2000); // Check every 2 seconds
+    }
+    
+    return () => {
+      if (captureInterval) {
+        clearInterval(captureInterval);
+      }
+    };
+  }, [open, cameraReady, autoCapturing, processing, scanSuccess, error, lastProcessingTime]);
   
   // Function to toggle flashlight/torch
   const toggleTorch = async () => {
@@ -146,6 +172,7 @@ export function OcrScanner({ open, onClose, onScan }: OcrScannerProps): React.Re
     if (!videoRef.current || !canvasRef.current || processing) return;
     
     setProcessing(true);
+    setLastProcessingTime(Date.now());
     
     try {
       const video = videoRef.current;
@@ -166,21 +193,20 @@ export function OcrScanner({ open, onClose, onScan }: OcrScannerProps): React.Re
       // Get image data as base64
       const imageData = canvas.toDataURL('image/jpeg');
       
-      // Process with Tesseract
-      const worker = await createWorker();
-      // Cast worker to any to avoid TypeScript errors with the Tesseract.js API
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tesseractWorker = worker as any;
-      await tesseractWorker.loadLanguage('eng');
-      await tesseractWorker.initialize('eng');
+      // Process with Tesseract.js using the correct API
+      // Create a worker and set parameters
+      const worker = await Tesseract.createWorker('eng');
       
-      // Configure for digits recognition
-      await tesseractWorker.setParameters({
+      // Set the whitelist parameter properly
+      await worker.setParameters({
         tessedit_char_whitelist: '0123456789',
       });
       
-      const { data } = await tesseractWorker.recognize(imageData);
-      await tesseractWorker.terminate();
+      // Recognize the text
+      const { data } = await worker.recognize(imageData);
+      
+      // Terminate the worker when done
+      await worker.terminate();
       
       console.log("OCR Result:", data.text);
       
@@ -202,12 +228,13 @@ export function OcrScanner({ open, onClose, onScan }: OcrScannerProps): React.Re
           setScannedCode(null);
         }, 1500);
       } else {
-        setError("No part number found. Please try again.");
-        setTimeout(() => setError(null), 2000);
+        // No part number found, continue auto-capturing
+        console.log("No part number found, continuing to scan...");
       }
     } catch (err) {
       console.error("OCR processing error:", err);
       setError(`Processing error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setTimeout(() => setError(null), 2000);
     } finally {
       setProcessing(false);
     }
@@ -307,22 +334,36 @@ export function OcrScanner({ open, onClose, onScan }: OcrScannerProps): React.Re
                 {torchEnabled ? 'Torch On' : 'Torch Off'}
               </Button>
               
-              {/* Capture button */}
+              {/* Auto-capture toggle button */}
               <Button
-                variant="default"
-                size="lg"
-                onClick={captureAndProcess}
-                disabled={processing}
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="outline"
+                size="sm"
+                onClick={() => setAutoCapturing(!autoCapturing)}
+                className={`${autoCapturing ? 'bg-green-100 text-green-800' : ''}`}
               >
-                <Camera className="mr-2 h-5 w-5" />
-                Capture
+                {autoCapturing ? 'Auto Scan: On' : 'Auto Scan: Off'}
               </Button>
+              
+              {/* Manual capture button - only shown when auto-capture is off */}
+              {!autoCapturing && (
+                <Button
+                  variant="default"
+                  size="lg"
+                  onClick={captureAndProcess}
+                  disabled={processing}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Camera className="mr-2 h-5 w-5" />
+                  Capture
+                </Button>
+              )}
             </div>
           )}
           
           <div className="text-xs text-gray-500 mt-4 text-center">
-            Point camera at the 5-digit part number on the box and tap Capture
+            {autoCapturing ? 
+              "Point camera at the 5-digit part number on the box. Auto-scanning..." : 
+              "Point camera at the 5-digit part number on the box and tap Capture"}
           </div>
         </div>
       </DialogContent>
