@@ -126,6 +126,8 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
           });
         }
       } catch (innerError) {
+        console.error("Error stopping scanner:", innerError);
+
         // Ignore inner errors - they're usually due to the scanner not being initialized
       }
       
