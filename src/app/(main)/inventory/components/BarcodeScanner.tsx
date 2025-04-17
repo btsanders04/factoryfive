@@ -3,8 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Camera, FlipHorizontal, AlertCircle, CheckCircle2 } from "lucide-react";
-import { Html5Qrcode } from "html5-qrcode";
+import { Camera, FlipHorizontal, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 
 interface BarcodeScannerProps {
   open: boolean;
@@ -18,154 +18,150 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
   const [error, setError] = useState<string | null>(null);
   const [scanSuccess, setScanSuccess] = useState(false);
   const [scannedCode, setScannedCode] = useState<string | null>(null);
+  const [initializing, setInitializing] = useState(false);
   
-  const scannerRef = useRef<Html5Qrcode | null>(null);
+  // Use a string ID instead of a ref for html5-qrcode
   const scannerContainerId = "barcode-scanner";
   
-  // Clean up any non-numeric characters from the barcode and validate format
+  // Clean up and validate barcode - simpler approach
   const cleanAndValidateBarcode = (code: string): string | null => {
-    // Remove any non-numeric characters
-    const cleaned = code.replace(/[^0-9]/g, "");
+    console.log("Raw barcode scan:", code);
     
-    // Check if it's a valid part number (5 digits or less)
-    if (cleaned.length > 0 && cleaned.length <= 5) {
-      return cleaned;
+    // For iOS, we keep it simple - extract any digits and take up to 5
+    const digits = code.replace(/[^0-9]/g, "");
+    
+    if (digits.length > 0) {
+      const result = digits.substring(0, Math.min(5, digits.length));
+      console.log("Extracted part number:", result);
+      return result;
     }
     
-    // Not a valid part number format
     return null;
   };
 
-  // Handle successful scan
-  const onScanSuccess = (decodedText: string) => {
-    console.log("Scan success:", decodedText);
+  // We've moved the success handling directly into the startScanner method
+  // for better iOS compatibility
 
-    // Clean and validate the barcode
-    const validBarcode = cleanAndValidateBarcode(decodedText);
-    
-    if (validBarcode) {
-      setScanSuccess(true);
-      setScannedCode(validBarcode);
-      
-      // Stop the scanner
-      stopScanner();
-      
-      // Call the onScan callback with the cleaned barcode
-      onScan(validBarcode);
-      
-      // Close the dialog after a short delay
-      setTimeout(() => {
-        onClose();
-        setScanSuccess(false);
-        setScannedCode(null);
-      }, 1500);
-    } else {
-      // Invalid barcode format - show error but continue scanning
-      setError("Invalid part number format. Please scan a valid barcode.");
-      // Clear error after 2 seconds
-      setTimeout(() => {
-        setError(null);
-      }, 2000);
-    }
-  };
-
-  // Handle scan errors
-  const onScanError = (errorMessage: string) => {
-    // Don't display errors for every frame - only display errors that might require user action
-    console.error("Scan error:", errorMessage);
-    
-    if (errorMessage.includes("access") || errorMessage.includes("permission")) {
-      setError("Camera access denied. Please check permissions.");
-    }
-  };
-
-  // Start the scanner
+  // Start the scanner - completely rewritten for iOS compatibility
   const startScanner = async () => {
     try {
-      // Clear previous errors
+      setInitializing(true);
       setError(null);
       
-      // Initialize the scanner if it doesn't exist
-      if (!scannerRef.current) {
-        scannerRef.current = new Html5Qrcode(scannerContainerId);
-      }
+      // Always create a new instance for iOS
+      let html5QrCode = new Html5Qrcode(scannerContainerId);
       
-      const scanner = scannerRef.current;
-      
-      // Configure for different barcode formats - prioritize 1D formats for part numbers
+      // Simple configuration that works better on iOS
       const config = {
         fps: 10,
-        qrbox: { width: 250, height: 100 }, // More rectangular for 1D barcodes
-        aspectRatio: 1.33, // 4:3 aspect ratio
+        qrbox: 250,
         formatsToSupport: [
-          // Prioritize 1D formats that are likely to be used for part numbers
-          2, // EAN_13
-          3, // EAN_8
-          4, // CODE_39
-          5, // CODE_93
-          6, // CODE_128
-          7, // ITF
-          // Also support QR and Data Matrix as fallbacks
-          0, // QR_CODE
-          1  // DATA_MATRIX
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_13
         ]
       };
       
-      // Start the camera with the selected facing mode
-      await scanner.start(
-        { facingMode },
+      console.log("Starting camera with facing mode:", facingMode);
+      
+      await html5QrCode.start(
+        { facingMode }, 
         config,
-        onScanSuccess,
-        onScanError
+        (decodedText) => {
+          // Success callback
+          console.log("Scan result:", decodedText);
+          const validBarcode = cleanAndValidateBarcode(decodedText);
+          
+          if (validBarcode) {
+            setScanSuccess(true);
+            setScannedCode(validBarcode);
+            html5QrCode.stop();
+            onScan(validBarcode);
+            
+            setTimeout(() => {
+              onClose();
+              setScanSuccess(false);
+              setScannedCode(null);
+            }, 1500);
+          }
+        },
+        (errorMessage) => {
+          // We'll ignore most errors as they're just frames that couldn't be scanned
+          console.log("Scan error (normal):", errorMessage);
+        }
       );
       
       setScanning(true);
+      setInitializing(false);
     } catch (err) {
-      console.error("Error starting scanner:", err);
-      setError(`Error initializing scanner: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error("Camera initialization error:", err);
+      setError(`Camera error: ${err instanceof Error ? err.message : 'Please check camera permissions'}`);
       setScanning(false);
+      setInitializing(false);
     }
   };
 
-  // Stop the scanner
+  // Stop the scanner - simplified for iOS
   const stopScanner = () => {
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      try {
-        scannerRef.current.stop();
-        setScanning(false);
-      } catch (error) {
-        console.error("Error stopping scanner:", error);
+    try {
+      // Try to get the current instance by ID
+      const scanner = new Html5Qrcode(scannerContainerId);
+      if (scanner && scanner.isScanning) {
+        scanner.stop().catch(err => {
+          console.error("Error stopping scanner:", err);
+        });
       }
+      setScanning(false);
+    } catch (error) {
+      console.error("Error accessing scanner:", error);
     }
   };
 
-  // Toggle between front and back camera
+  // Toggle between front and back camera - simplified for iOS
   const toggleCamera = () => {
     setFacingMode(prev => prev === "user" ? "environment" : "user");
+    setError(null);
     
-    // Restart scanner with new facing mode
-    if (scanning) {
-      stopScanner();
-      // Small delay to ensure clean restart
-      setTimeout(() => {
-        startScanner();
-      }, 300);
-    }
+    // Always stop first
+    stopScanner();
+    
+    // Delay restart for iOS to release camera resources
+    setTimeout(() => {
+      startScanner();
+    }, 800); // Longer delay for iOS
   };
 
-  // Start scanner when dialog opens
+  // Start scanner when dialog opens - modified for iOS
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
     if (open) {
-      startScanner();
+      // Slight delay for mounting on iOS
+      timeoutId = setTimeout(() => {
+        startScanner();
+      }, 300);
     } else {
       stopScanner();
     }
     
     // Clean up on unmount
     return () => {
+      if (timeoutId) clearTimeout(timeoutId);
       stopScanner();
     };
-  }, [open, facingMode]);
+  }, [open]);
+  
+  // Handle facingMode changes separately
+  useEffect(() => {
+    if (open && scanning) {
+      stopScanner();
+      const timeoutId = setTimeout(() => {
+        startScanner();
+      }, 800);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [facingMode]);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -180,8 +176,16 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
             id={scannerContainerId}
             className="w-full h-64 overflow-hidden relative bg-gray-100 rounded-md"
           >
+            {/* Show when scanner is initializing */}
+            {initializing && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-blue-50 z-20">
+                <RefreshCw className="h-12 w-12 text-blue-500 mb-2 animate-spin" />
+                <p className="text-blue-700 font-medium">Starting camera...</p>
+              </div>
+            )}
+            
             {/* Show when scanner is not active */}
-            {!scanning && !error && !scanSuccess && (
+            {!scanning && !initializing && !error && !scanSuccess && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <Camera className="h-16 w-16 text-gray-400" />
               </div>
@@ -189,10 +193,15 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
             
             {/* Show when scan is successful */}
             {scanSuccess && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-50">
-                <CheckCircle2 className="h-16 w-16 text-green-500 mb-2" />
-                <p className="text-green-700 font-medium">Part scanned successfully!</p>
-                {scannedCode && <p className="text-sm text-green-600 mt-1">Part #{scannedCode}</p>}
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-50 z-20">
+                <CheckCircle2 className="h-20 w-20 text-green-500 mb-3" />
+                <p className="text-green-700 font-medium text-xl">SCAN SUCCESSFUL!</p>
+                {scannedCode && (
+                  <div className="mt-3 text-center">
+                    <p className="text-gray-700 text-sm">Part Number:</p>
+                    <p className="text-2xl font-bold text-green-600 mt-1">{scannedCode}</p>
+                  </div>
+                )}
               </div>
             )}
             
@@ -200,8 +209,19 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
             {error && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-50 z-10">
                 <AlertCircle className="h-16 w-16 text-red-500 mb-2" />
-                <p className="text-red-700 font-medium">Scanner Error</p>
+                <p className="text-red-700 font-medium">Camera Error</p>
                 <p className="text-sm text-red-600 mt-1 text-center px-4">{error}</p>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setError(null);
+                    startScanner();
+                  }}
+                  className="mt-4"
+                >
+                  Try Again
+                </Button>
               </div>
             )}
           </div>
@@ -216,29 +236,15 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
               Cancel
             </Button>
             
-            <div className="flex items-center gap-2">
-              {error && (
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setError(null);
-                    startScanner();
-                  }}
-                >
-                  Retry
-                </Button>
-              )}
-              
-              <Button
-                variant="outline" 
-                onClick={toggleCamera}
-                disabled={scanSuccess}
-                className="flex items-center gap-2"
-              >
-                <FlipHorizontal className="h-4 w-4" />
-                {facingMode === "user" ? "Back Camera" : "Front Camera"}
-              </Button>
-            </div>
+            <Button
+              variant="outline" 
+              onClick={toggleCamera}
+              disabled={scanSuccess || initializing}
+              className="flex items-center gap-2"
+            >
+              <FlipHorizontal className="h-4 w-4" />
+              {facingMode === "user" ? "Back Camera" : "Front Camera"}
+            </Button>
           </div>
         </div>
       </DialogContent>
