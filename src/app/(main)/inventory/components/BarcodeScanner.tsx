@@ -24,12 +24,29 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
   
   // Clean up any non-numeric characters from the barcode and validate format
   const cleanAndValidateBarcode = (code: string): string | null => {
-    // Remove any non-numeric characters
-    const cleaned = code.replace(/[^0-9]/g, "");
+    console.log("Raw barcode scan:", code);
     
-    // Check if it's a valid part number (5 digits or less)
-    if (cleaned.length > 0 && cleaned.length <= 5) {
-      return cleaned;
+    // If the code already looks like a 5-digit number, just return it
+    if (/^\d{5}$/.test(code)) {
+      console.log("Perfect 5-digit code detected:", code);
+      return code;
+    }
+    
+    // Extract any 5-digit sequences from the code (common pattern in your barcodes)
+    const fiveDigitMatches = code.match(/\b\d{5}\b/g);
+    if (fiveDigitMatches && fiveDigitMatches.length > 0) {
+      console.log("5-digit sequence extracted:", fiveDigitMatches[0]);
+      return fiveDigitMatches[0];
+    }
+    
+    // If no 5-digit sequence, just clean and take first 5 digits
+    const cleaned = code.replace(/[^0-9]/g, "");
+    console.log("Cleaned barcode:", cleaned);
+    
+    if (cleaned.length > 0) {
+      const result = cleaned.substring(0, Math.min(5, cleaned.length));
+      console.log("Using first digits:", result);
+      return result;
     }
     
     // Not a valid part number format
@@ -44,24 +61,29 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
     const validBarcode = cleanAndValidateBarcode(decodedText);
     
     if (validBarcode) {
+      // Display large success message on screen
       setScanSuccess(true);
       setScannedCode(validBarcode);
       
       // Stop the scanner
       stopScanner();
       
+      // Just log to console instead of showing an alert which might be disruptive
+      console.log(`Successfully scanned part #${validBarcode}`);
+      
       // Call the onScan callback with the cleaned barcode
       onScan(validBarcode);
       
-      // Close the dialog after a short delay
+      // Close the dialog after a longer delay to ensure user sees the success message
       setTimeout(() => {
         onClose();
         setScanSuccess(false);
         setScannedCode(null);
-      }, 1500);
+      }, 2500);
     } else {
       // Invalid barcode format - show error but continue scanning
       setError("Invalid part number format. Please scan a valid barcode.");
+      console.log("Invalid barcode format from:", decodedText);
       // Clear error after 2 seconds
       setTimeout(() => {
         setError(null);
@@ -92,20 +114,27 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
       
       const scanner = scannerRef.current;
       
-      // Configure for different barcode formats - prioritize 1D formats for part numbers
+      // Configure specifically for Code 128 barcodes with 5-digit numbers as seen in the example
       const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 100 }, // More rectangular for 1D barcodes
+        fps: 10, // Increase FPS for faster detection
+        qrbox: { width: 350, height: 100 }, // Wide rectangle shape optimized for Code 128
         aspectRatio: 1.33, // 4:3 aspect ratio
+        disableFlip: false, // Allow content flipping for better recognition
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true // Use native API if available
+        },
         formatsToSupport: [
-          // Prioritize 1D formats that are likely to be used for part numbers
-          2, // EAN_13
-          3, // EAN_8
+          // Prioritize Code 128 which is what's used in the example
+          6, // CODE_128 - This is the primary barcode format in the example
+          
+          // Include these as fallbacks
           4, // CODE_39
           5, // CODE_93
-          6, // CODE_128
+          2, // EAN_13
+          3, // EAN_8
           7, // ITF
-          // Also support QR and Data Matrix as fallbacks
+          
+          // Lowest priority formats
           0, // QR_CODE
           1  // DATA_MATRIX
         ]
@@ -142,6 +171,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
   // Toggle between front and back camera
   const toggleCamera = () => {
     setFacingMode(prev => prev === "user" ? "environment" : "user");
+    setError(null); // Clear any existing errors
     
     // Restart scanner with new facing mode
     if (scanning) {
@@ -149,7 +179,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
       // Small delay to ensure clean restart
       setTimeout(() => {
         startScanner();
-      }, 300);
+      }, 500); // Increased delay for more reliable camera switching
     }
   };
 
@@ -187,12 +217,17 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
               </div>
             )}
             
-            {/* Show when scan is successful */}
+            {/* Show when scan is successful - with much larger text */}
             {scanSuccess && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-50">
-                <CheckCircle2 className="h-16 w-16 text-green-500 mb-2" />
-                <p className="text-green-700 font-medium">Part scanned successfully!</p>
-                {scannedCode && <p className="text-sm text-green-600 mt-1">Part #{scannedCode}</p>}
+                <CheckCircle2 className="h-20 w-20 text-green-500 mb-3" />
+                <p className="text-green-700 font-medium text-xl">SCAN SUCCESSFUL!</p>
+                {scannedCode && (
+                  <div className="mt-3 text-center">
+                    <p className="text-gray-700 text-sm">Part Number:</p>
+                    <p className="text-2xl font-bold text-green-600 mt-1">{scannedCode}</p>
+                  </div>
+                )}
               </div>
             )}
             
