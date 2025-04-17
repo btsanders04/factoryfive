@@ -4,6 +4,7 @@ import { ThemeWrapper } from "@/components/theme-wrapper";
 import { Sidebar } from "@/components/sidebar";
 import { MobileNavigation } from "@/components/mobile-navigation";
 import { PdfViewerProvider } from "@/components/PdfViewerContext";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function MainLayout({
   children,
@@ -31,6 +32,7 @@ export default function MainLayout({
                 </div>
               </div>
             </main>
+            <Toaster />
           </PdfViewerProvider>
         </ThemeWrapper>
       </StackTheme>

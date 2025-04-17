@@ -8,6 +8,7 @@ import { PartsTable } from "./components/PartsTable";
 import { BarcodeScanner } from "./components/BarcodeScanner";
 import { PartData, PartStatus } from "./types";
 import { getAllInventoryParts, InventoryPartWithRelations, updateInventoryPart } from "@/data/inventoryParts";
+import { useToast } from "@/components/ui/use-toast";
 
 // Convert InventoryPart from Prisma to our PartData type
 const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData => {
@@ -36,6 +37,7 @@ const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData 
 };
 
 export default function PartsPage() {
+  const { toast } = useToast();
   const [parts, setParts] = useState<PartData[]>([]);
   const [filteredParts, setFilteredParts] = useState<PartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,10 +92,14 @@ export default function PartsPage() {
   // Handle barcode scan results
   const handleBarcodeScan = async (barcode: string) => {
     console.log("Barcode scanned:", barcode);
-    
+    toast({
+      title: "Barcode Scanned Successfully",
+      description: `Barcode ${barcode} identified successfully`,
+      variant: "success",
+    });
     // Search for the part with the scanned barcode
     const matchingPart = parts.find(
-      part => part.partNumber === barcode || part.id === barcode
+      part => part.partNumber === barcode
     );
     
     if (matchingPart) {
@@ -107,11 +113,15 @@ export default function PartsPage() {
       // Update the part
       await handleUpdatePart(updatedPart);
       
-      // Show a success message (you could add a toast notification here)
-      alert(`Part ${matchingPart.partNumber} marked as received`);
+      // Show a success notification
+    
     } else {
       // Part not found - you could open the add inventory form with the barcode pre-filled
-      alert(`Part with barcode ${barcode} not found. Would you like to add it?`);
+      toast({
+        title: "Barcode Not Found",
+        description: `Part with barcode ${barcode} not found.`,
+        variant: "destructive",
+      });
       setScannerOpen(true);
     }
   };
