@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle2, Loader2, Camera } from "lucide-react";
-import { createWorker, Worker } from 'tesseract.js';
+import { createWorker } from 'tesseract.js';
 
 // Add type definitions for missing MediaTrack capabilities
 declare global {
@@ -169,6 +169,7 @@ export function OcrScanner({ open, onClose, onScan }: OcrScannerProps): React.Re
       // Process with Tesseract
       const worker = await createWorker();
       // Cast worker to any to avoid TypeScript errors with the Tesseract.js API
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tesseractWorker = worker as any;
       await tesseractWorker.loadLanguage('eng');
       await tesseractWorker.initialize('eng');
