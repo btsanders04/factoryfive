@@ -11,6 +11,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@ericblade/quagga2": "^1.8.4",
     "@neondatabase/serverless": "^0.10.4",
     "@prisma/adapter-neon": "^6.4.1",
     "@prisma/client": "^6.4.1",

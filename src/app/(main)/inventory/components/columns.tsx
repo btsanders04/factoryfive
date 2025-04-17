@@ -12,6 +12,57 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "./Badges";
 import { PartData, PartStatus } from "../types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CheckCheckIcon } from "lucide-react";
+import { useState } from "react";
+
+// Separate React component for the Mark Received button
+function MarkReceivedButton({ part, handleUpdatePart }: { part: PartData; handleUpdatePart: (part: PartData) => void }) {
+  const [isLoading, setIsLoading] = useState(false);
+  
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 p-0 text-green-600 hover:text-green-800 hover:bg-green-100"
+            onClick={() => {
+              setIsLoading(true);
+              // Create updated part object
+              const updatedPart = {
+                ...part,
+                status: "Received" as PartStatus,
+                quantityReceived: part.quantityExpected,
+              };
+              
+              // Call the handleUpdatePart function from props
+              handleUpdatePart(updatedPart);
+              
+              // Set loading to false after a short delay to show the spinner
+              setTimeout(() => setIsLoading(false), 300);
+            }}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              <CheckCheckIcon className="h-5 w-5" />
+            )}
+            <span className="sr-only">Mark as received</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Mark as received</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 interface CreateColumnsProps {
   handleUpdatePart: (part: PartData) => void;
@@ -121,6 +172,24 @@ export const createColumns = ({
         </div>
       );
     },
+  },
+  {
+    id: "markReceived",
+    header: "",
+    cell: ({ row }) => {
+      const part = row.original;
+      
+      // Only show the button if the part is not fully received
+      const isFullyReceived = part.quantityReceived >= part.quantityExpected;
+      const isNotReceived = part.status === "Not Received" || part.status === "Partial";
+      
+      if (isFullyReceived || !isNotReceived) {
+        return null;
+      }
+      
+      return <MarkReceivedButton part={part} handleUpdatePart={handleUpdatePart} />;
+    },
+    enableSorting: false,
   },
   {
     id: "actions",

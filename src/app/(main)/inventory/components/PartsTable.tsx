@@ -91,7 +91,7 @@ export function PartsTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-gray-50"
+                  className="hover:bg-muted/50 even:bg-muted/5"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm">

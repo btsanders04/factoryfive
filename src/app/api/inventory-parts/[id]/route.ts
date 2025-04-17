@@ -3,6 +3,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../prismaClient";
 
+// Define a type for part update data
+type PartUpdateData = {
+  quantityReceived?: number;
+  status?: string;
+};
+
 /**
  * GET /api/inventory-parts/[id]
  * Retrieves a specific inventory part by ID
@@ -68,8 +74,8 @@ export async function PUT(
       );
     }
 
-    // Get the request body
-    const body = await request.json();
+    // Get the request body as PartUpdateData
+    const body = await request.json() as PartUpdateData;
     
     // Validate required fields
     if (!body.quantityReceived && body.quantityReceived !== 0) {
@@ -79,12 +85,20 @@ export async function PUT(
       );
     }
 
+    // Prepare the update data
+    const updateData: any = {
+      quantityReceived: body.quantityReceived
+    };
+    
+    // Only include status if it's provided
+    if (body.status) {
+      updateData.status = body.status;
+    }
+
     // Update the inventory part
     const updatedPart = await prisma.inventoryPart.update({
       where: { id },
-      data: {
-        quantityReceived: body.quantityReceived
-      },
+      data: updateData,
       include: {
         category: {
           include: {

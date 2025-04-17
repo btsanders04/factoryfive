@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PartStatus = "Not Received" | "Partial" | "Complete" | "Installed" | "Damaged" | "Missing";
+export type PartStatus = "Not Received" | "Partial" | "Received" | "Installed" | "Damaged" | "Missing";
 
 export interface PartData {
   id: string;

@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PartsTable } from "./components/PartsTable";
+import ScannerModal from "./components/ScannerModal";
 import { FilterBar } from "./components/FilterBar";
 import { MetricsCards } from "./components/MetricsCards";
+import { PartsTable } from "./components/PartsTable";
+import { BarcodeScanner } from "./components/BarcodeScanner";
 import { PartData, PartStatus } from "./types";
-import { getAllInventoryParts, InventoryPartWithRelations } from "@/data/inventoryParts";
-import ScannerModal from "@/app/(main)/inventory/components/ScannerModal";
+import { getAllInventoryParts, InventoryPartWithRelations, updateInventoryPart } from "@/data/inventoryParts";
 
 // Convert InventoryPart from Prisma to our PartData type
 const mapInventoryPartToPartData = (part: InventoryPartWithRelations): PartData => {
   // Determine status based on quantities
   let status: PartStatus = "Not Received";
   if (part.quantityReceived > 0) {
-    status = part.quantityReceived < part.quantityExpected ? "Partial" : "Complete";
+    status = part.quantityReceived < part.quantityExpected ? "Partial" : "Received";
   }
   
   return {
@@ -38,13 +39,15 @@ export default function PartsPage() {
   const [parts, setParts] = useState<PartData[]>([]);
   const [filteredParts, setFilteredParts] = useState<PartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [barcodeScannerOpen, setBarcodeScannerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all_statuses");
   const [categoryFilter, setCategoryFilter] = useState("all_categories");
   const [boxFilter, setBoxFilter] = useState("all_boxes");
   // const [selectedPart, setSelectedPart] = useState<PartData | null>(null);
   // const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [scannerOpen, setScannerOpen] = useState(false);
   
   // State for filter options
   const [categories, setCategories] = useState<string[]>([]);
@@ -56,7 +59,6 @@ export default function PartsPage() {
   const [installedParts, setInstalledParts] = useState(0);
   const [receivedPercentage, setReceivedPercentage] = useState(0);
   const [installedPercentage, setInstalledPercentage] = useState(0);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Fetch parts data
   useEffect(() => {
@@ -77,10 +79,41 @@ export default function PartsPage() {
     fetchParts();
   }, [refreshTrigger]); // Only re-run when refreshTrigger changes
   
-  const onSubmit = () => {
-      setScannerOpen(false);
-      // Increment the refresh trigger to fetch fresh data
-      setRefreshTrigger(prev => prev + 1);
+  // Handle form submission from scanner
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit = async (data: any) => {
+    console.log("Form submitted:", data);
+    setScannerOpen(false);
+    setRefreshTrigger(prev => prev + 1);
+  };
+  
+  // Handle barcode scan results
+  const handleBarcodeScan = async (barcode: string) => {
+    console.log("Barcode scanned:", barcode);
+    
+    // Search for the part with the scanned barcode
+    const matchingPart = parts.find(
+      part => part.partNumber === barcode || part.id === barcode
+    );
+    
+    if (matchingPart) {
+      // If part is found, you can perform an action like marking it as received
+      const updatedPart = {
+        ...matchingPart,
+        status: "Received" as PartStatus,
+        quantityReceived: matchingPart.quantityExpected
+      };
+      
+      // Update the part
+      await handleUpdatePart(updatedPart);
+      
+      // Show a success message (you could add a toast notification here)
+      alert(`Part ${matchingPart.partNumber} marked as received`);
+    } else {
+      // Part not found - you could open the add inventory form with the barcode pre-filled
+      alert(`Part with barcode ${barcode} not found. Would you like to add it?`);
+      setScannerOpen(true);
+    }
   };
 
   // Filter parts based on search query and filters
@@ -116,6 +149,22 @@ export default function PartsPage() {
     setFilteredParts(filtered);
   }, [parts, searchQuery, statusFilter, categoryFilter, boxFilter]);
 
+  // Function to update metrics based on current parts data
+  const updateMetrics = () => {
+    // Calculate metrics
+    const total = parts.reduce((acc, part) => acc + part.quantityExpected, 0);
+    const received = parts.reduce((acc, part) => acc + part.quantityReceived, 0);
+    const installed = parts.filter((part) => part.status === "Installed").length;
+
+    setTotalParts(total);
+    setReceivedParts(received);
+    setInstalledParts(installed);
+    setReceivedPercentage(total > 0 ? Math.round((received / total) * 100) : 0);
+    setInstalledPercentage(
+      parts.length > 0 ? Math.round((installed / parts.length) * 100) : 0
+    );
+  };
+
   // Extract unique categories and boxes for filters
   useEffect(() => {
     const uniqueCategories = Array.from(new Set(parts.filter((part) => part.categoryName !== undefined).map((part) => part.categoryName))) as string[];
@@ -135,35 +184,39 @@ export default function PartsPage() {
     setCategories(uniqueCategories);
     setSections(uniqueBoxes);
 
-    // Calculate metrics
-    const total = parts.reduce((acc, part) => acc + part.quantityExpected, 0);
-    const received = parts.reduce((acc, part) => acc + part.quantityReceived, 0);
-    const installed = parts.filter((part) => part.status === "Installed").length;
-
-    setTotalParts(total);
-    setReceivedParts(received);
-    setInstalledParts(installed);
-    setReceivedPercentage(total > 0 ? Math.round((received / total) * 100) : 0);
-    setInstalledPercentage(
-      parts.length > 0 ? Math.round((installed / parts.length) * 100) : 0
-    );
+    // Update metrics when parts change
+    updateMetrics();
   }, [parts]);
 
   // Handle updating a part
   const handleUpdatePart = async (updatedPart: PartData) => {
     try {
-      // TODO: Update the part in the database
-      // const response = await fetch(`/api/inventory-parts/${updatedPart.id}`, {
-      //   method: "PUT",
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(updatedPart)
-      // });
+      // Update the part in the database
+      await updateInventoryPart(updatedPart.id, {
+        quantityReceived: updatedPart.quantityReceived,
+        status: updatedPart.status
+      });
       
-      // For now, just update the local state
-      setParts((prevParts) =>
-        prevParts.map((part) => (part.id === updatedPart.id ? updatedPart : part))
-      );
-      // setSelectedPart(updatedPart);
+      // Update the local state with the updated part
+      // This is similar to how the transactions table handles updates
+      setParts((prevParts) => {
+        // Create a new array with the updated part
+        return prevParts.map((part) => 
+          part.id === updatedPart.id ? updatedPart : part
+        );
+      });
+      
+      // Update the filtered parts array with the updated part
+      // This ensures the table shows the updated data without a full re-render
+      setFilteredParts((prevFilteredParts) => {
+        // Only update the specific part in the filtered array
+        return prevFilteredParts.map((part) => 
+          part.id === updatedPart.id ? updatedPart : part
+        );
+      });
+      
+      // Update metrics after state updates
+      updateMetrics();
     } catch (error) {
       console.error("Error updating part:", error);
     }
@@ -173,14 +226,34 @@ export default function PartsPage() {
     <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
         <h1 className="text-2xl sm:text-3xl font-bold">Parts Inventory</h1>
-        <button
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow w-full sm:w-auto"
-          onClick={() => setScannerOpen(true)}
-        >
-          Scan
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow w-full sm:w-auto"
+            onClick={() => setScannerOpen(true)}
+          >
+            Add Inventory
+          </button>
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded shadow w-full sm:w-auto flex items-center justify-center gap-2"
+            onClick={() => setBarcodeScannerOpen(true)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <line x1="7" y1="8" x2="7" y2="16" />
+              <line x1="11" y1="8" x2="11" y2="16" />
+              <line x1="15" y1="8" x2="15" y2="16" />
+              <line x1="19" y1="8" x2="19" y2="16" />
+            </svg>
+            Scan
+          </button>
+        </div>
       </div>
       <ScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onSubmit={onSubmit} />
+      <BarcodeScanner 
+        open={barcodeScannerOpen} 
+        onClose={() => setBarcodeScannerOpen(false)} 
+        onScan={handleBarcodeScan} 
+      />
       
       <div className="overflow-hidden">
         <MetricsCards

@@ -1,11 +1,22 @@
 import { InventoryPart, InventoryCategory, InventoryBox } from "@prisma/client";
 import { BoxData } from "@/lib/types/inventory";
 
+// Define a type for part updates that includes the status field
+type PartUpdateData = {
+  quantityReceived?: number;
+  status?: string;
+  // Add other fields that might be updated
+};
+
 /**
  * Type representing an InventoryPart with its related Category and Box
+ * and including the status field that was added to the schema
  */
 export type InventoryPartWithRelations = InventoryPart & {
-  category: InventoryCategory} & { box: InventoryBox };
+  category: InventoryCategory;
+  box: InventoryBox;
+  status?: string; // Add the status field to match the schema
+};
 
 /**
  * Fetches all inventory parts with their related categories and boxes
@@ -75,4 +86,49 @@ export async function saveInventoryParts(parts: BoxData[]) {
   }
   
   return response.json() as Promise<InventoryPartWithRelations[]>;
+}
+
+/**
+ * Updates an inventory part with new data
+ * @param partId The ID of the part to update
+ * @param data The data to update the part with
+ * @returns Promise resolving to the updated part
+ */
+export async function updateInventoryPart(partId: string, data: PartUpdateData): Promise<InventoryPartWithRelations> {
+  const response = await fetch(`/api/inventory-parts/${partId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(
+      errorData?.error || `Error: ${response.status} ${response.statusText}`
+    );
+  }
+  
+  return response.json() as Promise<InventoryPartWithRelations>;
+}
+
+/**
+ * Marks a part as received by updating its quantityReceived to match quantityExpected
+ * @param partId The ID of the part to mark as received
+ * @returns Promise resolving to the updated part
+ */
+export async function markPartAsReceived(partId: string): Promise<InventoryPartWithRelations> {
+  // First get the part to know its expected quantity
+  const part = await fetch(`/api/inventory-parts/${partId}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  }).then(res => {
+    if (!res.ok) throw new Error(`Error: ${res.status} ${res.statusText}`);
+    return res.json();
+  });
+  
+  // Then update the part to mark it as received
+  return updateInventoryPart(partId, {
+    quantityReceived: part.quantityExpected,
+    status: "Received"
+  });
 }
