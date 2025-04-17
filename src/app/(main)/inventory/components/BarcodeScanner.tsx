@@ -42,23 +42,22 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
   // We've moved the success handling directly into the startScanner method
   // for better iOS compatibility
 
-  // Start the scanner - completely rewritten for iOS compatibility
+  // Start the scanner - simplified for maximum mobile compatibility
   const startScanner = async () => {
     try {
       setInitializing(true);
       setError(null);
       
-      // Always create a new instance for iOS
+      // Create a new instance with a simple ID
       const html5QrCode = new Html5Qrcode(scannerContainerId);
       
-      // Simple configuration that works better on iOS
+      // Very basic configuration that works on most devices
       const config = {
-        fps: 10,
-        qrbox: 250,
+        fps: 5, // Lower FPS for better stability
+        qrbox: 250, // Simple square scanning area
+        // Only include essential formats to reduce processing
         formatsToSupport: [
-          Html5QrcodeSupportedFormats.CODE_128,
-          Html5QrcodeSupportedFormats.CODE_39,
-          Html5QrcodeSupportedFormats.EAN_13
+          Html5QrcodeSupportedFormats.CODE_128
         ]
       };
       
@@ -75,19 +74,31 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
           if (validBarcode) {
             setScanSuccess(true);
             setScannedCode(validBarcode);
-            html5QrCode.stop();
-            onScan(validBarcode);
             
-            setTimeout(() => {
-              onClose();
-              setScanSuccess(false);
-              setScannedCode(null);
-            }, 1500);
+            try {
+              // Stop scanner safely
+              html5QrCode.stop().catch(e => console.error("Error stopping scanner:", e));
+              
+              // Call the callback with the result
+              onScan(validBarcode);
+              
+              // Close after a delay
+              setTimeout(() => {
+                onClose();
+                setScanSuccess(false);
+                setScannedCode(null);
+              }, 1500);
+            } catch (stopErr) {
+              console.error("Error in success handling:", stopErr);
+            }
           }
         },
         (errorMessage) => {
-          // We'll ignore most errors as they're just frames that couldn't be scanned
-          console.log("Scan error (normal):", errorMessage);
+          // Ignore most errors as they're just frames that couldn't be scanned
+          // Only log to avoid console spam
+          if (errorMessage.includes("permission")) {
+            console.error("Permission error:", errorMessage);
+          }
         }
       );
       
@@ -101,67 +112,74 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
     }
   };
 
-  // Stop the scanner - simplified for iOS
+  // Stop the scanner - with better error handling
   const stopScanner = () => {
     try {
-      // Try to get the current instance by ID
+      // Create a new instance - this is safer than trying to access an existing one
       const scanner = new Html5Qrcode(scannerContainerId);
-      if (scanner && scanner.isScanning) {
-        scanner.stop().catch(err => {
-          console.error("Error stopping scanner:", err);
-        });
+      
+      // Wrap in try-catch to handle any potential errors
+      try {
+        if (scanner.isScanning) {
+          scanner.stop().catch(() => {
+            // Silently ignore stop errors - they're usually harmless
+          });
+        }
+      } catch (innerError) {
+        // Ignore inner errors - they're usually due to the scanner not being initialized
       }
+      
+      // Always set scanning to false regardless of success/failure
       setScanning(false);
     } catch (error) {
-      console.error("Error accessing scanner:", error);
+      // Just log the error and continue
+      console.error("Error in stopScanner:", error);
+      setScanning(false);
     }
   };
 
-  // Toggle between front and back camera - simplified for iOS
+  // Toggle between front and back camera - with better error handling
   const toggleCamera = () => {
+    // Update the facing mode state
     setFacingMode(prev => prev === "user" ? "environment" : "user");
+    
+    // Clear any existing errors
     setError(null);
     
-    // Always stop first
+    // Set initializing state to show loading indicator
+    setInitializing(true);
+    
+    // Always stop scanner first
     stopScanner();
     
-    // Delay restart for iOS to release camera resources
+    // Use a longer delay for iOS to properly release camera resources
     setTimeout(() => {
       startScanner();
-    }, 800); // Longer delay for iOS
+    }, 1000); // Even longer delay for more reliable camera switching
   };
 
-  // Start scanner when dialog opens - modified for iOS
+  // Single useEffect for all scanner management - simpler and more reliable
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     
+    // Only start scanner when dialog is open
     if (open) {
-      // Slight delay for mounting on iOS
+      // Use a delay to ensure DOM is fully rendered
       timeoutId = setTimeout(() => {
         startScanner();
-      }, 300);
+      }, 500);
     } else {
+      // Always stop scanner when dialog closes
       stopScanner();
     }
     
-    // Clean up on unmount
+    // Clean up on unmount or when dependencies change
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       stopScanner();
     };
-  }, [open]);
-  
-  // Handle facingMode changes separately
-  useEffect(() => {
-    if (open && scanning) {
-      stopScanner();
-      const timeoutId = setTimeout(() => {
-        startScanner();
-      }, 800);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [facingMode]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, facingMode]); // Only re-run when dialog state or camera changes
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
