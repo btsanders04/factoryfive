@@ -111,12 +111,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
               {
                 fps: 10,
                 qrbox: {width: 250, height: 100}, // Wider for Code 128 barcodes
-                rememberLastUsedCamera: false, // Don't remember last camera
                 showTorchButtonIfSupported: true,
-                // Explicitly select back camera
-                videoConstraints: {
-                  facingMode: { exact: "environment" }
-                }
               },
               false // verbose mode off
             );
@@ -220,11 +215,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps): 
                             {
                               fps: 10,
                               qrbox: {width: 250, height: 100},
-                              rememberLastUsedCamera: false,
                               showTorchButtonIfSupported: true,
-                              videoConstraints: {
-                                facingMode: { exact: "environment" }
-                              }
                             },
                             false
                           );
