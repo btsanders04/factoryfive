@@ -17,6 +17,8 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scannedCode, setScannedCode] = useState<string | null>(null);
+  const [scanSuccess, setScanSuccess] = useState(false);
   
   // Start the camera when the dialog opens
   useEffect(() => {
@@ -30,16 +32,20 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
         setScanning(true);
         setError(null);
         
-        // Add a small delay for mobile devices to initialize properly
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Add a longer delay for mobile devices to initialize properly
+        await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Request camera access with mobile-friendly constraints
+        // Request camera access with high-quality constraints for better barcode detection
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode,
-            // Use 'ideal' instead of 'exact' for better compatibility
-            width: { ideal: 640 },
-            height: { ideal: 480 }
+            // Use more moderate resolution to prevent pulsating/flickering
+            width: { min: 640, ideal: 1024, max: 1280 },
+            height: { min: 480, ideal: 720, max: 960 },
+            // Add constraints to stabilize the camera and prevent pulsating
+            frameRate: { ideal: 30 },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...(typeof window !== 'undefined' ? { zoom: 1 } as any : {})
           },
           audio: false
         });
@@ -50,8 +56,8 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
           // Use the play() promise to ensure video is ready
           try {
             await videoRef.current.play();
-            // Wait a moment for the video to initialize
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Wait longer for the video to fully initialize and stabilize
+            await new Promise(resolve => setTimeout(resolve, 800));
             await scanBarcode();
             quaggaInitialized = true;
           } catch (playError) {
@@ -146,24 +152,34 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
         });
       }
       
-      // Initialize barcode scanner with mobile-friendly settings
+      // Add a small delay before initializing Quagga to allow camera to stabilize
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Initialize barcode scanner with optimized settings for small, dense barcodes
       Quagga.init({
         inputStream: {
           name: "Live",
           type: "LiveStream",
-          target: videoRef.current, // Now we're sure videoRef.current is not null
+          target: videoRef.current,
           constraints: {
             facingMode: facingMode,
-            // Use more flexible constraints for mobile compatibility
-            width: { ideal: 640 },
-            height: { ideal: 480 }
-            // Removed aspectRatio constraint which can cause issues on some mobile devices
+            // Higher resolution for better barcode detection
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 480, ideal: 720, max: 1080 }
+          },
+          area: {
+            // Focus on the center 70% of the video for better detection and stability
+            top: "15%",
+            right: "15%",
+            left: "15%",
+            bottom: "15%"
           },
         },
         locator: {
+          // Use medium patch size for better stability while still detecting small barcodes
           patchSize: "medium",
+          // Enable half sample to reduce processing and stabilize the feed
           halfSample: true,
-          // Simplified debug settings to reduce memory usage
           debug: {
             showCanvas: false,
             showPatches: false,
@@ -174,13 +190,14 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
             showRemainingPatchLabels: false
           }
         },
-        // Reduced number of workers for better mobile compatibility
-        numOfWorkers: 2,
+        // Use more workers for better performance on modern devices
+        numOfWorkers: 4,
         decoder: {
           readers: [
-            // Prioritize readers that work well with printed numbers
-            "code_39_reader",
+            // Prioritize readers that work well with printed numbers and small barcodes
             "code_128_reader",
+            "code_39_reader",
+            "code_39_vin_reader", // Added for better detection of alphanumeric codes
             "i2of5_reader",
             "2of5_reader",
             "code_93_reader",
@@ -191,10 +208,17 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
             "upc_reader",
             "upc_e_reader"
           ],
-          multiple: false
+          multiple: false,
+          // Add decoder settings for better detection
+          debug: {
+            drawBoundingBox: true,
+            showFrequency: true,
+            drawScanline: true,
+            showPattern: true
+          }
         },
         locate: true,
-        frequency: 5, // Reduced frequency for better performance on mobile
+        frequency: 6, // Moderate scan frequency to reduce flickering while maintaining detection
         debug: false
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }, (err: any) => {
@@ -237,7 +261,8 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const isStandalone = (window.navigator as any).standalone || 
                   window.matchMedia('(display-mode: standalone)').matches;
-                const confidenceThreshold = isStandalone ? 0.45 : 0.6;
+                // Lower confidence threshold to detect small, dense barcodes
+                const confidenceThreshold = isStandalone ? 0.4 : 0.5;
                 
                 if (code.length >= 4 && code.length <= 10 && result.codeResult.confidence > confidenceThreshold) {
                   console.log("Numeric part number detected:", code);
@@ -252,10 +277,23 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
               return;
             }
             
-            // Stop scanning and close the dialog
+            // Stop scanning but don't close the dialog yet
             Quagga.stop();
+            setScannedCode(code);
+            setScanSuccess(true);
+            
+            // Call onScan to process the barcode
             onScan(code);
-            onClose();
+            
+            // Close the dialog after a short delay so the user can see the result
+            setTimeout(() => {
+              onClose();
+              // Reset the state after closing
+              setTimeout(() => {
+                setScannedCode(null);
+                setScanSuccess(false);
+              }, 300);
+            }, 1500);
           }
         });
       });
@@ -278,17 +316,31 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
         </DialogHeader>
         
         <div className="relative aspect-video bg-black rounded-md overflow-hidden">
+          {/* Add focus guide overlay to help users position barcodes */}
+          {!scanSuccess && !error && (
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div className="border-2 border-white/40 rounded-md w-4/5 h-3/5 flex items-center justify-center">
+                <div className="text-white/60 text-xs">Center barcode here</div>
+              </div>
+            </div>
+          )}
           {error ? (
             <div className="absolute inset-0 flex items-center justify-center text-white bg-red-900/50 p-4 text-center">
               {error}
+            </div>
+          ) : scanSuccess && scannedCode ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-green-900/70 p-4 text-center">
+              <div className="text-2xl font-bold mb-2">✓ Barcode Detected!</div>
+              <div className="text-xl">{scannedCode}</div>
             </div>
           ) : null}
           
           <video 
             ref={videoRef} 
-            className="w-full h-full object-cover" 
+            className={`w-full h-full object-cover ${scanSuccess ? 'opacity-50' : ''}`} 
             playsInline 
             muted
+            style={{ transform: 'translateZ(0)', willChange: 'transform' }} // Hardware acceleration to reduce flickering
           />
           
           <canvas ref={canvasRef} className="hidden" />
@@ -306,7 +358,14 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
         </div>
         
         <div className="text-sm text-center text-muted-foreground">
-          Position the barcode within the camera view to scan automatically.
+          {scanSuccess && scannedCode 
+            ? `Successfully scanned barcode: ${scannedCode}` 
+            : (
+              <>
+                <p>Position the barcode within the frame and hold steady.</p>
+                <p className="mt-1">For small barcodes, position camera 3-6 inches away in good lighting.</p>
+              </>
+            )}
         </div>
       </DialogContent>
     </Dialog>
