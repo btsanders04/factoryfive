@@ -6,6 +6,7 @@ import { FilterBar } from "./components/FilterBar";
 import { MetricsCards } from "./components/MetricsCards";
 import { PartsTable } from "./components/PartsTable";
 import { BarcodeScanner } from "./components/BarcodeScanner";
+import { OcrScanner } from "./components/OcrScanner";
 import { PartData, PartStatus } from "./types";
 import { getAllInventoryParts, InventoryPartWithRelations, updateInventoryPart } from "@/data/inventoryParts";
 import { useToast } from "@/components/ui/use-toast";
@@ -44,6 +45,7 @@ export default function PartsPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [barcodeScannerOpen, setBarcodeScannerOpen] = useState(false);
+  const [ocrScannerOpen, setOcrScannerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all_statuses");
   const [categoryFilter, setCategoryFilter] = useState("all_categories");
@@ -120,6 +122,41 @@ export default function PartsPage() {
       toast({
         title: "Barcode Not Found",
         description: `Part with barcode ${barcode} not found.`,
+        variant: "destructive",
+      });
+      setScannerOpen(true);
+    }
+  };
+  
+  // Handle OCR scan results - uses the same logic as barcode scanning
+  const handleOcrScan = async (partNumber: string) => {
+    console.log("OCR scanned part number:", partNumber);
+    toast({
+      title: "Part Number Recognized",
+      description: `Part number ${partNumber} identified successfully`,
+      variant: "success",
+    });
+    // Search for the part with the scanned part number
+    const matchingPart = parts.find(
+      part => part.partNumber === partNumber
+    );
+    
+    if (matchingPart) {
+      // If part is found, you can perform an action like marking it as received
+      const updatedPart = {
+        ...matchingPart,
+        status: "Received" as PartStatus,
+        quantityReceived: matchingPart.quantityExpected
+      };
+      
+      // Update the part
+      await handleUpdatePart(updatedPart);
+      
+    } else {
+      // Part not found - you could open the add inventory form with the part number pre-filled
+      toast({
+        title: "Part Number Not Found",
+        description: `Part with number ${partNumber} not found.`,
         variant: "destructive",
       });
       setScannerOpen(true);
@@ -254,7 +291,21 @@ export default function PartsPage() {
               <line x1="15" y1="8" x2="15" y2="16" />
               <line x1="19" y1="8" x2="19" y2="16" />
             </svg>
-            Scan
+            Scan Barcode
+          </button>
+          <button
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded shadow w-full sm:w-auto flex items-center justify-center gap-2"
+            onClick={() => setOcrScannerOpen(true)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 8h.01"></path>
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <path d="M9 3v18"></path>
+              <path d="M9 6h6"></path>
+              <path d="M9 12h6"></path>
+              <path d="M9 18h6"></path>
+            </svg>
+            Scan Text
           </button>
         </div>
       </div>
@@ -263,6 +314,11 @@ export default function PartsPage() {
         open={barcodeScannerOpen} 
         onClose={() => setBarcodeScannerOpen(false)} 
         onScan={handleBarcodeScan} 
+      />
+      <OcrScanner
+        open={ocrScannerOpen}
+        onClose={() => setOcrScannerOpen(false)}
+        onScan={handleOcrScan}
       />
       
       <div className="overflow-hidden">
