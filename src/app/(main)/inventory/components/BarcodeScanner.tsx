@@ -80,14 +80,26 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
           type: "LiveStream",
           target: videoRef.current, // Now we're sure videoRef.current is not null
           constraints: {
-            facingMode: facingMode
+            facingMode: facingMode,
+            width: { min: 640 },
+            height: { min: 480 },
+            aspectRatio: { min: 1, max: 2 }
           },
         },
         locator: {
           patchSize: "medium",
-          halfSample: true
+          halfSample: true,
+          debug: {
+            showCanvas: false,
+            showPatches: false,
+            showFoundPatches: false,
+            showSkeleton: false,
+            showLabels: false,
+            showPatchLabels: false,
+            showRemainingPatchLabels: false
+          }
         },
-        numOfWorkers: 2,
+        numOfWorkers: 4,
         decoder: {
           readers: [
             "code_128_reader",
@@ -98,10 +110,15 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
             "codabar_reader",
             "upc_reader",
             "upc_e_reader",
-            "i2of5_reader"
-          ]
+            "i2of5_reader",
+            "2of5_reader",
+            "code_93_reader"
+          ],
+          multiple: false
         },
-        locate: true
+        locate: true,
+        frequency: 10,
+        debug: false
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }, (err: any) => {
         if (err) {
@@ -117,8 +134,30 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Quagga.onDetected((result: any) => {
           if (result && result.codeResult) {
-            const code = result.codeResult.code;
-            console.log("Barcode detected:", code);
+            let code = result.codeResult.code;
+            console.log("Barcode detected:", code, "with format:", result.codeResult.format, "and confidence:", result.codeResult.confidence);
+            
+            // Process the code - handle numeric part numbers specifically
+            if (code) {
+              // Clean up the code - remove any non-alphanumeric characters
+              code = code.replace(/[^a-zA-Z0-9]/g, '');
+              
+              // If it's a numeric code (like 10577 or 10602), ensure it's valid
+              if (/^\d+$/.test(code)) {
+                // For numeric codes, only accept if they're in a reasonable range for part numbers
+                // and have a minimum confidence level
+                if (code.length >= 4 && code.length <= 10 && result.codeResult.confidence > 0.6) {
+                  console.log("Numeric part number detected:", code);
+                } else {
+                  // If confidence is too low, continue scanning
+                  console.log("Low confidence numeric code, continuing scan...");
+                  return;
+                }
+              }
+            } else {
+              // No code detected, continue scanning
+              return;
+            }
             
             // Stop scanning and close the dialog
             Quagga.stop();
