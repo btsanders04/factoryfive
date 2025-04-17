@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {FlipHorizontal, X } from "lucide-react";
+import {FlipHorizontal } from "lucide-react";
 
 interface BarcodeScannerProps {
   open: boolean;
@@ -234,6 +234,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
                 // For numeric codes, only accept if they're in a reasonable range for part numbers
                 // and have a minimum confidence level - lower threshold for mobile
                 // Check if app is in standalone mode (iOS Safari) or installed as PWA
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const isStandalone = (window.navigator as any).standalone || 
                   window.matchMedia('(display-mode: standalone)').matches;
                 const confidenceThreshold = isStandalone ? 0.45 : 0.6;
