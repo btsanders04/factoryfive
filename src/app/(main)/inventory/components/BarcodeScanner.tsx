@@ -21,6 +21,7 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
   // Start the camera when the dialog opens
   useEffect(() => {
     let stream: MediaStream | null = null;
+    let quaggaInitialized = false;
     
     async function startCamera() {
       try {
@@ -29,17 +30,35 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
         setScanning(true);
         setError(null);
         
-        // Request camera access
+        // Add a small delay for mobile devices to initialize properly
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Request camera access with mobile-friendly constraints
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode },
+          video: {
+            facingMode,
+            // Use 'ideal' instead of 'exact' for better compatibility
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          },
           audio: false
         });
         
         // Set the video source to the camera stream
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play();
-          scanBarcode();
+          // Use the play() promise to ensure video is ready
+          try {
+            await videoRef.current.play();
+            // Wait a moment for the video to initialize
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await scanBarcode();
+            quaggaInitialized = true;
+          } catch (playError) {
+            console.error("Error playing video:", playError);
+            setError("Could not start video stream. Please try again.");
+            setScanning(false);
+          }
         }
       } catch (err) {
         console.error("Error accessing camera:", err);
@@ -52,9 +71,39 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
     
     // Clean up when component unmounts or dialog closes
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      // First stop Quagga if it was initialized
+      if (quaggaInitialized) {
+        try {
+          // Use dynamic import to avoid issues with SSR
+          import('@ericblade/quagga2').then(({ default: Quagga }) => {
+            Quagga.stop();
+          }).catch(err => {
+            console.error("Error stopping Quagga:", err);
+          });
+        } catch (err) {
+          console.error("Error during Quagga cleanup:", err);
+        }
       }
+      
+      // Then stop all media tracks
+      if (stream) {
+        try {
+          const tracks = stream.getTracks();
+          tracks.forEach(track => track.stop());
+        } catch (err) {
+          console.error("Error stopping media tracks:", err);
+        }
+      }
+      
+      // Clear video source
+      if (videoRef.current && videoRef.current.srcObject) {
+        try {
+          videoRef.current.srcObject = null;
+        } catch (err) {
+          console.error("Error clearing video source:", err);
+        }
+      }
+      
       setScanning(false);
     };
   }, [open, facingMode]);
@@ -67,13 +116,37 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
       // Import the barcode detection library dynamically
       const Quagga = (await import('@ericblade/quagga2')).default;
       
-      // Check if video element exists
+      // Check if video element exists and is ready
       if (!videoRef.current) {
         setError("Camera element not found");
         return;
       }
       
-      // Initialize barcode scanner
+      // Make sure the video is actually playing and has dimensions
+      if (videoRef.current && (
+          videoRef.current.readyState === 0 || 
+          !videoRef.current.videoWidth || 
+          !videoRef.current.videoHeight)) {
+        console.log("Video not ready yet, waiting...");
+        // Wait for video to be ready
+        await new Promise<boolean>((resolve) => {
+          const checkVideo = () => {
+            if (videoRef.current && 
+                videoRef.current.readyState > 0 && 
+                videoRef.current.videoWidth > 0 && 
+                videoRef.current.videoHeight > 0) {
+              resolve(true);
+            } else if (open && scanning) {
+              setTimeout(checkVideo, 100);
+            } else {
+              resolve(false);
+            }
+          };
+          checkVideo();
+        });
+      }
+      
+      // Initialize barcode scanner with mobile-friendly settings
       Quagga.init({
         inputStream: {
           name: "Live",
@@ -81,14 +154,16 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
           target: videoRef.current, // Now we're sure videoRef.current is not null
           constraints: {
             facingMode: facingMode,
-            width: { min: 640 },
-            height: { min: 480 },
-            aspectRatio: { min: 1, max: 2 }
+            // Use more flexible constraints for mobile compatibility
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+            // Removed aspectRatio constraint which can cause issues on some mobile devices
           },
         },
         locator: {
           patchSize: "medium",
           halfSample: true,
+          // Simplified debug settings to reduce memory usage
           debug: {
             showCanvas: false,
             showPatches: false,
@@ -99,31 +174,43 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
             showRemainingPatchLabels: false
           }
         },
-        numOfWorkers: 4,
+        // Reduced number of workers for better mobile compatibility
+        numOfWorkers: 2,
         decoder: {
           readers: [
-            "code_128_reader",
-            "ean_reader",
-            "ean_8_reader",
+            // Prioritize readers that work well with printed numbers
             "code_39_reader",
-            "code_39_vin_reader",
-            "codabar_reader",
-            "upc_reader",
-            "upc_e_reader",
+            "code_128_reader",
             "i2of5_reader",
             "2of5_reader",
-            "code_93_reader"
+            "code_93_reader",
+            // Include other readers with lower priority
+            "ean_reader",
+            "ean_8_reader",
+            "codabar_reader",
+            "upc_reader",
+            "upc_e_reader"
           ],
           multiple: false
         },
         locate: true,
-        frequency: 10,
+        frequency: 5, // Reduced frequency for better performance on mobile
         debug: false
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }, (err: any) => {
         if (err) {
           console.error("Error initializing Quagga:", err);
-          setError("Error initializing barcode scanner.");
+          setError("Error initializing barcode scanner: " + (err.message || 'Unknown error'));
+          // Clean up resources even if there's an error
+          try {
+            if (videoRef.current && videoRef.current.srcObject) {
+              const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+              tracks.forEach(track => track.stop());
+              videoRef.current.srcObject = null;
+            }
+          } catch (cleanupErr) {
+            console.error("Error during cleanup:", cleanupErr);
+          }
           return;
         }
         
@@ -145,8 +232,11 @@ export function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
               // If it's a numeric code (like 10577 or 10602), ensure it's valid
               if (/^\d+$/.test(code)) {
                 // For numeric codes, only accept if they're in a reasonable range for part numbers
-                // and have a minimum confidence level
-                if (code.length >= 4 && code.length <= 10 && result.codeResult.confidence > 0.6) {
+                // and have a minimum confidence level - lower threshold for mobile
+                const confidenceThreshold = navigator.standalone || 
+                  window.matchMedia('(display-mode: standalone)').matches ? 0.45 : 0.6;
+                
+                if (code.length >= 4 && code.length <= 10 && result.codeResult.confidence > confidenceThreshold) {
                   console.log("Numeric part number detected:", code);
                 } else {
                   // If confidence is too low, continue scanning
