@@ -79,6 +79,40 @@ export function calculateWeeklyHours(workHoursRecord: Record<string, WorkHour>):
   }, 0);
 }
 
+// Calculate hours worked for a specific week
+export function calculateHoursForWeek(workHoursRecord: Record<string, WorkHour>, weekOffset: number): number {
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay() - (7 * weekOffset)); // Sunday of the target week
+  startOfWeek.setHours(0, 0, 0, 0);
+  
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6); // Saturday of the target week
+  endOfWeek.setHours(23, 59, 59, 999);
+  
+  return Object.values(workHoursRecord).reduce((total, workHour) => {
+    const workDate = new Date(workHour.date);
+    if (workDate >= startOfWeek && workDate <= endOfWeek) {
+      return total + (workHour.hours || 0);
+    }
+    return total;
+  }, 0);
+}
+
+// Calculate average weekly hours for the past N weeks
+export function calculateAverageWeeklyHours(workHoursRecord: Record<string, WorkHour>, weeks: number = 3): number {
+  let totalHours = 0;
+  
+  // Calculate hours for each of the past N weeks
+  for (let i = 0; i < weeks; i++) {
+    totalHours += calculateHoursForWeek(workHoursRecord, i);
+  }
+  
+  // Return the average (or current week's hours if no data)
+  const average = totalHours / weeks;
+  return average > 0 ? average : calculateWeeklyHours(workHoursRecord);
+}
+
 // Calculate hours worked in the current month
 export function calculateMonthlyHours(workHoursRecord: Record<string, WorkHour>): number {
   const now = new Date();
@@ -99,10 +133,19 @@ export async function getHoursData() {
   try {
     const workHoursRecord = await getAllWorkHours();
     
+    // Calculate average weekly hours for the past 3 weeks
+    const avgWeeklyHours = calculateAverageWeeklyHours(workHoursRecord, 3);
+    
     return {
       totalHours: calculateTotalHoursWorked(workHoursRecord),
       weeklyHours: calculateWeeklyHours(workHoursRecord),
       monthlyHours: calculateMonthlyHours(workHoursRecord),
+      avgWeeklyHours: avgWeeklyHours,
+      pastWeeks: [
+        calculateHoursForWeek(workHoursRecord, 0), // Current week
+        calculateHoursForWeek(workHoursRecord, 1), // Last week
+        calculateHoursForWeek(workHoursRecord, 2), // Two weeks ago
+      ],
       config: HOURS_CONFIG,
     };
   } catch (error) {
@@ -112,7 +155,9 @@ export async function getHoursData() {
       totalHours: 0,
       weeklyHours: 0,
       monthlyHours: 0,
+      avgWeeklyHours: 0,
+      pastWeeks: [0, 0, 0],
       config: HOURS_CONFIG,
     };
   }
-} 
+}

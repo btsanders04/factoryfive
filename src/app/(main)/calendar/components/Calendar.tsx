@@ -144,7 +144,9 @@ export default function Calendar() {
   };
 
   const getHoursForSelectedDate = (date: Date) => {
-    return workHours[date.toISOString().split('T')[0]]?.hours || 0;
+    // Format the date consistently as YYYY-MM-DD
+    const dateKey = date.toISOString().split('T')[0];
+    return workHours[dateKey]?.hours || 0;
   };
 
   // Handle date selection
@@ -164,10 +166,18 @@ export default function Calendar() {
       date: selectedDate,
       hours: hours,
     });
-    setWorkHours({
-      ...workHours,
-      [workHour.date.toISOString()]: workHour,
-    });
+    
+    // Format the date key consistently to match how it's accessed elsewhere
+    const dateKey = selectedDate.toISOString().split('T')[0];
+    
+    // Update the work hours state with the new hours
+    setWorkHours(prev => ({
+      ...prev,
+      [dateKey]: workHour
+    }));
+    
+    // Also update the hours on selected date to ensure UI is in sync
+    setHoursOnSelectedDate(hours);
   };
   const calendarData = generateCalendarData();
 
@@ -182,13 +192,20 @@ export default function Calendar() {
   };
 
   useEffect(() => {
-    // Function to fetch categories
+    // Function to fetch work hours
     const fetchWorkHours = async () => {
       const data = await getAllWorkHours();
       setWorkHours(data);
+      
+      // If we have a selected date, update its hours display
+      if (selectedDate) {
+        const dateKey = selectedDate.toISOString().split('T')[0];
+        const hours = data[dateKey]?.hours || 0;
+        setHoursOnSelectedDate(hours);
+      }
     };
     fetchWorkHours();
-  }, []);
+  }, [selectedDate]);
 
   return (
     <div>

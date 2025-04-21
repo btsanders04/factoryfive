@@ -19,6 +19,8 @@ export function TotalHoursWorked({
   const [totalHours, setTotalHours] = useState(0);
   const [weeklyHours, setWeeklyHours] = useState(0);
   const [monthlyHours, setMonthlyHours] = useState(0);
+  const [avgWeeklyHours, setAvgWeeklyHours] = useState(0);
+  const [pastWeeks, setPastWeeks] = useState<number[]>([0, 0, 0]);
   const [isLoading, setIsLoading] = useState(true);
   const [config, setConfig] = useState({
     targetHours: targetHours || HOURS_CONFIG.targetHours,
@@ -35,6 +37,8 @@ export function TotalHoursWorked({
         setTotalHours(Math.round(data.totalHours));
         setWeeklyHours(Math.round(data.weeklyHours));
         setMonthlyHours(Math.round(data.monthlyHours));
+        setAvgWeeklyHours(Math.round(data.avgWeeklyHours));
+        setPastWeeks(data.pastWeeks.map(hours => Math.round(hours)));
         
         // Only update config if props weren't provided
         if (!targetHours || !weeklyGoal) {
@@ -61,13 +65,16 @@ export function TotalHoursWorked({
   const totalPercentage = Math.min(Math.round((totalHours / config.targetHours) * 100), 100);
   const weeklyPercentage = Math.min(Math.round((weeklyHours / config.weeklyGoal) * 100), 100);
   
-  // Estimate completion date based on current progress and weekly rate
+  // Estimate completion date based on current progress and 3-week average rate
   const estimateCompletionDate = () => {
     const remainingHours = config.targetHours - totalHours;
     if (remainingHours <= 0) return "Completed!";
-    if (weeklyHours <= 0) return "Unknown";
     
-    const weeksRemaining = remainingHours / weeklyHours;
+    // Use the 3-week average if available, otherwise fall back to current week
+    const rateToUse = avgWeeklyHours > 0 ? avgWeeklyHours : weeklyHours;
+    if (rateToUse <= 0) return "Unknown";
+    
+    const weeksRemaining = remainingHours / rateToUse;
     const daysRemaining = Math.ceil(weeksRemaining * 7);
     
     const completionDate = new Date();
@@ -78,6 +85,12 @@ export function TotalHoursWorked({
       month: 'short', 
       day: 'numeric' 
     });
+  };
+
+  // Format the 3-week average for display
+  const formatWeeklyAverage = () => {
+    if (avgWeeklyHours <= 0) return `${weeklyHours} hrs/week`;
+    return `${avgWeeklyHours} hrs/week (3-week avg)`;
   };
 
   return (
@@ -140,8 +153,12 @@ export function TotalHoursWorked({
             <>
               <div className="text-2xl font-bold">{estimateCompletionDate()}</div>
               <p className="text-xs text-muted-foreground">
-                at current pace ({weeklyHours} hrs/week)
+                at average pace ({formatWeeklyAverage()})
               </p>
+              <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                <span className="inline-block w-2 h-2 bg-primary/20 rounded-full"></span>
+                <span>Last 3 weeks: {pastWeeks[2]}, {pastWeeks[1]}, {pastWeeks[0]} hrs</span>
+              </div>
               <div className="mt-2 text-sm">
                 <span className="font-medium">{config.targetHours - totalHours} hrs</span> remaining
               </div>
