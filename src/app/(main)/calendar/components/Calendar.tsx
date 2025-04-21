@@ -74,13 +74,21 @@ export default function Calendar() {
 
     // Add days from current month
     for (let day = 1; day <= daysInMonth; day++) {
+      // Create calendar date and today's date, ensuring they're in local timezone
+      const calendarDate = new Date(year, month, day);
+      const today = new Date();
+      
+      // Compare year, month, and day individually to avoid timezone issues
+      const isToday = 
+        calendarDate.getFullYear() === today.getFullYear() &&
+        calendarDate.getMonth() === today.getMonth() &&
+        calendarDate.getDate() === today.getDate();
+      
       week.push({
         day,
         isCurrentMonth: true,
-        date: new Date(year, month, day),
-        isToday:
-          new Date(year, month, day).toDateString() ===
-          new Date().toDateString(),
+        date: calendarDate,
+        isToday: isToday,
       });
 
       // Start a new week
@@ -134,7 +142,10 @@ export default function Calendar() {
   };
 
   const compareDates = (date1: Date, date2: Date) => {
-    return date1.toISOString().split('T')[0] === date2.toISOString().split('T')[0];
+    // Compare year, month, and day individually to avoid timezone issues
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
   };
 
   const goToToday = () => {
