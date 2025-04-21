@@ -127,31 +127,56 @@ export default function AddMilestoneModal({
             <Label htmlFor="date" className="text-gray-300">
               Date
             </Label>
-            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full flex items-center justify-between bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
+            <div className="grid gap-2">
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="date"
+                    type="button"
+                    variant="outline"
+                    className="w-full flex items-center justify-between bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
+                  >
+                    <span>
+                      {data.date ? dateFormat(data.date as Date) : "Select date"}
+                    </span>
+                    <CalendarIcon className="ml-2 h-4 w-4 text-gray-400" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="w-auto p-0 bg-gray-800 border-gray-700" 
+                  align="start"
                 >
-                  <span>
-                    {data.date ? dateFormat(data.date as Date) : "Select date"}
-                  </span>
-                  <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-gray-800 z-50">
-                <Calendar
-                  mode="single"
-                  selected={data.date as Date}
-                  onSelect={(date) => {
-                    handleChange("date", date || new Date());
-                    setCalendarOpen(false);
+                  <Calendar
+                    mode="single"
+                    selected={data.date as Date}
+                    onSelect={(date) => {
+                      if (date) {
+                        handleChange("date", date);
+                        setCalendarOpen(false);
+                      }
+                    }}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className="bg-gray-800 text-white"
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              {/* Fallback for mobile - direct date input */}
+              <div className="sm:hidden">
+                <Input
+                  type="date"
+                  id="mobile-date"
+                  className="bg-gray-800 border-gray-700 text-white"
+                  value={data.date ? new Date(data.date as Date).toISOString().split('T')[0] : ''}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleChange("date", new Date(e.target.value));
+                    }
                   }}
-                  initialFocus
-                  className="bg-gray-800 text-white"
                 />
-              </PopoverContent>
-            </Popover>
+              </div>
+            </div>
           </div>
 
           {/* Action Buttons */}
