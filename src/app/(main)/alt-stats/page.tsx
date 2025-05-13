@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { StatsCards } from './components/StatsCards';
 import { StatsRadarChart } from './components/StatsRadarChart';
 import { StatsBarChart } from './components/StatsBarChart';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
 import { fetchAltStats, incrementAltStat, type StatType } from '@/data/altStats';
 import { fetchWorkHours, calculateTotalHours } from '@/data/workHours';
 
@@ -84,40 +82,8 @@ export default function AltStatsPage() {
         cigarsSmoked={stats.cigarsSmoked}
         lowesVisits={stats.lowesVisits}
         hoursDriven={stats.hoursDriven}
+        onIncrement={handleIncrementStat}
       />
-      
-      
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
-        <Button 
-          onClick={() => handleIncrementStat('beersDrank')} 
-          variant="outline" 
-          className="flex items-center gap-2"
-        >
-          <PlusCircle size={16} /> Add Beer
-        </Button>
-        <Button 
-          onClick={() => handleIncrementStat('cigarsSmoked')} 
-          variant="outline" 
-          className="flex items-center gap-2"
-        >
-          <PlusCircle size={16} /> Add Cigar
-        </Button>
-        <Button 
-          onClick={() => handleIncrementStat('lowesVisits')} 
-          variant="outline" 
-          className="flex items-center gap-2"
-        >
-          <PlusCircle size={16} /> Add Lowes Visit
-        </Button>
-        <Button 
-          onClick={() => handleIncrementStat('hoursDriven')} 
-          variant="outline" 
-          className="flex items-center gap-2"
-        >
-          <PlusCircle size={16} /> Add Driving Hour
-        </Button>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatsRadarChart
