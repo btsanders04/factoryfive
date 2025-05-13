@@ -1,6 +1,5 @@
 import {
   Home,
-  User,
   Image,
   CreditCard,
   DollarSign,
@@ -11,7 +10,8 @@ import {
   CircleDashed,
   Puzzle,
   BookText,
-  BarChart2
+  BarChart2,
+  Scroll
 } from "lucide-react";
 
 export const comingsoon = {
@@ -38,7 +38,7 @@ export const MAIN_ROUTES = {
   buildlog: {
     link: "/buildlog",
     name: "Build Log",
-    icon: <User size={20} />,
+    icon: <Scroll size={20} />,
   },
   budget: {
     link: "/budget",
@@ -85,5 +85,23 @@ export const MAIN_ROUTES = {
     link: "/help",
     name: "Help & Support",
     icon: <HelpCircle size={20} />,
+  },
+};
+
+export const PUBLIC_ROUTES = {
+  dashboard: {
+    link: "/public/dashboard",
+    name: "Dashboard",
+    icon: <Home size={20} />,
+  },
+  buildlog: {
+    link: "/public/buildlog",
+    name: "Build Log",
+    icon: <Scroll size={20} />,
+  },
+  photos: {
+    link: "/public/photos",
+    name: "Photo Gallery",
+    icon: <Image size={20} />,
   },
 };

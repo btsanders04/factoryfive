@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import BuildTimeline from "./components/BuildTimeline";
+import BuildTimeline from "../../../components/BuildTimeline";
 import { Milestone as MilestoneIcon } from "lucide-react";
 import {
   createMilestone,
