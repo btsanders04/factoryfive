@@ -10,7 +10,8 @@ import {
   Calendar,
   CircleDashed,
   Puzzle,
-  BookText
+  BookText,
+  BarChart2
 } from "lucide-react";
 
 export const comingsoon = {
@@ -64,6 +65,11 @@ export const MAIN_ROUTES = {
     name: "Photos",
     // eslint-disable-next-line jsx-a11y/alt-text
     icon: <Image size={20} />,
+  },
+  altStats: {
+    link: "/alt-stats",
+    name: "Alt Stats",
+    icon: <BarChart2 size={20} />,
   },
   manual: {
     link: "/manual",

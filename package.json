@@ -52,6 +52,7 @@
     "react-icons": "^5.5.0",
     "react-pdf": "^9.2.1",
     "react-three": "^0.9.7",
+    "recharts": "^2.15.3",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
     "tesseract.js": "^6.0.1",

@@ -191,3 +191,9 @@ model InventoryPart {
     
     @@unique([boxId, partNumber])
 }
+
+model AltStatistics {
+  id  Int @id @default(autoincrement())
+  type String
+  count Int   
+}
