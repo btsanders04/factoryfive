@@ -48,9 +48,8 @@ export async function getInventoryPartsMetrics() {
     const totalParts = parts.reduce((acc, part) => acc + part.quantityExpected, 0);
     const receivedParts = parts.reduce((acc, part) => acc + part.quantityReceived, 0);
     const installedParts = parts.filter((part) => part.quantityReceived === part.quantityExpected).length;
-    
     const receivedPercentage = totalParts > 0 ? Math.round((receivedParts / totalParts) * 100) : 0;
-    const installedPercentage = totalParts > 0 ? Math.round((installedParts / parts.length) * 100) : 0;
+    const installedPercentage = totalParts > 0 ? Math.round((installedParts / totalParts) * 100) : 0;
     
     return {
       totalParts,

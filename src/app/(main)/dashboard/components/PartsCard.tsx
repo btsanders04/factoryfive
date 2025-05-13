@@ -81,7 +81,7 @@ export function PartsCard() {
           {/* Link to parts page */}
           <div className="mt-4 pt-4 border-t border-gray-200">
             <Link 
-              href="/parts" 
+              href="/inventory" 
               className="text-xs text-blue-600 hover:text-blue-800 hover:underline block"
             >
               View all parts →

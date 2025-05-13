@@ -32,16 +32,6 @@ export function MetricsCards({
       <Card className="shadow-sm">
         <CardHeader className="pb-1 sm:pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
           <CardTitle className="text-sm font-medium">
-            Total Parts
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
-          <div className="text-xl sm:text-2xl font-bold">{totalParts}</div>
-        </CardContent>
-      </Card>
-      <Card className="shadow-sm">
-        <CardHeader className="pb-1 sm:pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
-          <CardTitle className="text-sm font-medium">
             Parts Received
           </CardTitle>
         </CardHeader>
