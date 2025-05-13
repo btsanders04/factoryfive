@@ -7,9 +7,6 @@ import {
 } from "@/data/milestone";
 import { Milestone } from "@prisma/client";
 import BuildTimeline from "@/components/BuildTimeline";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 
 const BuildProgress = () => {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -24,14 +21,7 @@ const BuildProgress = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-6">
-        <Button variant="ghost" asChild className="flex items-center gap-2">
-          <Link href="/public">
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </Link>
-        </Button>
-      </div>
+    
       <h1 className="text-4xl font-bold text-center my-8">
         Our MK5 Build Journey
       </h1>
