@@ -5,7 +5,7 @@ import { StatsCards } from './components/StatsCards';
 import { StatsRadarChart } from './components/StatsRadarChart';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import { fetchAltStats, incrementAltStat, type StatType, type AltStats } from '@/data/altStats';
+import { fetchAltStats, incrementAltStat, type StatType } from '@/data/altStats';
 import { fetchWorkHours, calculateTotalHours } from '@/data/workHours';
 
 export default function AltStatsPage() {
