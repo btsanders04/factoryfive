@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PartData, PartStatus } from "../types";
+import { PartData } from "../types";
 import { UpdateQuantityDialog } from "./UpdateQuantityDialog";
 
 interface PartActionsCellProps {
@@ -41,7 +41,7 @@ export function PartActionsCell({ part, onUpdatePart }: PartActionsCellProps) {
             onClick={() => {
               const updatedPart = {
                 ...part,
-                status: "Not Received" as PartStatus,
+                status: "Not Received",
                 quantityReceived: 0,
               };
               onUpdatePart(updatedPart);
@@ -53,7 +53,7 @@ export function PartActionsCell({ part, onUpdatePart }: PartActionsCellProps) {
             onClick={() => {
               const updatedPart = {
                 ...part,
-                status: "Installed" as PartStatus,
+                status: "Installed",
               };
               onUpdatePart(updatedPart);
             }}

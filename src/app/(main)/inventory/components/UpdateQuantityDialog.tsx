@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PartData, PartStatus } from "../types";
+import { PartData } from "../types";
 
 interface UpdateQuantityDialogProps {
   isOpen: boolean;
@@ -51,7 +51,7 @@ export function UpdateQuantityDialog({
     }
 
     // Determine the appropriate status based on the quantity
-    let status: PartStatus;
+    let status: string;
     if (quantity === 0) {
       status = "Not Received";
     } else if (quantity < part.quantityExpected) {

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export type PartStatus = "Not Received" | "Partial" | "Received" | "Installed" | "Damaged" | "Missing";
 
 export interface PartData {
   id: string;
@@ -7,7 +6,7 @@ export interface PartData {
   description: string;
   quantityExpected: number;
   quantityReceived: number;
-  status: PartStatus;
+  status: string;
   categoryId: number | null;
   categoryName?: string;
   categoryNumber?: string;

@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { StatusBadge } from "./Badges";
-import { PartData, PartStatus } from "../types";
+import { PartData } from "../types";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CheckCheckIcon } from "lucide-react";
 import { useState } from "react";
@@ -26,7 +26,7 @@ function MarkReceivedButton({ part, handleUpdatePart }: { part: PartData; handle
               // Create updated part object
               const updatedPart = {
                 ...part,
-                status: "Received" as PartStatus,
+                status: "Received",
                 quantityReceived: part.quantityExpected,
               };
               
