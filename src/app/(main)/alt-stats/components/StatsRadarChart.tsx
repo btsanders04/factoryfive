@@ -56,13 +56,7 @@ export function StatsRadarChart({
       value: hoursDriven,
       normalizedValue: hoursDriven * normalizer,
       fullMark: 100,
-    },
-    {
-      subject: 'Work',
-      value: hoursWorked,
-      normalizedValue: hoursWorked * normalizer,
-      fullMark: 100,
-    },
+    }
   ];
 
   // Custom tooltip to show the actual values

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { StatsCards } from './components/StatsCards';
 import { StatsRadarChart } from './components/StatsRadarChart';
+import { StatsBarChart } from './components/StatsBarChart';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { fetchAltStats, incrementAltStat, type StatType } from '@/data/altStats';
@@ -120,6 +121,13 @@ export default function AltStatsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatsRadarChart
+          beersDrank={stats.beersDrank}
+          cigarsSmoked={stats.cigarsSmoked}
+          lowesVisits={stats.lowesVisits}
+          hoursDriven={stats.hoursDriven}
+          hoursWorked={totalHoursWorked}
+        />
+        <StatsBarChart
           beersDrank={stats.beersDrank}
           cigarsSmoked={stats.cigarsSmoked}
           lowesVisits={stats.lowesVisits}
