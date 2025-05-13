@@ -38,7 +38,7 @@ export default function PartsPage() {
   const [parts, setParts] = useState<PartData[]>([]);
   const [filteredParts, setFilteredParts] = useState<PartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refreshTrigger] = useState(0);
   // const [scannerOpen, setScannerOpen] = useState(false);
   // const [barcodeScannerOpen, setBarcodeScannerOpen] = useState(false);
   // const [ocrScannerOpen, setOcrScannerOpen] = useState(false);
