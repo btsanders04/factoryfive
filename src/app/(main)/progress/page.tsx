@@ -26,8 +26,6 @@ const AssemblyProgressTracker = () => {
   const [newTaskText, setNewTaskText] = useState<Record<number, string>>({});
   const [activeTab, setActiveTab] = useState("overview");
   const [overallProgress, setOverallProgress] = useState(0);
-  const [totalTasks, setTotalTasks] = useState(0);
-  const [completedTasks, setCompletedTasks] = useState(0);
 
   // Function to toggle task completion
   const toggleTask = async (task: Task) => {
