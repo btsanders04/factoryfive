@@ -2,6 +2,7 @@ interface PhotoLibraryResponse {
   success: boolean;
   data: {
     list: MediaItem[];
+    total: number;
   };
 }
 
@@ -34,20 +35,37 @@ interface MediaItem {
   };
 }
 
+export interface PaginatedPhotosResponse {
+  photos: {
+    id: number;
+    url: string;
+    cacheKey: string;
+    title: string;
+  }[];
+  pagination: {
+    total: number;
+    offset: number;
+    limit: number;
+    hasMore: boolean;
+  };
+}
+
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   // Get query parameters from the request URL
-  // const offset = searchParams.get("offset") || "0";
-  // const limit = searchParams.get("limit") || "3";
-  const limit = 999;
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const offset = parseInt(searchParams.get("offset") || "0");
+  const limit = parseInt(searchParams.get("limit") || "20");
+
   const synoToken = request.headers.get("Authorization") as string;
   const cookies = request.headers.get("Cookie") || "";
 
   // Set up the request to Synology Foto API
-  const url = `https://${process.env.SYNOLOGY_HOST}/webapi/entry.cgi`;
+  const apiUrl = `https://${process.env.SYNOLOGY_HOST}/webapi/entry.cgi`;
 
-  const body = `api=SYNO.Foto.Browse.Item&method=list&version=4&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%2C%22provider_user_id%22%5D&offset=0&limit=${limit}&sort_by=%22takentime%22&sort_direction=%22asc%22&passphrase=%22${process.env.SYNOLOGY_PASSKEY}%22`;
+  const body = `api=SYNO.Foto.Browse.Item&method=list&version=4&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%2C%22provider_user_id%22%5D&offset=${offset}&limit=${limit}&sort_by=%22takentime%22&sort_direction=%22asc%22&passphrase=%22${process.env.SYNOLOGY_PASSKEY}%22`;
 
   // Set headers
   const headers = {
@@ -58,7 +76,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Make the request to Synology Foto API
-    const response = await fetch(url, {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers,
       body: body,
@@ -66,15 +84,26 @@ export async function GET(request: NextRequest) {
 
     // Get the JSON response
     const data = (await response.json()) as PhotoLibraryResponse;
-    const res = data.data.list.map((item) => ({
+    const photos = data.data.list.map((item) => ({
       id: item.id,
       url: `/api/photos/${item.additional.thumbnail.unit_id}`,
       cacheKey: item.additional.thumbnail.cache_key,
       title: item.filename,
     }));
 
+    // Create paginated response
+    const paginatedResponse: PaginatedPhotosResponse = {
+      photos,
+      pagination: {
+        total: data.data.total || photos.length,
+        offset,
+        limit,
+        hasMore: photos.length >= limit,
+      },
+    };
+
     // Return the response
-    return NextResponse.json(res);
+    return NextResponse.json(paginatedResponse);
   } catch (error) {
     console.error("Error fetching from Synology Foto API:", error);
 

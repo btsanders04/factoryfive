@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Star } from "lucide-react";
-import { getPhotos, PhotoData } from "@/data/photo";
+import { getPhotos, PhotoData, PaginationData } from "@/data/photo";
 import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
 import {
@@ -25,6 +25,8 @@ import { Milestone } from "@prisma/client";
 
 const PhotosPage = () => {
   const [photos, setPhotos] = useState<PhotoData[]>([]);
+  const [pagination, setPagination] = useState<PaginationData | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [lightboxImage, setLightboxImage] = useState<string>("");
@@ -95,17 +97,73 @@ const PhotosPage = () => {
     }
   };
 
+  // Function to load more photos
+  const loadMorePhotos = async () => {
+    if (!pagination || !pagination.hasMore || loadingMore) return;
+    
+    console.log('Loading more photos...');
+    setLoadingMore(true);
+    try {
+      const nextOffset = pagination.offset + pagination.limit;
+      const data = await getPhotos(nextOffset, pagination.limit);
+      
+      setPhotos(prevPhotos => [...prevPhotos, ...data.photos]);
+      setPagination(data.pagination);
+      console.log('Loaded more photos:', data.photos.length);
+    } catch (error) {
+      console.error('Error loading more photos:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   // Initial load
   useEffect(() => {
-    getPhotos().then((data) => {
-      setPhotos(data);
-      setLoading(false);
-    });
+    const fetchInitialData = async () => {
+      try {
+        const data = await getPhotos(0, 20);
+        setPhotos(data.photos);
+        setPagination(data.pagination);
+      } catch (error) {
+        console.error('Error fetching photos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchInitialData();
     getAllMilestones().then((data) => {
       setMilestones(data);
     });
   }, []);
+  
+  // Set up scroll event listener for infinite scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollArea = document.getElementById('photos-scroll-area');
+      if (!scrollArea) return;
+      
+      const viewport = scrollArea.querySelector('[data-radix-scroll-area-viewport]');
+      if (!viewport) return;
+      
+      const { scrollTop, scrollHeight, clientHeight } = viewport as HTMLElement;
+      const isNearBottom = scrollHeight - scrollTop <= clientHeight + 300;
+      
+      if (isNearBottom && pagination?.hasMore && !loadingMore) {
+        console.log('Near bottom, loading more photos...');
+        loadMorePhotos();
+      }
+    };
+    
+    const scrollArea = document.getElementById('photos-scroll-area');
+    if (scrollArea) {
+      const viewport = scrollArea.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.addEventListener('scroll', handleScroll);
+        return () => viewport.removeEventListener('scroll', handleScroll);
+      }
+    }
+  }, [pagination, loadingMore]);
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
@@ -159,7 +217,7 @@ const PhotosPage = () => {
         </div>
       </div>
 
-      <ScrollArea className="h-screen max-h-[800px] rounded-md border">
+      <ScrollArea className="h-screen max-h-[800px] rounded-md border" id="photos-scroll-area">
         <div className="p-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {photos.map((photo) => (
@@ -228,9 +286,9 @@ const PhotosPage = () => {
               </Card>
             ))}
 
-            {loading &&
+            {(loading || loadingMore) &&
               // Skeleton loaders for next batch of photos
-              [...Array(photos.length !== 0 ? photos.length : 4)].map(
+              [...Array(loading ? 8 : 4)].map(
                 (_, i) => (
                   <Card key={`skeleton-${i}`} className="overflow-hidden">
                     <CardContent className="p-0">
