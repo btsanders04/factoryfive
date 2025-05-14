@@ -46,11 +46,36 @@ function isTokenExpiredOrMissing(): boolean {
 
 
 export async function middleware(request: NextRequest) {
-  const user = await stackServerApp.getUser();
   const requestHeaders = new Headers(request.headers);
-  if (!user) {
-    return NextResponse.redirect(new URL("/handler/sign-in", request.url));
+  
+  // Define public API routes that don't require authentication for GET requests
+  const publicApiRoutes = [
+    '/api/alt-statistics',
+    '/api/workhours',
+    '/api/inventory-parts',
+    '/api/tasksections',
+    '/api/milestones',
+    '/api/photos'
+  ];
+  
+  // Check if the current request is for a public API route
+  const isPublicApiRoute = publicApiRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  );
+  
+  // Allow public access only for GET requests to public API routes
+  // All other methods (POST, PUT, DELETE, etc.) still require authentication
+  const isPublicAccessAllowed = isPublicApiRoute && request.method === 'GET';
+  
+  // Perform authentication check for non-public routes or non-GET methods
+  if (!isPublicAccessAllowed) {
+    const user = await stackServerApp.getUser();
+    if (!user) {
+      return NextResponse.redirect(new URL("/public/dashboard", request.url));
+    }
   }
+  
+  // Handle Synology photos API token
   if (request.nextUrl.pathname.startsWith("/api/photos")) {
     if (isTokenExpiredOrMissing()) {
       const response = await fetchToken();
@@ -63,6 +88,7 @@ export async function middleware(request: NextRequest) {
       requestHeaders.set('Cookie', mergedCookies);
     }
   }
+  
   return NextResponse.next({
     request: {
       headers: requestHeaders,
@@ -72,7 +98,8 @@ export async function middleware(request: NextRequest) {
 export const config = {
   // You can add your own route protection logic here
   // Make sure not to protect the root URL, as it would prevent users from accessing static Next.js files or Stack's /handler path
-  matcher: "/((?!handler|_next|static|.*\\..*).*)",
+  // Also exclude public routes and API endpoints that should be publicly accessible
+  matcher: "/((?!handler|_next|static|public|.*\\..*).*)",
 };
 
 // 42vcYVFfZrO6jw4ghkPHr83-TCwxeDPmrdhY44XcdFoW4bAfPlzn9lZ5L2yt68pHOEQo7_zcsFDaWYcdMirovg;

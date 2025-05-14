@@ -82,3 +82,27 @@ export async function deleteTask(
   }
   return response.json() as Promise<Task>;
 } 
+
+/**
+ * Fetches task sections with progress information
+ * @returns Promise with task progress data
+ */
+export async function fetchTaskProgress() {
+  try {
+    const response = await fetch('/api/tasksections');
+    const data = await response.json();
+    
+    return {
+      overallProgress: data.overallProgress || 0,
+      totalTasks: data.totalTasks || 0,
+      completedTasks: data.completedTasks || 0
+    };
+  } catch (error) {
+    console.error('Error fetching task progress:', error);
+    return {
+      overallProgress: 0,
+      totalTasks: 0,
+      completedTasks: 0
+    };
+  }
+}

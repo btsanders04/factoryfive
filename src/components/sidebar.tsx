@@ -3,15 +3,16 @@
 // components/sidebar.tsx
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MAIN_ROUTES } from "@/app/routes";
-import { UserButton } from "@stackframe/stack";
+import { MAIN_ROUTES, PUBLIC_ROUTES } from "@/app/routes";
+import { OAuthButton, UserButton } from "@stackframe/stack";
 import InstallPrompt from "./InstallPrompt";
 
 interface SidebarProps {
   onNavigate?: () => void;
+  isPublic?: boolean;
 }
 
-export function Sidebar({ onNavigate }: SidebarProps) {
+export function Sidebar({ onNavigate, isPublic }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -21,7 +22,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       </div>
 
       <nav className="space-y-1 flex-1 overflow-y-auto">
-        {Object.values(MAIN_ROUTES).map((route, index) => {
+        {Object.values(isPublic ? PUBLIC_ROUTES : MAIN_ROUTES).map((route, index) => {
           return (
             <NavItem
               key={index}
@@ -34,10 +35,21 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           );
         })}
       </nav>
-
       <div className="mt-auto space-y-4 pt-4 border-t">
-        <UserButton />
-        <InstallPrompt />
+      <div className="px-4 text-sm text-muted-foreground">
+      <p>© {new Date().getFullYear()} Brandon Sanders. All rights reserved.</p>
+      </div>
+        {!isPublic ? (
+          <>
+            <UserButton />
+            <InstallPrompt />
+          </>
+        ) : (
+          <div className="px-4 text-sm text-muted-foreground">
+            <OAuthButton provider="google" type="sign-in"></OAuthButton>
+          </div>
+         
+        )}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import { getUserPermission } from "@/lib/stackshare_utils";
 import { Prisma } from "@prisma/client";
 
 export async function GET() {
-  const tasks = await prisma.taskSection.findMany(
+  const taskSections = await prisma.taskSection.findMany(
     {
         include: {
             tasks: true
@@ -12,7 +12,37 @@ export async function GET() {
     }
   );
 
-  return NextResponse.json(tasks, { status: 200 });
+  // Calculate overall progress
+  const totalTasks = taskSections.reduce(
+    (acc, section) => acc + section.tasks.length,
+    0
+  );
+  
+  const totalCompleted = taskSections.flatMap((section) =>
+    section.tasks.filter((task) => task.isCompleted)
+  ).length;
+
+  const overallProgress = totalTasks > 0 ? (totalCompleted / totalTasks) * 100 : 0;
+
+  // Calculate progress for each section
+  const sectionsWithProgress = taskSections.map(section => {
+    const completedCount = section.tasks.filter(task => task.isCompleted).length;
+    const sectionProgress = section.tasks.length > 0 
+      ? (completedCount / section.tasks.length) * 100 
+      : 0;
+      
+    return {
+      ...section,
+      progress: sectionProgress
+    };
+  });
+
+  return NextResponse.json({
+    taskSections: sectionsWithProgress,
+    overallProgress,
+    totalTasks,
+    completedTasks: totalCompleted
+  }, { status: 200 });
 }
 
 export async function POST(request: NextRequest) {

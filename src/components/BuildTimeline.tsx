@@ -11,7 +11,7 @@ import { Edit2 } from "lucide-react";
 
 interface BuildTimelineProps {
   milestones: Milestone[];
-  onEditMilestone: (milestone: Milestone) => void;
+  onEditMilestone?: (milestone: Milestone) => void;
 }
 
 const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilestone }) => {
@@ -102,13 +102,13 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
                   <h3 className="text-xl font-bold text-gray-700">
                     {milestone.title}
                   </h3>
-                  <Button
+                  {onEditMilestone && <Button
                     onClick={() => onEditMilestone(milestone)}
                     variant="ghost"
                     className="h-8 w-8 p-0 text-gray-400 hover:text-white"
                   >
                     <Edit2></Edit2>
-                  </Button>
+                  </Button>}
                 </div>
 
                 {/* Main Image - Now clickable to open lightbox */}

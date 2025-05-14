@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { Sidebar } from "./sidebar";
 
-export function MobileNavigation() {
+export function MobileNavigation({isPublic}: {isPublic?: boolean}) {
   const [open, setOpen] = useState<boolean>(false);
 
   // Handler to close the sheet when navigation occurs
@@ -37,7 +37,7 @@ export function MobileNavigation() {
         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
         <div className="flex flex-col h-full">
           <h2 className="sr-only">Navigation menu</h2>
-          <Sidebar onNavigate={handleNavigate} />
+          <Sidebar isPublic={isPublic} onNavigate={handleNavigate} />
         </div>
       </SheetContent>
     </Sheet>
