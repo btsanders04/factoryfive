@@ -95,8 +95,6 @@ const AssemblyProgressTracker = () => {
       const data = await getAllTaskSections();
       setTaskSections(data.taskSections);
       setOverallProgress(data.overallProgress);
-      setTotalTasks(data.totalTasks);
-      setCompletedTasks(data.completedTasks);
     };
     fetchTaskSections();
   }, []);

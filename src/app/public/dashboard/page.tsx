@@ -126,7 +126,7 @@ export default function PublicPage() {
               <CardContent className="space-y-4 px-0 pb-0">
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 My brother Jared, my dad Donnie, and I are bringing a dream to life—building a Factory Five MK5 Roadster, the ultimate modern tribute to the legendary 1965 Shelby Cobra.
-This dashboard chronicles our family&apos;s journey as we transform boxes of parts into a hand-built, high-performance roadster. Three generations working side-by-side, we&apos;re documenting every triumph and challenge—from that first exciting unboxing to the heart-pounding moment we fire up the engine for the first time.
+This dashboard chronicles our family&apos;s journey as we transform boxes of parts into a hand-built, high-performance roadster. Two generations working side-by-side, we&apos;re documenting every triumph and challenge—from that first exciting unboxing to the heart-pounding moment we fire up the engine for the first time.
                 </p>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 Follow along as we create more than just a car. We&apos;re building memories, sharing knowledge, and crafting our own piece of automotive history—one bolt at a time.
