@@ -111,7 +111,7 @@ const AssemblyProgressTracker = () => {
           <PrimaryAddButton
             buttonTitle="Add New Section"
             onClick={() => setOpenModal(true)}
-          ></PrimaryAddButton>r
+          ></PrimaryAddButton>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
