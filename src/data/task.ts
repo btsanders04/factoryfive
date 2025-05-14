@@ -1,7 +1,7 @@
 import { TaskSectionWithRelations } from "@/lib/types/tasks";
 import { Prisma, Task } from "@prisma/client";
 
-export async function getAllTaskSections(): Promise<TaskSectionWithRelations[]> {
+export async function getAllTaskSections(): Promise<{taskSections: TaskSectionWithRelations[], overallProgress: number, totalTasks: number, completedTasks: number}> {
   const response = await fetch("/api/tasksections", {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -12,7 +12,7 @@ export async function getAllTaskSections(): Promise<TaskSectionWithRelations[]> 
       errorData?.error || `Error: ${response.status} ${response.statusText}`
     );
   }
-  return response.json() as Promise<TaskSectionWithRelations[]>;
+  return response.json() as  Promise<{taskSections: TaskSectionWithRelations[], overallProgress: number, totalTasks: number, completedTasks: number}>;
 }
 
 export async function createTaskSection(

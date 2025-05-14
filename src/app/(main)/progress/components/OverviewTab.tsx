@@ -8,22 +8,22 @@ import { TaskSectionWithRelations } from "@/lib/types/tasks";
 interface OverviewTabProps {
   taskSections: TaskSectionWithRelations[];
   calculateSectionProgress: (sectionIndex: number) => number;
-  calculateOverallProgress: () => number;
+  overallProgress: number;
 }
 
 export function OverviewTab({ 
   taskSections, 
   calculateSectionProgress, 
-  calculateOverallProgress 
+  overallProgress 
 }: OverviewTabProps) {
   return (
     <div className="space-y-4">
       <div className="mb-6">
         <div className="flex justify-between mb-2">
           <h3 className="font-semibold">Overall Progress</h3>
-          <span>{calculateOverallProgress().toFixed(0)}%</span>
+          <span>{overallProgress.toFixed(0)}%</span>
         </div>
-        <Progress value={calculateOverallProgress()} className="h-2" />
+        <Progress value={overallProgress} className="h-2" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

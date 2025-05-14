@@ -15,7 +15,6 @@ import { PrimaryAddButton } from "@/components/PrimaryAddButton";
 import CreateSectionModal from "./components/CreateSectionModal";
 import { OverviewTab } from "./components/OverviewTab";
 import { DetailedTab } from "./components/DetailedTab";
-import { CarTab } from "./components/CarTab";
 
 const AssemblyProgressTracker = () => {
   // State to track completed tasks
@@ -26,6 +25,7 @@ const AssemblyProgressTracker = () => {
   // Add these state variables at the top of your component
   const [newTaskText, setNewTaskText] = useState<Record<number, string>>({});
   const [activeTab, setActiveTab] = useState("overview");
+  const [overallProgress, setOverallProgress] = useState(0);
 
   // Function to toggle task completion
   const toggleTask = async (task: Task) => {
@@ -82,21 +82,6 @@ const AssemblyProgressTracker = () => {
     return (completedCount / section.tasks.length) * 100;
   };
 
-  // Calculate overall progress
-  const calculateOverallProgress = () => {
-    const totalTasks = taskSections.reduce(
-      (acc, section) => acc + section.tasks.length,
-      0
-    );
-    if (totalTasks === 0) {
-      return 0;
-    }
-    const totalCompleted = taskSections.flatMap((section) =>
-      section.tasks.filter((task) => task.isCompleted)
-    ).length;
-
-    return (totalCompleted / totalTasks) * 100;
-  };
 
   const handleCreateTransaction = async (
     data: Prisma.TaskSectionCreateInput
@@ -108,7 +93,8 @@ const AssemblyProgressTracker = () => {
   useEffect(() => {
     const fetchTaskSections = async () => {
       const data = await getAllTaskSections();
-      setTaskSections(data);
+      setTaskSections(data.taskSections);
+      setOverallProgress(data.overallProgress);
     };
     fetchTaskSections();
   }, []);
@@ -125,7 +111,7 @@ const AssemblyProgressTracker = () => {
           <PrimaryAddButton
             buttonTitle="Add New Section"
             onClick={() => setOpenModal(true)}
-          ></PrimaryAddButton>
+          ></PrimaryAddButton>r
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -139,7 +125,7 @@ const AssemblyProgressTracker = () => {
             <OverviewTab 
               taskSections={taskSections}
               calculateSectionProgress={calculateSectionProgress}
-              calculateOverallProgress={calculateOverallProgress}
+              overallProgress={overallProgress}
             />
           </TabsContent>
 
@@ -152,14 +138,6 @@ const AssemblyProgressTracker = () => {
               newTaskText={newTaskText}
               updateNewTaskText={updateNewTaskText}
               addNewTask={addNewTask}
-            />
-          </TabsContent>
-
-          <TabsContent value="car">
-            <CarTab 
-              taskSections={taskSections}
-              calculateOverallProgress={calculateOverallProgress}
-              onTaskSectionsUpdate={(updatedSections) => setTaskSections(updatedSections)}
             />
           </TabsContent>
         </Tabs>
