@@ -111,9 +111,9 @@ export default function PublicPage() {
         <Card className="col-span-full md:col-span-2 border-0 shadow-lg overflow-hidden">
           <div className="flex flex-col md:flex-row">
             <div className="md:w-1/2 relative h-64 md:h-auto cursor-pointer">
-              <Link href="/public/photos" className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 flex flex-col items-center justify-center transition-all hover:from-blue-600 hover:to-indigo-700">
+              <Link href="/public/buildlog" className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 flex flex-col items-center justify-center transition-all hover:from-blue-600 hover:to-indigo-700">
                 <Car className="h-24 w-24 text-white/90 mb-3" />
-                <span className="text-white font-bold text-xl">Photo Gallery</span>
+                <span className="text-white font-bold text-xl">Build Log</span>
               </Link>
             </div>
             <div className="md:w-1/2 p-6">
