@@ -80,6 +80,9 @@ export async function GET(request: NextRequest) {
       method: "POST",
       headers,
       body: body,
+      next: {
+        revalidate: 3600,
+      },
     });
 
     // Get the JSON response
