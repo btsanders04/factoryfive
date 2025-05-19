@@ -128,42 +128,6 @@ export default function AddMilestoneModal({
               Date
             </Label>
             <div className="grid gap-2">
-              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="date"
-                    type="button"
-                    variant="outline"
-                    className="w-full flex items-center justify-between bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
-                  >
-                    <span>
-                      {data.date ? dateFormat(data.date as Date) : "Select date"}
-                    </span>
-                    <CalendarIcon className="ml-2 h-4 w-4 text-gray-400" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent 
-                  className="w-auto p-0 bg-gray-800 border-gray-700" 
-                  align="start"
-                >
-                  <Calendar
-                    mode="single"
-                    selected={data.date as Date}
-                    onSelect={(date) => {
-                      if (date) {
-                        handleChange("date", date);
-                        setCalendarOpen(false);
-                      }
-                    }}
-                    disabled={(date) => date > new Date()}
-                    initialFocus
-                    className="bg-gray-800 text-white"
-                  />
-                </PopoverContent>
-              </Popover>
-              
-              {/* Fallback for mobile - direct date input */}
-              <div className="sm:hidden">
                 <Input
                   type="date"
                   id="mobile-date"
@@ -175,7 +139,6 @@ export default function AddMilestoneModal({
                     }
                   }}
                 />
-              </div>
             </div>
           </div>
 
