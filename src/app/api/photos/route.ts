@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     const data = (await response.json()) as PhotoLibraryResponse;
     const photos = data.data.list.map((item) => ({
       id: item.id,
-      url: `/api/photos/${item.additional.thumbnail.unit_id}`,
+      url: `/api/photos/${item.additional.thumbnail.unit_id}?cache_key=${item.additional.thumbnail.cache_key}`,
       cacheKey: item.additional.thumbnail.cache_key,
       title: item.filename,
     }));

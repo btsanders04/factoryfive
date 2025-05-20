@@ -23,12 +23,63 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [lightboxImage, setLightboxImage] = useState<string>("");
   const [lightboxAlt, setLightboxAlt] = useState<string>("");
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(-1);
+  const [currentMilestoneImages, setCurrentMilestoneImages] = useState<string[]>([]);
+
+  // Function to collect all images from a milestone (featured + additional)
+  const getAllMilestoneImages = (milestone: Milestone): string[] => {
+    const images: string[] = [];
+    if (milestone.featuredImage) {
+      images.push(milestone.featuredImage);
+    }
+    if (milestone.additionalImages && milestone.additionalImages.length > 0) {
+      images.push(...milestone.additionalImages);
+    }
+    return images;
+  };
 
   // Function to open the lightbox
-  const openLightbox = (imageSrc: string | null, alt: string) => {
-    setLightboxImage(imageSrc || "");
+  const openLightbox = (imageSrc: string | null, alt: string, milestoneId?: number) => {
+    if (!imageSrc) return;
+    
+    // If a milestone ID is provided, collect all images from that milestone
+    if (milestoneId) {
+      const milestone = milestones.find(m => m.id === milestoneId);
+      if (milestone) {
+        const allImages = getAllMilestoneImages(milestone);
+        setCurrentMilestoneImages(allImages);
+        const index = allImages.findIndex(img => img === imageSrc);
+        setCurrentImageIndex(index !== -1 ? index : 0);
+      }
+    } else {
+      // If no milestone ID, just set the single image
+      setCurrentMilestoneImages([imageSrc]);
+      setCurrentImageIndex(0);
+    }
+    
+    setLightboxImage(imageSrc);
     setLightboxAlt(alt);
     setLightboxOpen(true);
+  };
+  
+  // Function to navigate to the next photo
+  const goToNextPhoto = () => {
+    if (currentImageIndex < currentMilestoneImages.length - 1) {
+      const nextIndex = currentImageIndex + 1;
+      setCurrentImageIndex(nextIndex);
+      setLightboxImage(currentMilestoneImages[nextIndex]);
+      setLightboxAlt(`Image ${nextIndex + 1}`);
+    }
+  };
+  
+  // Function to navigate to the previous photo
+  const goToPreviousPhoto = () => {
+    if (currentImageIndex > 0) {
+      const prevIndex = currentImageIndex - 1;
+      setCurrentImageIndex(prevIndex);
+      setLightboxImage(currentMilestoneImages[prevIndex]);
+      setLightboxAlt(`Image ${prevIndex + 1}`);
+    }
   };
 
   // Function to close the lightbox
@@ -44,6 +95,10 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
         imgSrc={lightboxImage}
         altText={lightboxAlt}
         onClose={closeLightbox}
+        onNext={goToNextPhoto}
+        onPrevious={goToPreviousPhoto}
+        hasNext={currentImageIndex < currentMilestoneImages.length - 1}
+        hasPrevious={currentImageIndex > 0}
       />
 
       {/* Timeline Track */}
@@ -115,7 +170,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
                 <div
                   className="relative w-full h-40 sm:h-48 mb-3 overflow-hidden rounded cursor-pointer"
                   onClick={() =>
-                    openLightbox(milestone.featuredImage, milestone.title)
+                    openLightbox(milestone.featuredImage, milestone.title, milestone.id)
                   }
                 >
                   <Image
@@ -148,7 +203,8 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
                             onClick={() =>
                               openLightbox(
                                 img,
-                                `${milestone.title} - image ${i + 1}`
+                                `${milestone.title} - image ${i + 1}`,
+                                milestone.id
                               )
                             }
                           >

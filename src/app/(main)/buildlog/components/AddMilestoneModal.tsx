@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -10,15 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import { dateFormat } from "@/lib/utils";
 import { Milestone, Prisma } from "@prisma/client";
-import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function AddMilestoneModal({
@@ -35,7 +27,6 @@ export default function AddMilestoneModal({
   onSubmitEdit: (id: number, data: Prisma.MilestoneUpdateInput) => void;
 }) {
   const [isFormValid, setIsFormValid] = useState(false);
-  const [calendarOpen, setCalendarOpen] = useState(false);
   const [data, setData] = useState<Prisma.MilestoneUncheckedCreateInput>({
     title: milestone?.title || "",
     description: milestone?.description || "",

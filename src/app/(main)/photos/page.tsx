@@ -31,6 +31,7 @@ const PhotosPage = () => {
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [lightboxImage, setLightboxImage] = useState<string>("");
   const [lightboxAlt, setLightboxAlt] = useState<string>("");
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(-1);
 
   // Add these state variables for milestone feature
   const [selectedMilestone, setSelectedMilestone] = useState<
@@ -41,9 +42,42 @@ const PhotosPage = () => {
 
   // Function to open the lightbox
   const openLightbox = (imageSrc: string, alt: string) => {
+    const index = photos.findIndex(photo => photo.url === imageSrc);
+    setCurrentPhotoIndex(index);
     setLightboxImage(imageSrc);
     setLightboxAlt(alt);
     setLightboxOpen(true);
+  };
+  
+  // Function to navigate to the next photo
+  const goToNextPhoto = async () => {
+    // Check if we're approaching the end of the loaded photos
+    const isNearEnd = currentPhotoIndex >= photos.length - 3;
+    
+    // If we're near the end and there are more photos to load, load them
+    if (isNearEnd && pagination?.hasMore && !loadingMore) {
+      await loadMorePhotos();
+    }
+    
+    // Navigate to the next photo if available
+    if (currentPhotoIndex < photos.length - 1) {
+      const nextIndex = currentPhotoIndex + 1;
+      const nextPhoto = photos[nextIndex];
+      setCurrentPhotoIndex(nextIndex);
+      setLightboxImage(nextPhoto.url);
+      setLightboxAlt(nextPhoto.title);
+    }
+  };
+  
+  // Function to navigate to the previous photo
+  const goToPreviousPhoto = () => {
+    if (currentPhotoIndex > 0) {
+      const prevIndex = currentPhotoIndex - 1;
+      const prevPhoto = photos[prevIndex];
+      setCurrentPhotoIndex(prevIndex);
+      setLightboxImage(prevPhoto.url);
+      setLightboxAlt(prevPhoto.title);
+    }
   };
 
   // Function to close the lightbox
@@ -172,6 +206,10 @@ const PhotosPage = () => {
         imgSrc={lightboxImage}
         altText={lightboxAlt}
         onClose={closeLightbox}
+        onNext={goToNextPhoto}
+        onPrevious={goToPreviousPhoto}
+        hasNext={currentPhotoIndex < photos.length - 1}
+        hasPrevious={currentPhotoIndex > 0}
       />
 
       <div className="flex justify-between items-center mb-6">

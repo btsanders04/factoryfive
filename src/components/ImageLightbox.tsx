@@ -3,12 +3,17 @@
 import React from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 interface ImageLightboxProps {
   isOpen: boolean;
   imgSrc: string;
   altText: string;
   onClose: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
 }
 
 const ImageLightbox: React.FC<ImageLightboxProps> = ({
@@ -16,6 +21,10 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
   imgSrc,
   altText,
   onClose,
+  onNext,
+  onPrevious,
+  hasNext = false,
+  hasPrevious = false,
 }) => {
   if (!isOpen) return null;
 
@@ -46,12 +55,41 @@ const ImageLightbox: React.FC<ImageLightboxProps> = ({
                 unoptimized={true}
               />
             </div>
+            {/* Close button */}
             <button
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black bg-opacity-50 text-white flex items-center justify-center hover:bg-opacity-70"
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black bg-opacity-50 text-white flex items-center justify-center hover:bg-opacity-70 transition-all"
               onClick={onClose}
+              aria-label="Close lightbox"
             >
-              ✕
+              <X size={24} />
             </button>
+            
+            {/* Navigation buttons */}
+            {hasPrevious && onPrevious && (
+              <button
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-black bg-opacity-50 text-white flex items-center justify-center hover:bg-opacity-70 transition-all"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPrevious();
+                }}
+                aria-label="Previous image"
+              >
+                <ChevronLeft size={28} />
+              </button>
+            )}
+            
+            {hasNext && onNext && (
+              <button
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-black bg-opacity-50 text-white flex items-center justify-center hover:bg-opacity-70 transition-all"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNext();
+                }}
+                aria-label="Next image"
+              >
+                <ChevronRight size={28} />
+              </button>
+            )}
           </motion.div>
         </motion.div>
       )}
