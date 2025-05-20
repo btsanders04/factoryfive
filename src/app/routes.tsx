@@ -11,7 +11,8 @@ import {
   Puzzle,
   BookText,
   BarChart2,
-  Scroll
+  Scroll,
+  Book
 } from "lucide-react";
 
 export const comingsoon = {
@@ -103,5 +104,10 @@ export const PUBLIC_ROUTES = {
     link: "/public/photos",
     name: "Photo Gallery",
     icon: <Image size={20} />,
+  },
+  guestbook: {
+    link: "/public/guestbook",
+    name: "Guestbook",
+    icon: <Book size={20} />,
   },
 };

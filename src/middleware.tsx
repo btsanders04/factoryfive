@@ -55,7 +55,13 @@ export async function middleware(request: NextRequest) {
     '/api/inventory-parts',
     '/api/tasksections',
     '/api/milestones',
-    '/api/photos'
+    '/api/photos',
+    '/api/guestbook'
+  ];
+  
+  // Define routes that allow both GET and POST methods without authentication
+  const publicPostRoutes = [
+    '/api/guestbook'
   ];
   
   // Check if the current request is for a public API route
@@ -63,9 +69,15 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   );
   
-  // Allow public access only for GET requests to public API routes
-  // All other methods (POST, PUT, DELETE, etc.) still require authentication
-  const isPublicAccessAllowed = isPublicApiRoute && request.method === 'GET';
+  // Check if the current request is for a route that allows POST without authentication
+  const isPublicPostRoute = publicPostRoutes.some(route => 
+    request.nextUrl.pathname.startsWith(route)
+  );
+  
+  // Allow public access for GET requests to public API routes
+  // or POST requests to specific public POST routes
+  const isPublicAccessAllowed = (isPublicApiRoute && request.method === 'GET') || 
+                               (isPublicPostRoute && request.method === 'POST');
   
   // Perform authentication check for non-public routes or non-GET methods
   if (!isPublicAccessAllowed) {

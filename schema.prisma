@@ -197,3 +197,14 @@ model AltStatistics {
   type String
   count Int   
 }
+
+model GuestbookEntry {
+  id        Int      @id @default(autoincrement())
+  name      String
+  message   String?
+  visitDate DateTime @default(now()) @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+  
+  @@index([visitDate])
+}
