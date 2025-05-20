@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { usePostHog } from 'posthog-js/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
@@ -29,6 +30,7 @@ export default function GuestbookPage() {
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const posthog = usePostHog();
 
   // Initialize form with react-hook-form
   const form = useForm<z.infer<typeof formSchema>>({
@@ -72,6 +74,13 @@ export default function GuestbookPage() {
         message: values.message || null,
         visitDate: new Date(),
       });
+      
+      // Identify the user in PostHog with their name
+      if (posthog) {
+        posthog.identify(posthog.get_distinct_id(), {
+          name: values.name
+        });
+      }
       
       setEntries([newEntry, ...entries]);
       form.reset();
