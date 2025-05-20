@@ -99,7 +99,7 @@ export default function GuestbookPage() {
         <div className="relative z-10 flex flex-col items-center text-center space-y-6 py-8">
           <h1 className="text-5xl font-bold tracking-tight">Visitor Guestbook</h1>
           <p className="text-xl text-blue-100 max-w-2xl">
-            We're glad you are here! Sign our guestbook and be a part of the journey.
+            We&apos;re glad you are here! Sign our guestbook and be a part of the journey.
           </p>
           <div className="w-24 h-1 bg-blue-400 rounded-full mt-2"></div>
         </div>
