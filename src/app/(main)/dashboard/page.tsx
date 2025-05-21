@@ -4,8 +4,29 @@ import BudgetCard from "./components/BudgetCard";
 import ToolsNeededCard from "./components/ToolsNeededCard";
 import HoursWorkedCard from "./components/HoursWorkedCard";
 import { PartsCard } from "./components/PartsCard";
+import { useUser } from "@stackframe/stack";
+import { usePostHog } from "posthog-js/react";
+import { useEffect } from 'react';
 
 export default function Dashboard() {
+  const user = useUser();
+  const posthog = usePostHog();
+
+  // Only identify the user if they exist and PostHog is available
+  useEffect(() => {
+    if (posthog && user) {
+      // Check if user properties are already set
+      const personProperties = posthog.get_property('name');
+      
+      // Only identify if name property isn't set yet
+      if (!personProperties) {
+        posthog.identify(user.id, {
+          name: user.displayName,
+        });
+      }
+    }
+  }, [posthog, user]);
+  
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Header */}
