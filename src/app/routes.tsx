@@ -67,6 +67,11 @@ export const MAIN_ROUTES = {
     // eslint-disable-next-line jsx-a11y/alt-text
     icon: <Image size={20} />,
   },
+  guestbook: {
+    link: "/guestbook",
+    name: "Guestbook",
+    icon: <Book size={20} />,
+  },
   altStats: {
     link: "/alt-stats",
     name: "Alt Stats",
