@@ -32,6 +32,8 @@ const ToolsChecklistPage = () => {
     await checkTool(id, !status);
   };
 
+  const handle
+
   const handleDelete = async (id: number) => {
     setTools(tools.filter((tool) => tool.id !== id));
     await deleteTool(id);

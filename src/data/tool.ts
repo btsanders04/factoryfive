@@ -47,7 +47,7 @@ export async function createTool(tool: Prisma.ToolCreateInput): Promise<Tool> {
 export async function checkTool(id: number, acquired: boolean): Promise<Tool> {
   try {
     const response = await fetch(`/api/tools/${id}`, {
-      method: "PATCH",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
