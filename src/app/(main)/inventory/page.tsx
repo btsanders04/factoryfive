@@ -200,7 +200,7 @@ export default function PartsPage() {
     // Calculate metrics
     const total = parts.reduce((acc, part) => acc + part.quantityExpected, 0);
     const received = parts.reduce((acc, part) => acc + part.quantityReceived, 0);
-    const installed = parts.filter((part) => part.status === "Installed").length;
+    const installed = parts.filter((part) => part.status === "Installed").reduce((acc, part) => acc + part.quantityExpected, 0);
     
     // Calculate box metrics
     const uniqueBoxNumbers = Array.from(new Set(parts.filter(part => part.boxNumber).map(part => part.boxNumber)));
@@ -221,9 +221,7 @@ export default function PartsPage() {
     setTotalBoxes(totalBoxCount);
     setInstalledBoxes(installedBoxCount);
     setReceivedPercentage(total > 0 ? Math.round((received / total) * 100) : 0);
-    setInstalledPercentage(
-      parts.length > 0 ? Math.round((installed / parts.length) * 100) : 0
-    );
+    setInstalledPercentage(Math.round((installed / total) * 100));
     setBoxesInstalledPercentage(
       totalBoxCount > 0 ? Math.round((installedBoxCount / totalBoxCount) * 100) : 0
     );
