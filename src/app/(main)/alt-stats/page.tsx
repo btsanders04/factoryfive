@@ -63,7 +63,7 @@ export default function AltStatsPage() {
 
   if (loading) {
     return (
-      <div className="container py-6 flex justify-center items-center">
+      <div className="flex justify-center items-center py-6">
         <div className="text-center">
           <p>Loading statistics...</p>
         </div>
@@ -72,7 +72,7 @@ export default function AltStatsPage() {
   }
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Alt Stats</h1>
       </div>

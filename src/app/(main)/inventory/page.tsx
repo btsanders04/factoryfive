@@ -285,7 +285,7 @@ export default function PartsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
         <h1 className="text-2xl sm:text-3xl font-bold">Parts Inventory</h1>
         {/* <div className="flex flex-col sm:flex-row gap-2">

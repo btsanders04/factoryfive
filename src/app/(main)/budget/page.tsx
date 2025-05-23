@@ -112,7 +112,7 @@ export default function TransactionsPage() {
   const percentSpent = Math.round((totalSpent / totalBudgeted) * 100);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div>
       <div className="flex flex-col space-y-8">
         {/* Header */}
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">

@@ -66,13 +66,13 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden ml-auto"
+          className="md:hidden"
         >
           <Menu className="h-6 w-6" />
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[80%] sm:w-[350px] p-4">
+      <SheetContent side="left" className="w-[80%] sm:w-[350px] p-4">
         <div className="flex flex-col h-full space-y-4 py-4">
           <div className="space-y-3">
             {Object.values(routes).map((route, index) => (
@@ -173,12 +173,9 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-14">
         <div className="flex justify-between items-center h-full">
-          {/* Logo - Left */}
+          {/* Mobile menu button - Left */}
           <div className="flex items-center">
-            <Link href={isPublic ? "/public/dashboard" : "/dashboard"} className="font-bold text-xl">
-              <span className="hidden md:inline">Sanders Speed Shop</span>
-              <span className="md:hidden flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded-full font-bold">S</span>
-            </Link>
+            <MobileNav />
           </div>
           
           {/* Center the desktop navigation */}
@@ -197,7 +194,6 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
                 <UserButton />
               )
             )}
-            <MobileNav />
           </div>
         </div>
       </div>

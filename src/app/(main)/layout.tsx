@@ -20,7 +20,9 @@ export default function MainLayout({
               <div className="flex flex-col min-h-screen bg-background">
                 <TopNavigation />
                 <div className="flex-1">
-                  {children}
+                  <div className="container mx-auto px-4 py-8 max-w-6xl">
+                    {children}
+                  </div>
                 </div>
               </div>
             </main>
