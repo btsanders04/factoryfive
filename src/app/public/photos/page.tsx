@@ -166,6 +166,7 @@ const PhotosPage = () => {
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        unoptimized={true}
                       />
                     </div>
                   </div>
