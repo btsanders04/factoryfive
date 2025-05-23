@@ -23,6 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import InstallPrompt from "./InstallPrompt";
+import BuyMeCoffeeWidget from "./BuyMeCoffeeWidget";
 
 interface TopNavigationProps {
   isPublic?: boolean;
@@ -101,9 +102,12 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
                   <InstallPrompt />
                 </>
               ) : (
-                <div className="text-sm text-muted-foreground">
-                  <OAuthButton provider="google" type="sign-in"></OAuthButton>
-                </div>
+                <>
+                  <div className="text-sm text-muted-foreground">
+                    <OAuthButton provider="google" type="sign-in"></OAuthButton>
+                  </div>
+                  <BuyMeCoffeeWidget />
+                </>
               )}
               <div className="text-sm text-muted-foreground">
                 <p>© {new Date().getFullYear()} Brandon Sanders. All rights reserved.</p>
@@ -161,6 +165,7 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
                     </Link>
                   </li>
                 ))}
+
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
@@ -187,8 +192,9 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
           <div className="flex items-center justify-end gap-4">
             {!isMobile && (
               isPublic ? (
-                <div className="hidden md:block">
+                <div className="hidden md:flex items-center gap-4">
                   <OAuthButton provider="google" type="sign-in" />
+                  <BuyMeCoffeeWidget />
                 </div>
               ) : (
                 <UserButton />
