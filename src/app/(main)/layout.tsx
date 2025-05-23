@@ -1,8 +1,7 @@
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackServerApp } from "../../stack";
 import { ThemeWrapper } from "@/components/theme-wrapper";
-import { Sidebar } from "@/components/sidebar";
-import { MobileNavigation } from "@/components/mobile-navigation";
+import { TopNavigation } from "@/components/top-navigation";
 import { PdfViewerProvider } from "@/components/PdfViewerContext";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -18,16 +17,9 @@ export default function MainLayout({
           <PdfViewerProvider>
             {/* Main content area */}
             <main>
-              <div>
-                <div className="flex min-h-screen bg-background">
-                  {/* Desktop left sidebar - hidden on mobile */}
-                  <div className="hidden md:block w-64 border-l">
-                    <Sidebar />
-                  </div>
-                  {/* Mobile navigation - visible only on mobile */}
-                  <div className="md:hidden">
-                    <MobileNavigation />
-                  </div>
+              <div className="flex flex-col min-h-screen bg-background">
+                <TopNavigation />
+                <div className="flex-1">
                   {children}
                 </div>
               </div>
