@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Wrench, Hammer, Car, Gauge, Award, Shell, Fuel, CircleStop, LucideIcon, CarFront, LifeBuoy, Weight } from "lucide-react";
+import { Clock, Wrench, Hammer, Car, Gauge, Award, Shell, CarFront, LifeBuoy, Weight } from "lucide-react";
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { fetchPublicMetrics, type PublicMetrics } from '@/data/publicMetrics';
