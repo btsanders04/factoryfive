@@ -2,10 +2,51 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Wrench, Hammer, Car, Gauge, Award, Shell, Fuel, CircleStop } from "lucide-react";
+import { Clock, Wrench, Hammer, Car, Gauge, Award, Shell, Fuel, CircleStop, LucideIcon, CarFront, LifeBuoy, Weight } from "lucide-react";
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { fetchPublicMetrics, type PublicMetrics } from '@/data/publicMetrics';
+
+// Update item component for the latest updates section
+type ColorScheme = 'blue' | 'indigo' | 'purple' | 'emerald' | 'amber';
+
+interface UpdateItemProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  isLast?: boolean;
+  colorScheme?: ColorScheme;
+}
+
+function UpdateItem({ icon, title, description, isLast = false, colorScheme = 'blue' }: UpdateItemProps) {
+  const bgColorMap = {
+    blue: 'bg-blue-100 dark:bg-blue-900/30',
+    indigo: 'bg-indigo-100 dark:bg-indigo-900/30',
+    purple: 'bg-purple-100 dark:bg-purple-900/30',
+    emerald: 'bg-emerald-100 dark:bg-emerald-900/30',
+    amber: 'bg-amber-100 dark:bg-amber-900/30'
+  };
+  
+  const textColorMap = {
+    blue: 'text-blue-600 dark:text-blue-400',
+    indigo: 'text-indigo-600 dark:text-indigo-400',
+    purple: 'text-purple-600 dark:text-purple-400',
+    emerald: 'text-emerald-600 dark:text-emerald-400',
+    amber: 'text-amber-600 dark:text-amber-400'
+  };
+
+  return (
+    <div className={`flex items-start gap-3 ${!isLast ? 'pb-3 border-b border-gray-100 dark:border-gray-700' : ''}`}>
+      <div className={`${bgColorMap[colorScheme]} p-2 rounded-full`}>
+        <div className={`h-4 w-4 ${textColorMap[colorScheme]}`}>{icon}</div>
+      </div>
+      <div>
+        <h3 className="font-medium">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function PublicPage() {
   const [metrics, setMetrics] = useState<PublicMetrics>({
@@ -26,6 +67,35 @@ export default function PublicPage() {
     }
   });
   const [loading, setLoading] = useState(true);
+
+  // Latest updates data
+  const latestUpdates = [
+    {
+      icon: <Weight />,
+      title: "Cockpit Aluminum",
+      description: "Cokpit and footbox aluminum siliconed and riveted into place",
+      colorScheme: "emerald" as ColorScheme
+    },
+    {
+      icon: <LifeBuoy />,
+      title: "Steering Shaft",
+      description: "Steering rods attached to steering column",
+      colorScheme: "indigo" as ColorScheme
+    },
+    {
+      icon: <CarFront />,
+      title: "Pedal Box",
+      description: "Clutch, Brake, and Throttle all installed with master cylinders attached",
+      colorScheme: "purple" as ColorScheme
+    },
+    {
+      icon: <Shell />,
+      title: "IRS Assembly",
+      description: "Completed rear suspension installation",
+      colorScheme: "blue" as ColorScheme
+    }
+   
+  ];
 
   // Load metrics on component mount
   useEffect(() => {
@@ -55,8 +125,9 @@ export default function PublicPage() {
 
   return (
     <div className="space-y-8 px-4 py-6 max-w-7xl mx-auto">
-      <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-8 mb-12">
-        <div className="absolute inset-0 bg-black/30 z-0"></div>
+      <div className="relative rounded-xl overflow-hidden text-white p-8 mb-12">
+        <div className="absolute inset-0 bg-cover bg-center z-0" style={{ backgroundImage: "url('/images/background.JPEG')" }}></div>
+        <div className="absolute inset-0 bg-black/40 z-0"></div>
         <div className="relative z-10 flex flex-col items-center text-center space-y-6 py-8">
           <h1 className="text-5xl font-bold tracking-tight">Factory Five Mk5 Roadster Build</h1>
           <p className="text-xl text-blue-100 max-w-2xl">
@@ -145,33 +216,16 @@ This dashboard chronicles our family&apos;s journey as we transform boxes of par
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-4">
-              <div className="flex items-start gap-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-                  <Shell className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="font-medium">IRS Assembly</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Completed rear suspension installation</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-full">
-                  <Fuel className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <div>
-                  <h3 className="font-medium">Gas Tank</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Installed gas tank</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
-                  <CircleStop className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="font-medium">E-brake</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Assembled and installed emergency brake</p>
-                </div>
-              </div>
+              {latestUpdates.map((update, index) => (
+                <UpdateItem
+                  key={index}
+                  icon={update.icon}
+                  title={update.title}
+                  description={update.description}
+                  isLast={index === latestUpdates.length - 1}
+                  colorScheme={update.colorScheme}
+                />
+              ))}
             </div>
           </CardContent>
         </Card>
