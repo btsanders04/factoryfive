@@ -137,8 +137,41 @@ export default function PublicPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <Card className="col-span-full border-0 shadow-lg bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <Card className="col-span-full border-0 shadow-lg overflow-hidden bg-white dark:bg-gray-950">
+          <div className="flex flex-col md:flex-row">
+            <div className="md:w-3/5 lg:w-2/3 p-6 md:p-8">
+              <CardHeader className="px-0 pt-0">
+                <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                  <Hammer className="h-5 w-5 text-blue-600" />
+                  <span>About the Build</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 px-0 pb-0">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                My brother Jared, my dad Donnie, and I are bringing a dream to life—building a Factory Five MK5 Roadster, the ultimate modern tribute to the legendary 1965 Shelby Cobra.
+                </p>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                This dashboard chronicles our family&apos;s journey as we transform boxes of parts into a hand-built, high-performance roadster. Two generations working side-by-side, we&apos;re documenting every triumph and challenge—from that first exciting unboxing to the heart-pounding moment we fire up the engine for the first time.
+                </p>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                Follow along as we create more than just a car. We&apos;re building memories, sharing knowledge, and crafting our own piece of automotive history—one bolt at a time.
+                </p>
+              </CardContent>
+            </div>
+            <div className="md:w-2/5 lg:w-1/3 relative h-64 md:h-auto">
+              <Link href="/public/buildlog" className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 flex flex-col items-center justify-center transition-all hover:from-blue-600 hover:to-indigo-700">
+                <Car className="h-20 w-20 text-white/90 mb-2" />
+                <span className="text-white font-bold text-xl">Build Log</span>
+                <div className="mt-2 px-4 py-1.5 bg-white/20 rounded-full text-white/90 text-sm font-medium">
+                  View Timeline
+                </div>
+              </Link>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="col-span-full md:col-span-8 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl font-bold flex items-center gap-2">
               <Gauge className="h-6 w-6 text-blue-600" />
@@ -178,36 +211,8 @@ export default function PublicPage() {
             </div>
           </CardContent>
         </Card>
-
-        <Card className="col-span-full md:col-span-2 border-0 shadow-lg overflow-hidden">
-          <div className="flex flex-col md:flex-row">
-            <div className="md:w-1/2 relative h-64 md:h-auto cursor-pointer">
-              <Link href="/public/buildlog" className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 flex flex-col items-center justify-center transition-all hover:from-blue-600 hover:to-indigo-700">
-                <Car className="h-24 w-24 text-white/90 mb-3" />
-                <span className="text-white font-bold text-xl">Build Log</span>
-              </Link>
-            </div>
-            <div className="md:w-1/2 p-6">
-              <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                  <Hammer className="h-5 w-5 text-blue-600" />
-                  <span>About the Build</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 px-0 pb-0">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                My brother Jared, my dad Donnie, and I are bringing a dream to life—building a Factory Five MK5 Roadster, the ultimate modern tribute to the legendary 1965 Shelby Cobra.
-This dashboard chronicles our family&apos;s journey as we transform boxes of parts into a hand-built, high-performance roadster. Two generations working side-by-side, we&apos;re documenting every triumph and challenge—from that first exciting unboxing to the heart-pounding moment we fire up the engine for the first time.
-                </p>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                Follow along as we create more than just a car. We&apos;re building memories, sharing knowledge, and crafting our own piece of automotive history—one bolt at a time.
-                </p>
-              </CardContent>
-            </div>
-          </div>
-        </Card>
         
-        <Card className="col-span-full md:col-span-1 border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
+        <Card className="col-span-full md:col-span-4 border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
           <CardHeader>
             <CardTitle className="text-2xl font-bold flex items-center gap-2">
               <Clock className="h-5 w-5 text-indigo-600" />
