@@ -73,7 +73,7 @@ export default function PublicPage() {
     {
       icon: <Weight />,
       title: "Cockpit Aluminum",
-      description: "Cokpit and footbox aluminum siliconed and riveted into place",
+      description: "Cockpit and footbox aluminum siliconed and riveted into place",
       colorScheme: "emerald" as ColorScheme
     },
     {
