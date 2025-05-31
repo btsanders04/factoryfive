@@ -134,12 +134,13 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
               <NavigationMenuLink
                 className={cn(
                   navigationMenuTriggerStyle(),
+                  "md:px-2 lg:px-4",
                   pathname.includes(route.link) && "bg-accent text-accent-foreground"
                 )}
               >
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-1 lg:gap-2">
                   {route.icon}
-                  {route.name}
+                  <span className="md:text-sm lg:text-base">{route.name}</span>
                 </span>
               </NavigationMenuLink>
             </Link>
@@ -188,17 +189,19 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
           </div>
           
           {/* Center the desktop navigation */}
-          <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2">
+          <div className="hidden md:flex md:justify-center md:flex-1 md:relative">
             <DesktopNav />
           </div>
           
           {/* Right side items */}
-          <div className="flex items-center justify-end gap-4">
+          <div className="flex items-center justify-end gap-2 lg:gap-4 min-w-[120px] md:min-w-[180px]">
             {!isMobile && (
               isPublic ? (
-                <div className="hidden md:flex items-center gap-4">
-                  <OAuthButton provider="google" type="sign-in" />
-                  <BuyMeCoffeeWidget />
+                <div className="hidden md:flex items-center gap-2 lg:gap-4">
+                  <div className="text-xs sm:text-sm">
+                    <OAuthButton provider="google" type="sign-in" />
+                  </div>
+                  <BuyMeCoffeeWidget size="small" className="hidden lg:block" />
                 </div>
               ) : (
                 <UserButton />
