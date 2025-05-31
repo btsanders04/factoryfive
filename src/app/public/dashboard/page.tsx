@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Wrench, Hammer, Car, Gauge, Award, Shell, CarFront, LifeBuoy, Weight } from "lucide-react";
+import { Clock, Wrench, Hammer, Car, Gauge, Award, Shell, CarFront, LifeBuoy, Weight, Book } from "lucide-react";
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { fetchPublicMetrics, type PublicMetrics } from '@/data/publicMetrics';
@@ -159,14 +159,24 @@ export default function PublicPage() {
                 </p>
               </CardContent>
             </div>
-            <div className="md:w-2/5 lg:w-1/3 relative h-64 md:h-auto">
-              <Link href="/public/buildlog" className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 flex flex-col items-center justify-center transition-all hover:from-blue-600 hover:to-indigo-700">
-                <Car className="h-20 w-20 text-white/90 mb-2" />
-                <span className="text-white font-bold text-xl">Build Log</span>
-                <div className="mt-2 px-4 py-1.5 bg-white/20 rounded-full text-white/90 text-sm font-medium">
-                  View Timeline
-                </div>
-              </Link>
+            <div className="md:w-2/5 lg:w-1/3 relative h-64 md:h-auto overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 z-0"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 h-full relative z-10">
+                <Link href="/public/buildlog" className="relative flex flex-col items-center justify-center transition-all hover:bg-blue-600/20">
+                  <Car className="h-16 w-16 text-white/90 mb-2" />
+                  <span className="text-white font-bold text-lg">Build Log</span>
+                  <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-sm font-medium">
+                    View Timeline
+                  </div>
+                </Link>
+                <Link href="/public/guestbook" className="relative flex flex-col items-center justify-center transition-all hover:bg-indigo-600/20">
+                  <Book className="h-16 w-16 text-white/90 mb-2" />
+                  <span className="text-white font-bold text-lg">Guest Book</span>
+                  <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-sm font-medium">
+                    Sign & View
+                  </div>
+                </Link>
+              </div>
             </div>
           </div>
         </Card>
