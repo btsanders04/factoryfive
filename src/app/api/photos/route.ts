@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       headers,
       body: body,
       next: {
-        revalidate: 3600,
+        revalidate: 86400,
       },
     });
 

@@ -35,6 +35,9 @@ export async function GET(
           "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
         "accept-language": "en-US,en;q=0.9",
         cookie: cookies,
+      },
+      next: {
+        revalidate: 86400,
       }
     };
 
