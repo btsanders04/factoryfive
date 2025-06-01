@@ -159,20 +159,20 @@ export default function PublicPage() {
                 </p>
               </CardContent>
             </div>
-            <div className="md:w-2/5 lg:w-1/3 relative h-64 md:h-auto overflow-hidden">
+            <div className="md:w-2/5 lg:w-1/3 relative h-auto min-h-[200px] md:h-auto overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 z-0"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 h-full relative z-10">
-                <Link href="/public/buildlog" className="relative flex flex-col items-center justify-center transition-all hover:bg-blue-600/20">
-                  <Car className="h-16 w-16 text-white/90 mb-2" />
-                  <span className="text-white font-bold text-lg">Build Log</span>
-                  <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-sm font-medium">
+              <div className="flex flex-row h-full relative z-10">
+                <Link href="/public/buildlog" className="relative flex-1 flex flex-col items-center justify-center py-6 md:py-0 transition-all hover:bg-blue-600/20 border-r border-white/10">
+                  <Car className="h-12 w-12 sm:h-16 sm:w-16 text-white/90 mb-2" />
+                  <span className="text-white font-bold text-base sm:text-lg">Build Log</span>
+                  <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-xs sm:text-sm font-medium">
                     View Timeline
                   </div>
                 </Link>
-                <Link href="/public/guestbook" className="relative flex flex-col items-center justify-center transition-all hover:bg-indigo-600/20">
-                  <Book className="h-16 w-16 text-white/90 mb-2" />
-                  <span className="text-white font-bold text-lg">Guest Book</span>
-                  <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-sm font-medium">
+                <Link href="/public/guestbook" className="relative flex-1 flex flex-col items-center justify-center py-6 md:py-0 transition-all hover:bg-indigo-600/20">
+                  <Book className="h-12 w-12 sm:h-16 sm:w-16 text-white/90 mb-2" />
+                  <span className="text-white font-bold text-base sm:text-lg">Guest Book</span>
+                  <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-xs sm:text-sm font-medium">
                     Sign & View
                   </div>
                 </Link>

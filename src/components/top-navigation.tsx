@@ -107,10 +107,10 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
                 </>
               ) : (
                 <>
+                  <BuyMeCoffeeWidget />
                   <div className="text-sm text-muted-foreground">
                     <OAuthButton provider="google" type="sign-in"></OAuthButton>
                   </div>
-                  <BuyMeCoffeeWidget />
                 </>
               )}
               <div className="text-sm text-muted-foreground">
@@ -198,10 +198,10 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
             {!isMobile && (
               isPublic ? (
                 <div className="hidden md:flex items-center gap-2 lg:gap-4">
-                  <div className="text-xs sm:text-sm">
+                  <BuyMeCoffeeWidget size="small" />
+                  <div className="text-xs sm:text-sm hidden lg:block">
                     <OAuthButton provider="google" type="sign-in" />
                   </div>
-                  <BuyMeCoffeeWidget size="small" className="hidden lg:block" />
                 </div>
               ) : (
                 <UserButton />
