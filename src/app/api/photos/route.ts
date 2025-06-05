@@ -52,6 +52,8 @@ export interface PaginatedPhotosResponse {
 
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   // Get query parameters from the request URL
   const url = new URL(request.url);
@@ -80,6 +82,7 @@ export async function GET(request: NextRequest) {
       method: "POST",
       headers,
       body: body,
+      cache: 'force-cache',
       next: {
         revalidate: 604800,
         tags: ['photos-list'],
@@ -108,7 +111,8 @@ export async function GET(request: NextRequest) {
 
     // Return the response with cache headers
     const apiResponse = NextResponse.json(paginatedResponse);
-    apiResponse.headers.set('Cache-Control', 'public, s-maxage=604800, stale-while-revalidate=302400');
+    apiResponse.headers.set('Cache-Control', 'public, s-maxage=604800, stale-while-revalidate=302400, immutable');
+    apiResponse.headers.set('cdn-cache-control', 'public, max-age=604800');
     return apiResponse;
   } catch (error) {
     console.error("Error fetching from Synology Foto API:", error);

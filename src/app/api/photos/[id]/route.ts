@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 const getRandomNumber = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -36,6 +38,7 @@ export async function GET(
         "accept-language": "en-US,en;q=0.9",
         cookie: cookies,
       },
+      cache: 'force-cache',
       next: {
         revalidate: 604800,
         tags: ['photo-item', `photo-${id}`],
@@ -82,7 +85,9 @@ export async function GET(
           newResponse.headers.set("content-type", "image/jpeg");
         }
         // Add cache control headers to improve performance
-        newResponse.headers.set("cache-control", "public, max-age=604800, stale-while-revalidate=302400");
+        // Set strong cache headers
+        newResponse.headers.set("cache-control", "public, max-age=604800, stale-while-revalidate=302400, immutable");
+        newResponse.headers.set("cdn-cache-control", "public, max-age=604800");
         return newResponse;
       } catch (error) {
         console.error("Error reading binary response:", error);
