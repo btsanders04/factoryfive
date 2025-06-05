@@ -81,7 +81,8 @@ export async function GET(request: NextRequest) {
       headers,
       body: body,
       next: {
-        revalidate: 86400,
+        revalidate: 604800,
+        tags: ['photos-list'],
       },
     });
 
@@ -105,8 +106,10 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    // Return the response
-    return NextResponse.json(paginatedResponse);
+    // Return the response with cache headers
+    const apiResponse = NextResponse.json(paginatedResponse);
+    apiResponse.headers.set('Cache-Control', 'public, s-maxage=604800, stale-while-revalidate=302400');
+    return apiResponse;
   } catch (error) {
     console.error("Error fetching from Synology Foto API:", error);
 

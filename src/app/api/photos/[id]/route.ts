@@ -37,7 +37,8 @@ export async function GET(
         cookie: cookies,
       },
       next: {
-        revalidate: 86400,
+        revalidate: 604800,
+        tags: ['photo-item', `photo-${id}`],
       }
     };
 
@@ -81,7 +82,7 @@ export async function GET(
           newResponse.headers.set("content-type", "image/jpeg");
         }
         // Add cache control headers to improve performance
-        newResponse.headers.set("cache-control", "public, max-age=3600");
+        newResponse.headers.set("cache-control", "public, max-age=604800, stale-while-revalidate=302400");
         return newResponse;
       } catch (error) {
         console.error("Error reading binary response:", error);
