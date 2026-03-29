@@ -71,6 +71,12 @@ export default function PublicPage() {
   // Latest updates data
   const latestUpdates = [
     {
+      icon: <Award />,
+      title: "Engine Turned On",
+      description: "Completed first engine startup and brought the Roadster to life",
+      colorScheme: "amber" as ColorScheme
+    },
+    {
       icon: <Weight />,
       title: "Cockpit Aluminum",
       description: "Cockpit and footbox aluminum siliconed and riveted into place",
@@ -159,23 +165,35 @@ export default function PublicPage() {
                 </p>
               </CardContent>
             </div>
-            <div className="md:w-2/5 lg:w-1/3 relative h-auto min-h-[200px] md:h-auto overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 z-0"></div>
-              <div className="flex flex-row h-full relative z-10">
-                <Link href="/public/buildlog" className="relative flex-1 flex flex-col items-center justify-center py-6 md:py-0 transition-all hover:bg-blue-600/20 border-r border-white/10">
-                  <Car className="h-12 w-12 sm:h-16 sm:w-16 text-white/90 mb-2" />
-                  <span className="text-white font-bold text-base sm:text-lg">Build Log</span>
-                  <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-xs sm:text-sm font-medium">
-                    View Timeline
+            <div className="md:w-2/5 lg:w-1/3 relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 p-4 sm:p-5">
+              <div className="relative z-10 flex h-full flex-col gap-4">
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
+                  <div className="aspect-[9/16] w-full">
+                    <iframe
+                      className="h-full w-full"
+                      src="https://www.youtube.com/embed/8SuuGKwHGGU?rel=0"
+                      title="Factory Five Mk5 Roadster success video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
                   </div>
-                </Link>
-                <Link href="/public/guestbook" className="relative flex-1 flex flex-col items-center justify-center py-6 md:py-0 transition-all hover:bg-indigo-600/20">
-                  <Book className="h-12 w-12 sm:h-16 sm:w-16 text-white/90 mb-2" />
-                  <span className="text-white font-bold text-base sm:text-lg">Guest Book</span>
-                  <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-white/90 text-xs sm:text-sm font-medium">
-                    Sign & View
-                  </div>
-                </Link>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Link href="/public/buildlog" className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-4 py-5 text-center transition-all hover:bg-white/15">
+                    <Car className="mb-2 h-10 w-10 text-white/90" />
+                    <span className="text-white font-bold text-sm sm:text-base">Build Log</span>
+                    <div className="mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white/90 sm:text-sm">
+                      View Timeline
+                    </div>
+                  </Link>
+                  <Link href="/public/guestbook" className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-4 py-5 text-center transition-all hover:bg-white/15">
+                    <Book className="mb-2 h-10 w-10 text-white/90" />
+                    <span className="text-white font-bold text-sm sm:text-base">Guest Book</span>
+                    <div className="mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white/90 sm:text-sm">
+                      Sign & View
+                    </div>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
