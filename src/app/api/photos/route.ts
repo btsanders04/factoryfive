@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
   // Set up the request to Synology Foto API
   const apiUrl = `https://${process.env.SYNOLOGY_HOST}/webapi/entry.cgi`;
 
-  const body = `api=SYNO.Foto.Browse.Item&method=list&version=4&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%2C%22provider_user_id%22%5D&offset=${offset}&limit=${limit}&sort_by=%22takentime%22&sort_direction=%22asc%22&passphrase=%22${process.env.SYNOLOGY_PASSKEY}%22`;
+  const body = `api=SYNO.Foto.Browse.Item&method=list&version=4&additional=%5B%22thumbnail%22%2C%22resolution%22%2C%22orientation%22%2C%22video_convert%22%2C%22video_meta%22%2C%22provider_user_id%22%5D&offset=${offset}&limit=${limit}&sort_by=%22takentime%22&sort_direction=%22desc%22&passphrase=%22${process.env.SYNOLOGY_PASSKEY}%22`;
 
   // Set headers
   const headers = {
