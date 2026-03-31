@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Wrench, Hammer, Car, Gauge, Award, Shell, CarFront, LifeBuoy, Weight, Book } from "lucide-react";
+import { Award, Battery, Book, Car, Cable, Clock, Gauge, GaugeCircle, PlugZap, Wrench } from "lucide-react";
 import Link from "next/link";
 import { Progress } from "@/components/ui/progress";
 import { fetchPublicMetrics, type PublicMetrics } from '@/data/publicMetrics';
 
-// Update item component for the latest updates section
 type ColorScheme = 'blue' | 'indigo' | 'purple' | 'emerald' | 'amber';
 
 interface UpdateItemProps {
@@ -16,33 +15,31 @@ interface UpdateItemProps {
   description: string;
   isLast?: boolean;
   colorScheme?: ColorScheme;
+  highlight?: boolean;
 }
 
-function UpdateItem({ icon, title, description, isLast = false, colorScheme = 'blue' }: UpdateItemProps) {
-  const bgColorMap = {
-    blue: 'bg-blue-100 dark:bg-blue-900/30',
-    indigo: 'bg-indigo-100 dark:bg-indigo-900/30',
-    purple: 'bg-purple-100 dark:bg-purple-900/30',
-    emerald: 'bg-emerald-100 dark:bg-emerald-900/30',
-    amber: 'bg-amber-100 dark:bg-amber-900/30'
-  };
-  
-  const textColorMap = {
-    blue: 'text-blue-600 dark:text-blue-400',
-    indigo: 'text-indigo-600 dark:text-indigo-400',
-    purple: 'text-purple-600 dark:text-purple-400',
-    emerald: 'text-emerald-600 dark:text-emerald-400',
-    amber: 'text-amber-600 dark:text-amber-400'
+function UpdateItem({ icon, title, description, isLast = false, colorScheme = 'blue', highlight = false }: UpdateItemProps) {
+  const accentMap = {
+    blue: 'bg-[rgba(55,86,132,0.22)] text-[hsl(var(--secondary))]',
+    indigo: 'bg-[rgba(72,68,120,0.26)] text-[hsl(var(--secondary))]',
+    purple: 'bg-[rgba(89,67,109,0.26)] text-[hsl(var(--secondary))]',
+    emerald: 'bg-[rgba(38,83,77,0.26)] text-[hsl(var(--secondary))]',
+    amber: 'bg-[rgba(104,78,38,0.28)] text-[#E31837]',
   };
 
   return (
-    <div className={`flex items-start gap-3 ${!isLast ? 'pb-3 border-b border-gray-100 dark:border-gray-700' : ''}`}>
-      <div className={`${bgColorMap[colorScheme]} p-2 rounded-full`}>
-        <div className={`h-4 w-4 ${textColorMap[colorScheme]}`}>{icon}</div>
-      </div>
-      <div>
-        <h3 className="font-medium">{title}</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+    <div className={`rounded-sm px-4 py-4 ${highlight ? 'bg-[linear-gradient(135deg,rgba(227,24,55,0.14),rgba(19,27,46,0.9))]' : 'bg-[rgba(19,27,46,0.82)]'} ${!isLast ? 'mb-3' : ''}`}>
+      <div className="flex items-start gap-4">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-sm ${accentMap[colorScheme]}`}>
+          <div className="h-4 w-4">{icon}</div>
+        </div>
+        <div className="space-y-1">
+          {highlight && (
+            <p className="eyebrow-label text-[0.5rem] text-[#E31837]">Redline Moment</p>
+          )}
+          <h3 className={`font-[var(--font-display)] text-lg uppercase ${highlight ? 'text-[#ff6b81]' : 'text-foreground'}`}>{title}</h3>
+          <p className="text-sm leading-6 text-[hsl(var(--muted-foreground))]">{description}</p>
+        </div>
       </div>
     </div>
   );
@@ -68,42 +65,39 @@ export default function PublicPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  // Latest updates data
   const latestUpdates = [
     {
       icon: <Award />,
       title: "Engine Turned On",
-      description: "Completed first engine startup and brought the Roadster to life",
+      description: "Completed first engine startup and brought the Roadster to life.",
       colorScheme: "amber" as ColorScheme
     },
     {
-      icon: <Weight />,
-      title: "Cockpit Aluminum",
-      description: "Cockpit and footbox aluminum siliconed and riveted into place",
+      icon: <GaugeCircle />,
+      title: "Brakes Bled",
+      description: "The brake system has been fully bled and is ready to go.",
       colorScheme: "emerald" as ColorScheme
     },
     {
-      icon: <LifeBuoy />,
-      title: "Steering Shaft",
-      description: "Steering rods attached to steering column",
+      icon: <PlugZap />,
+      title: "Wiring Harness Hooked Up",
+      description: "The main wiring harness is hooked up and the electrical system is coming together.",
       colorScheme: "indigo" as ColorScheme
     },
     {
-      icon: <CarFront />,
-      title: "Pedal Box",
-      description: "Clutch, Brake, and Throttle all installed with master cylinders attached",
+      icon: <Battery />,
+      title: "Battery and Manual Disconnect Installed",
+      description: "The battery is in place and the manual disconnect has been installed.",
       colorScheme: "purple" as ColorScheme
     },
     {
-      icon: <Shell />,
-      title: "IRS Assembly",
-      description: "Completed rear suspension installation",
+      icon: <Cable />,
+      title: "Throttle Cable Attached",
+      description: "The throttle cable is attached and connected up.",
       colorScheme: "blue" as ColorScheme
     }
-   
   ];
 
-  // Load metrics on component mount
   useEffect(() => {
     async function loadData() {
       try {
@@ -115,197 +109,222 @@ export default function PublicPage() {
         setLoading(false);
       }
     }
-    
+
     loadData();
   }, []);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <div className="text-center">
-          <p>Loading build statistics...</p>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="app-card px-6 py-5 text-center">
+          <p className="eyebrow-label text-[0.62rem] text-secondary">Initializing Dashboard</p>
+          <p className="mt-3 text-sm text-[hsl(var(--muted-foreground))]">Loading build statistics...</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-8 px-4 py-6 max-w-7xl mx-auto">
-      <div className="relative rounded-xl overflow-hidden text-white p-8 mb-12">
-        <div className="absolute inset-0 bg-cover bg-center z-0" style={{ backgroundImage: "url('/images/background.JPEG')" }}></div>
-        <div className="absolute inset-0 bg-black/40 z-0"></div>
-        <div className="relative z-10 flex flex-col items-center text-center space-y-6 py-8">
-          <h1 className="text-5xl font-bold tracking-tight">Factory Five Mk5 Roadster Build</h1>
-          <p className="text-xl text-blue-100 max-w-2xl">
-            Follow along with our journey building a Factory Five MK5 Roadster
-          </p>
-          <div className="w-24 h-1 bg-blue-400 rounded-full mt-2"></div>
-        </div>
-      </div>
+  const completion = Math.round(metrics.taskProgress.overallProgress);
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <Card className="col-span-full border-0 shadow-lg overflow-hidden bg-white dark:bg-gray-950">
-          <div className="flex flex-col md:flex-row">
-            <div className="md:w-3/5 lg:w-2/3 p-6 md:p-8">
-              <CardHeader className="px-0 pt-0">
-                <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                  <Hammer className="h-5 w-5 text-blue-600" />
-                  <span>About the Build</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 px-0 pb-0">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                My brother Jared, my dad Donnie, and I are bringing a dream to life—building a Factory Five MK5 Roadster, the ultimate modern tribute to the legendary 1965 Shelby Cobra.
-                </p>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                This dashboard chronicles our family&apos;s journey as we transform boxes of parts into a hand-built, high-performance roadster. Two generations working side-by-side, we&apos;re documenting every triumph and challenge—from that first exciting unboxing to the heart-pounding moment we fire up the engine for the first time.
-                </p>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                Follow along as we create more than just a car. We&apos;re building memories, sharing knowledge, and crafting our own piece of automotive history—one bolt at a time.
-                </p>
-              </CardContent>
-            </div>
-            <div className="md:w-2/5 lg:w-1/3 relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 p-4 sm:p-5">
-              <div className="relative z-10 flex h-full flex-col gap-4">
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
-                  <div className="aspect-[9/16] w-full">
-                    <iframe
-                      className="h-full w-full"
-                      src="https://www.youtube.com/embed/8SuuGKwHGGU?rel=0"
-                      title="Factory Five Mk5 Roadster success video"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
+  return (
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-2 py-4 text-foreground sm:px-4">
+      <section>
+        <Card className="app-section overflow-hidden">
+          <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="relative p-6 sm:p-8">
+              <div
+                className="absolute inset-0 opacity-20"
+                style={{
+                  backgroundImage: "url('/images/background.JPEG')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center"
+                }}
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,19,38,0.82),rgba(11,19,38,0.98))]" />
+              <div className="relative z-10 flex h-full flex-col justify-between gap-10">
+                <div className="space-y-5">
+                  <p className="eyebrow-label text-[0.68rem] text-secondary">Shelby Cobra Engineering</p>
+                  <div className="max-w-2xl space-y-4">
+                    <h1 className="text-4xl font-semibold uppercase leading-none text-foreground sm:text-6xl">
+                      Factory Five
+                      <br />
+                      Mk5 Roadster
+                      <br />
+                      Build
+                    </h1>
+                    <div className="max-w-2xl space-y-4 text-sm leading-7 text-[hsl(var(--muted-foreground))] sm:text-base">
+                      <p>
+                        My brother Jared, my dad Donnie, and I are bringing a dream to life building a Factory Five MK5 Roadster, the ultimate modern tribute to the legendary 1965 Shelby Cobra.
+                      </p>
+                      <p>
+                        This dashboard chronicles our family&apos;s journey as we transform boxes of parts into a hand-built, high-performance roadster. Two generations working side-by-side, we&apos;re documenting every triumph and challenge from that first exciting unboxing to the heart-pounding moment we fire up the engine for the first time.
+                      </p>
+                      <p>
+                        Follow along as we create more than just a car. We&apos;re building memories, sharing knowledge, and crafting our own piece of automotive history one bolt at a time.
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Link href="/public/buildlog" className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-4 py-5 text-center transition-all hover:bg-white/15">
-                    <Car className="mb-2 h-10 w-10 text-white/90" />
-                    <span className="text-white font-bold text-sm sm:text-base">Build Log</span>
-                    <div className="mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white/90 sm:text-sm">
-                      View Timeline
+
+                <div className="grid gap-4 sm:grid-cols-[0.95fr_1.05fr]">
+                  <div className="app-card p-4 sm:p-5">
+                    <p className="eyebrow-label mb-3 text-[0.62rem] text-secondary">Dialed In</p>
+                    <div className="mb-3 flex items-end justify-between gap-4">
+                      <div>
+                        <div className="font-[var(--font-display)] text-5xl leading-none text-[hsl(var(--secondary))]">
+                          {completion}
+                        </div>
+                        <div className="mt-2 text-xs uppercase tracking-[0.28em] text-[hsl(var(--muted-foreground))]">
+                          Percent Complete
+                        </div>
+                      </div>
+                      <Gauge className="h-10 w-10 text-[#E31837]" />
                     </div>
-                  </Link>
-                  <Link href="/public/guestbook" className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-4 py-5 text-center transition-all hover:bg-white/15">
-                    <Book className="mb-2 h-10 w-10 text-white/90" />
-                    <span className="text-white font-bold text-sm sm:text-base">Guest Book</span>
-                    <div className="mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white/90 sm:text-sm">
-                      Sign & View
+                    <div className="progress-metal rounded-sm bg-[rgba(49,57,77,0.65)] p-[3px]">
+                      <Progress
+                        value={completion}
+                        className="h-2 rounded-none bg-[rgba(11,19,38,0.9)] [&>div]:bg-[linear-gradient(90deg,#c0c0c2,#8893a8)]"
+                      />
                     </div>
-                  </Link>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Link href="/public/buildlog" className="glass-panel flex items-center justify-between rounded-sm px-4 py-4 transition-transform hover:-translate-y-0.5">
+                      <div>
+                        <p className="eyebrow-label text-[0.58rem] text-[hsl(var(--muted-foreground))]">Timeline</p>
+                        <p className="mt-2 font-[var(--font-display)] text-xl uppercase text-foreground">Build Log</p>
+                      </div>
+                      <Car className="h-7 w-7 text-[hsl(var(--secondary))]" />
+                    </Link>
+                    <Link href="/public/guestbook" className="glass-panel flex items-center justify-between rounded-sm px-4 py-4 transition-transform hover:-translate-y-0.5">
+                      <div>
+                        <p className="eyebrow-label text-[0.58rem] text-[hsl(var(--muted-foreground))]">Community</p>
+                        <p className="mt-2 font-[var(--font-display)] text-xl uppercase text-foreground">Guest Book</p>
+                      </div>
+                      <Book className="h-7 w-7 text-[hsl(var(--secondary))]" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 bg-[linear-gradient(180deg,rgba(39,10,18,0.92),rgba(10,18,34,0.96))] p-4 sm:p-5">
+              <div className="space-y-2">
+                <p className="eyebrow-label text-[0.62rem] text-[#E31837]">Pinnacle Moment</p>
+                <h2 className="text-2xl uppercase text-foreground">Engine Ignition</h2>
+              </div>
+              <div className="overflow-hidden rounded-sm bg-black shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
+                <div className="aspect-[9/16] w-full">
+                  <iframe
+                    className="h-full w-full"
+                    src="https://www.youtube.com/embed/8SuuGKwHGGU?rel=0"
+                    title="Factory Five Mk5 Roadster success video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
                 </div>
               </div>
             </div>
           </div>
         </Card>
+      </section>
 
-        <Card className="col-span-full md:col-span-8 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              <Gauge className="h-6 w-6 text-blue-600" />
-              <span>Build Progress</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Overall Completion</span>
-                <span className="text-sm font-bold">{Math.round(metrics.taskProgress.overallProgress)}%</span>
-              </div>
-              <Progress value={Math.round(metrics.taskProgress.overallProgress)} className="h-2" />
+      <section className="grid gap-6">
+        <Card className="app-section overflow-hidden">
+          <div className="grid gap-0 md:grid-cols-[0.8fr_1.2fr]">
+            <div className="p-6 sm:p-8">
+              <p className="eyebrow-label text-[0.62rem] text-secondary">Build Performance Overview</p>
+              <h2 className="mt-3 text-3xl uppercase text-foreground">Spec HUD</h2>
+              <p className="mt-4 max-w-md text-sm leading-7 text-[hsl(var(--muted-foreground))]">
+                A quick look at the numbers that show how far the build has come and how much work has gone into it.
+              </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <StatCard 
-                title="Hours Worked" 
-                value={metrics.hoursWorked} 
-                icon={<Clock className="text-blue-600" size={24} />}
+            <div className="grid gap-px bg-[rgba(49,57,77,0.35)] p-px sm:grid-cols-3">
+              <StatCard
+                title="Hours Worked"
+                value={metrics.hoursWorked}
+                icon={<Clock className="text-[hsl(var(--secondary))]" size={22} />}
                 unit="hrs"
                 color="blue"
               />
-              <StatCard 
-                title="Parts Installed" 
-                value={metrics.partsInstalled} 
-                icon={<Wrench className="text-indigo-600" size={24} />}
+              <StatCard
+                title="Parts Installed"
+                value={metrics.partsInstalled}
+                icon={<Wrench className="text-[hsl(var(--secondary))]" size={22} />}
                 secondaryText={`of ${metrics.totalParts} total parts`}
                 color="indigo"
               />
-              <StatCard 
-                title="Tasks Completed" 
-                value={metrics.taskProgress.completedTasks} 
-                icon={<Award className="text-emerald-600" size={24} />}
+              <StatCard
+                title="Tasks Completed"
+                value={metrics.taskProgress.completedTasks}
+                icon={<Award className="text-[hsl(var(--secondary))]" size={22} />}
                 secondaryText={`of ${metrics.taskProgress.totalTasks} total tasks`}
                 color="emerald"
               />
             </div>
-          </CardContent>
+          </div>
         </Card>
-        
-        <Card className="col-span-full md:col-span-4 border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              <Clock className="h-5 w-5 text-indigo-600" />
-              <span>Latest Updates</span>
+
+        <Card className="app-card p-6 sm:p-8">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle className="flex items-center gap-3 text-2xl uppercase text-foreground">
+              <Clock className="h-5 w-5 text-[hsl(var(--secondary))]" />
+              Latest Technical Updates
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              {latestUpdates.map((update, index) => (
-                <UpdateItem
-                  key={index}
-                  icon={update.icon}
-                  title={update.title}
-                  description={update.description}
-                  isLast={index === latestUpdates.length - 1}
-                  colorScheme={update.colorScheme}
-                />
-              ))}
-            </div>
+          <CardContent className="px-0 pb-0 pt-6">
+            {latestUpdates.map((update, index) => (
+              <UpdateItem
+                key={index}
+                icon={update.icon}
+                title={update.title}
+                description={update.description}
+                isLast={index === latestUpdates.length - 1}
+                colorScheme={update.colorScheme}
+                highlight={index === 0}
+              />
+            ))}
           </CardContent>
         </Card>
-
-
-
-
-      </div>
+      </section>
     </div>
   );
 }
 
-// Enhanced stat card component
-function StatCard({ 
-  title, 
-  value, 
-  icon, 
-  unit, 
+function StatCard({
+  title,
+  value,
+  icon,
+  unit,
   secondaryText,
   color = 'blue'
-}: { 
-  title: string; 
-  value: number; 
-  icon: React.ReactNode; 
+}: {
+  title: string;
+  value: number;
+  icon: React.ReactNode;
   unit?: string;
   secondaryText?: string;
   color?: 'blue' | 'indigo' | 'purple' | 'emerald';
 }) {
   const colorClasses = {
-    blue: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800/30',
-    indigo: 'from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border-indigo-200 dark:border-indigo-800/30',
-    purple: 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800/30',
-    emerald: 'from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200 dark:border-emerald-800/30'
+    blue: 'bg-[rgba(19,27,46,0.96)]',
+    indigo: 'bg-[rgba(24,33,52,0.96)]',
+    purple: 'bg-[rgba(31,38,57,0.96)]',
+    emerald: 'bg-[rgba(18,29,43,0.96)]'
   };
-  
+
   return (
-    <div className={`rounded-xl border bg-gradient-to-br ${colorClasses[color]} p-5 shadow-sm`}>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-medium text-gray-700 dark:text-gray-200">{title}</h3>
+    <div className={`p-5 ${colorClasses[color]}`}>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="eyebrow-label text-[0.58rem] text-[hsl(var(--muted-foreground))]">{title}</h3>
         <div>{icon}</div>
       </div>
       <div className="flex flex-col">
-        <div className="text-3xl font-bold">
+        <div className="font-[var(--font-display)] text-4xl font-semibold text-foreground">
           {value.toLocaleString()}{unit ? ` ${unit}` : ''}
         </div>
         {secondaryText && (
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <div className="mt-2 text-xs uppercase tracking-[0.2em] text-[hsl(var(--muted-foreground))]">
             {secondaryText}
           </div>
         )}

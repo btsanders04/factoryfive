@@ -102,28 +102,50 @@ export default function GuestbookPage() {
   // No longer using random effects for entries
 
   return (
-    <div className="space-y-8 px-4 py-6 max-w-7xl mx-auto">
-      <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-8 mb-12">
-        <div className="absolute inset-0 bg-black/30 z-0"></div>
-        <div className="relative z-10 flex flex-col items-center text-center space-y-6 py-8">
-          <h1 className="text-5xl font-bold tracking-tight">Visitor Guestbook</h1>
-          <p className="text-xl text-blue-100 max-w-2xl">
-            We&apos;re glad you are here! Sign our guestbook and be a part of the journey.
-          </p>
-          <div className="w-24 h-1 bg-blue-400 rounded-full mt-2"></div>
-        </div>
-      </div>
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-2 py-4 sm:px-4">
+      <section>
+        <Card className="app-section overflow-hidden">
+          <div className="relative p-6 sm:p-8">
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: "url('/images/background.JPEG')",
+                backgroundSize: "cover",
+                backgroundPosition: "center"
+              }}
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,19,38,0.82),rgba(11,19,38,0.98))]" />
+            <div className="relative z-10 max-w-3xl space-y-5">
+              <p className="eyebrow-label text-[0.68rem] text-secondary">Visitor Log</p>
+              <h1 className="text-4xl font-semibold uppercase leading-none text-foreground sm:text-6xl">
+                Guestbook
+                <br />
+                Entries
+              </h1>
+              <p className="max-w-2xl text-sm leading-7 text-[hsl(var(--muted-foreground))] sm:text-base">
+                Sign the build ledger, leave a note, and mark that you were here for the roadster&apos;s progress.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Sign Guestbook Form */}
-        <Card className="md:col-span-1 border-0 shadow-lg bg-gradient-to-br from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              <Pencil className="h-5 w-5 text-blue-600" />
+        <Card className="app-card md:col-span-1 p-6">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle className="flex items-center gap-2 text-2xl uppercase text-foreground">
+              <Pencil className="h-5 w-5 text-[hsl(var(--secondary))]" />
               <span>Sign Our Guestbook</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0 pb-0">
+            <div className="mb-6 rounded-sm bg-[rgba(19,27,46,0.82)] px-4 py-4">
+              <p className="eyebrow-label text-[0.58rem] text-secondary">Current Visitor Count</p>
+              <div className="mt-3 font-[var(--font-display)] text-4xl leading-none text-[hsl(var(--secondary))]">
+                {entries.length}
+              </div>
+            </div>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -131,9 +153,13 @@ export default function GuestbookPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Your Name</FormLabel>
+                      <FormLabel className="eyebrow-label text-[0.58rem] text-secondary">Your Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your name" {...field} />
+                        <Input
+                          placeholder="Enter your name"
+                          className="rounded-sm border-0 bg-[rgba(19,27,46,0.9)] text-foreground placeholder:text-[hsl(var(--muted-foreground))] focus-visible:ring-1 focus-visible:ring-[hsl(var(--secondary))]"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -144,11 +170,11 @@ export default function GuestbookPage() {
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Message (Optional)</FormLabel>
+                      <FormLabel className="eyebrow-label text-[0.58rem] text-secondary">Message (Optional)</FormLabel>
                       <FormControl>
                         <Textarea 
                           placeholder="Leave a quick note..." 
-                          className="resize-none" 
+                          className="resize-none rounded-sm border-0 bg-[rgba(19,27,46,0.9)] text-foreground placeholder:text-[hsl(var(--muted-foreground))] focus-visible:ring-1 focus-visible:ring-[hsl(var(--secondary))]" 
                           {...field} 
                         />
                       </FormControl>
@@ -158,7 +184,7 @@ export default function GuestbookPage() {
                 />
                 <Button 
                   type="submit" 
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full rounded-sm border-0 bg-[rgba(34,42,61,0.96)] font-[var(--font-display)] text-sm uppercase tracking-[0.12em] text-[hsl(var(--secondary))] shadow-none shadow-[inset_3px_0_0_#E31837] hover:bg-[rgba(49,57,77,0.96)] hover:text-foreground"
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting ? "Signing..." : "Sign Guestbook"}
@@ -169,36 +195,36 @@ export default function GuestbookPage() {
         </Card>
 
         {/* Guestbook Entries Display */}
-        <Card className="md:col-span-2 border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              <Book className="h-5 w-5 text-blue-600" />
+        <Card className="app-card md:col-span-2 p-6">
+          <CardHeader className="px-0 pt-0">
+            <CardTitle className="flex items-center gap-2 text-2xl uppercase text-foreground">
+              <Book className="h-5 w-5 text-[hsl(var(--secondary))]" />
               <span>Our Visitors</span>
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0 pb-0">
             {loading ? (
-              <div className="flex justify-center items-center h-64">
-                <p>Loading guestbook entries...</p>
+              <div className="flex h-64 items-center justify-center">
+                <p className="text-sm text-[hsl(var(--muted-foreground))]">Loading guestbook entries...</p>
               </div>
             ) : entries.length === 0 ? (
-              <div className="flex flex-col justify-center items-center h-64 text-center">
-                <User className="h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-lg font-medium">No entries yet</p>
-                <p className="text-gray-500">Be the first to sign our guestbook!</p>
+              <div className="flex h-64 flex-col items-center justify-center text-center">
+                <User className="mb-4 h-12 w-12 text-[hsl(var(--muted-foreground))]" />
+                <p className="text-lg font-medium text-foreground">No entries yet</p>
+                <p className="text-[hsl(var(--muted-foreground))]">Be the first to sign our guestbook.</p>
               </div>
             ) : (
               <ScrollArea className="h-[500px] pr-4">
                 <div className="space-y-4">
                   {entries.map((entry) => (
-                    <div key={entry.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0">
+                    <div key={entry.id} className="rounded-sm bg-[rgba(19,27,46,0.82)] px-4 py-4">
                       <div className="flex flex-col space-y-1">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-blue-700 dark:text-blue-300">{entry.name}</h3>
-                          <span className="text-xs text-gray-500">{format(new Date(entry.visitDate), 'MMMM d, yyyy')}</span>
+                          <h3 className="font-[var(--font-display)] text-lg uppercase text-foreground">{entry.name}</h3>
+                          <span className="eyebrow-label text-[0.52rem] text-[#E31837]">{format(new Date(entry.visitDate), 'MMMM d, yyyy')}</span>
                         </div>
                         {entry.message && (
-                          <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{entry.message}</p>
+                          <p className="mt-1 text-sm leading-6 text-[hsl(var(--muted-foreground))]">{entry.message}</p>
                         )}
                       </div>
                     </div>

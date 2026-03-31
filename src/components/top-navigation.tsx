@@ -73,7 +73,7 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
           <span className="sr-only">Toggle menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[80%] sm:w-[350px] p-0 flex flex-col">
+      <SheetContent side="left" className="w-[80%] sm:w-[350px] p-0 flex flex-col border-0 bg-[rgba(19,27,46,0.92)] text-foreground backdrop-blur-xl">
         <div className="flex flex-col h-full">
           {/* Scrollable navigation area */}
           <div className="flex-1 overflow-y-auto p-4">
@@ -83,10 +83,10 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
                   key={index}
                   href={route.link}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                    "flex items-center gap-3 rounded-sm px-3 py-3 text-sm transition-colors ghost-outline",
                     pathname.includes(route.link)
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-[rgba(49,57,77,0.75)] text-foreground"
+                      : "text-muted-foreground hover:bg-[rgba(34,42,61,0.9)] hover:text-foreground"
                   )}
                   onClick={handleNavigate}
                 >
@@ -98,7 +98,7 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
           </div>
           
           {/* Fixed footer area */}
-          <div className="border-t p-4 bg-background">
+          <div className="p-4 bg-transparent">
             <div className="flex flex-col space-y-4">
               {!isPublic ? (
                 <>
@@ -134,8 +134,8 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
               <NavigationMenuLink
                 className={cn(
                   navigationMenuTriggerStyle(),
-                  "md:px-2 lg:px-4",
-                  pathname.includes(route.link) && "bg-accent text-accent-foreground"
+                  "rounded-sm bg-transparent px-3 lg:px-4 text-[0.72rem] uppercase tracking-[0.28em] text-secondary hover:bg-[rgba(34,42,61,0.8)] hover:text-foreground focus:bg-[rgba(34,42,61,0.8)] focus:text-foreground data-[active]:bg-[rgba(34,42,61,0.8)] data-[state=open]:bg-[rgba(34,42,61,0.8)]",
+                  pathname.includes(route.link) && "bg-[rgba(49,57,77,0.75)] text-foreground"
                 )}
               >
                 <span className="flex items-center gap-1 lg:gap-2">
@@ -150,16 +150,18 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
         {/* More dropdown for additional items */}
         {moreRoutes.length > 0 && (
           <NavigationMenuItem>
-            <NavigationMenuTrigger>More</NavigationMenuTrigger>
+            <NavigationMenuTrigger className="rounded-sm bg-transparent px-3 text-[0.72rem] uppercase tracking-[0.28em] text-secondary hover:bg-[rgba(34,42,61,0.8)] hover:text-foreground data-[active]:bg-[rgba(34,42,61,0.8)] data-[state=open]:bg-[rgba(34,42,61,0.8)]">
+              More
+            </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              <ul className="glass-panel grid w-[400px] gap-3 rounded-sm p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 {moreRoutes.map((route, index) => (
                   <li key={index}>
                     <Link
                       href={route.link}
                       className={cn(
-                        "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground",
-                        pathname.includes(route.link) && "bg-accent text-accent-foreground"
+                        "block select-none space-y-1 rounded-sm p-3 leading-none no-underline outline-none transition-colors ghost-outline hover:bg-[rgba(34,42,61,0.9)] hover:text-foreground",
+                        pathname.includes(route.link) && "bg-[rgba(49,57,77,0.75)] text-foreground"
                       )}
                       onClick={handleNavigate}
                     >
@@ -180,8 +182,8 @@ export function TopNavigation({ isPublic }: TopNavigationProps) {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-14">
+    <header className="sticky top-0 z-50 w-full px-3 pt-3 md:px-5">
+      <div className="glass-panel container mx-auto h-14 rounded-sm px-4 ghost-outline">
         <div className="flex justify-between items-center h-full">
           {/* Mobile menu button - Left */}
           <div className="flex items-center">

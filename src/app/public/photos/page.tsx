@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getPhotos, PhotoData, PaginationData } from "@/data/photo";
 import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
-
 
 const PhotosPage = () => {
   const [photos, setPhotos] = useState<PhotoData[]>([]);
@@ -19,26 +18,21 @@ const PhotosPage = () => {
   const [lightboxAlt, setLightboxAlt] = useState<string>("");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(-1);
 
-  // Function to open the lightbox
   const openLightbox = (imageSrc: string, alt: string) => {
-    const index = photos.findIndex(photo => photo.url === imageSrc);
+    const index = photos.findIndex((photo) => photo.url === imageSrc);
     setCurrentPhotoIndex(index);
     setLightboxImage(imageSrc);
     setLightboxAlt(alt);
     setLightboxOpen(true);
   };
-  
-  // Function to navigate to the next photo
+
   const goToNextPhoto = async () => {
-    // Check if we're approaching the end of the loaded photos
     const isNearEnd = currentPhotoIndex >= photos.length - 3;
-    
-    // If we're near the end and there are more photos to load, load them
+
     if (isNearEnd && pagination?.hasMore && !loadingMore) {
       await loadMorePhotos();
     }
-    
-    // Navigate to the next photo if available
+
     if (currentPhotoIndex < photos.length - 1) {
       const nextIndex = currentPhotoIndex + 1;
       const nextPhoto = photos[nextIndex];
@@ -47,8 +41,7 @@ const PhotosPage = () => {
       setLightboxAlt(nextPhoto.title);
     }
   };
-  
-  // Function to navigate to the previous photo
+
   const goToPreviousPhoto = () => {
     if (currentPhotoIndex > 0) {
       const prevIndex = currentPhotoIndex - 1;
@@ -59,31 +52,27 @@ const PhotosPage = () => {
     }
   };
 
-  // Function to close the lightbox
   const closeLightbox = () => {
     setLightboxOpen(false);
   };
-  // Function to load more photos
+
   const loadMorePhotos = async () => {
     if (!pagination || !pagination.hasMore || loadingMore) return;
-    
-    console.log('Loading more photos...');
+
     setLoadingMore(true);
     try {
       const nextOffset = pagination.offset + pagination.limit;
       const data = await getPhotos(nextOffset, pagination.limit);
-      
-      setPhotos(prevPhotos => [...prevPhotos, ...data.photos]);
+
+      setPhotos((prevPhotos) => [...prevPhotos, ...data.photos]);
       setPagination(data.pagination);
-      console.log('Loaded more photos:', data.photos.length);
     } catch (error) {
-      console.error('Error loading more photos:', error);
+      console.error("Error loading more photos:", error);
     } finally {
       setLoadingMore(false);
     }
   };
 
-  // Initial load
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -91,7 +80,7 @@ const PhotosPage = () => {
         setPhotos(data.photos);
         setPagination(data.pagination);
       } catch (error) {
-        console.error('Error fetching photos:', error);
+        console.error("Error fetching photos:", error);
       } finally {
         setLoading(false);
       }
@@ -99,37 +88,35 @@ const PhotosPage = () => {
 
     fetchInitialData();
   }, []);
-  
-  // Set up scroll event listener for infinite scrolling
+
   useEffect(() => {
     const handleScroll = () => {
-      const scrollArea = document.getElementById('public-photos-scroll-area');
+      const scrollArea = document.getElementById("public-photos-scroll-area");
       if (!scrollArea) return;
-      
-      const viewport = scrollArea.querySelector('[data-radix-scroll-area-viewport]');
+
+      const viewport = scrollArea.querySelector("[data-radix-scroll-area-viewport]");
       if (!viewport) return;
-      
+
       const { scrollTop, scrollHeight, clientHeight } = viewport as HTMLElement;
       const isNearBottom = scrollHeight - scrollTop <= clientHeight + 300;
-      
+
       if (isNearBottom && pagination?.hasMore && !loadingMore) {
-        console.log('Near bottom, loading more photos...');
         loadMorePhotos();
       }
     };
-    
-    const scrollArea = document.getElementById('public-photos-scroll-area');
+
+    const scrollArea = document.getElementById("public-photos-scroll-area");
     if (scrollArea) {
-      const viewport = scrollArea.querySelector('[data-radix-scroll-area-viewport]');
+      const viewport = scrollArea.querySelector("[data-radix-scroll-area-viewport]");
       if (viewport) {
-        viewport.addEventListener('scroll', handleScroll);
-        return () => viewport.removeEventListener('scroll', handleScroll);
+        viewport.addEventListener("scroll", handleScroll);
+        return () => viewport.removeEventListener("scroll", handleScroll);
       }
     }
   }, [pagination, loadingMore]);
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-2 py-4 sm:px-4">
       <ImageLightbox
         isOpen={lightboxOpen}
         imgSrc={lightboxImage}
@@ -141,53 +128,84 @@ const PhotosPage = () => {
         hasPrevious={currentPhotoIndex > 0}
       />
 
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Photo Gallery</h1>
-      </div>
+      <section>
+        <Card className="app-section overflow-hidden">
+          <div className="relative p-6 sm:p-8">
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: "url('/images/background.JPEG')",
+                backgroundSize: "cover",
+                backgroundPosition: "center"
+              }}
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,19,38,0.82),rgba(11,19,38,0.98))]" />
+            <div className="relative z-10 max-w-3xl space-y-5">
+              <p className="eyebrow-label text-[0.68rem] text-secondary">Build Photography Archive</p>
+              <h1 className="text-4xl font-semibold uppercase leading-none text-foreground sm:text-6xl">
+                Photo
+                <br />
+                Gallery
+              </h1>
+              <p className="max-w-2xl text-sm leading-7 text-[hsl(var(--muted-foreground))] sm:text-base">
+                Browse the latest photos from the Factory Five build, with the newest updates shown first.
+              </p>
+            </div>
+          </div>
+        </Card>
+      </section>
 
-      <ScrollArea className="h-screen max-h-[800px] rounded-md border" id="public-photos-scroll-area">
-        <div className="p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {photos.map((photo) => (
+      <ScrollArea
+        className="glass-panel h-screen max-h-[900px] rounded-sm ghost-outline"
+        id="public-photos-scroll-area"
+      >
+        <div className="p-4 sm:p-5">
+          <div className="mb-5">
+            <div>
+              <p className="eyebrow-label text-[0.58rem] text-secondary">Newest Uploads First</p>
+              <h2 className="mt-2 text-2xl uppercase text-foreground">Build Frames</h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {photos.map((photo, index) => (
               <Card
                 key={photo.id}
-                className="overflow-hidden transition-all duration-300 hover:shadow-lg"
+                className="group overflow-hidden rounded-sm border-0 bg-[rgba(19,27,46,0.95)] transition-transform duration-300 hover:-translate-y-1"
               >
                 <CardContent className="p-0">
-                  <div className="relative w-full h-48">
-                    {/* Image */}
-                    <div
-                      onClick={() => openLightbox(photo.url, photo.title)}
-                      className="absolute inset-0"
-                    >
+                  <button
+                    onClick={() => openLightbox(photo.url, photo.title)}
+                    className="block w-full text-left"
+                    aria-label={`Open photo ${photo.title}`}
+                  >
+                    <div className="relative h-56 w-full overflow-hidden">
                       <Image
                         src={photo.url}
                         alt={photo.title}
                         fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
                         unoptimized={true}
                       />
                     </div>
-                  </div>
+                  </button>
                 </CardContent>
               </Card>
             ))}
 
             {(loading || loadingMore) &&
-              // Skeleton loaders for next batch of photos
-              [...Array(loading ? 8 : 4)].map(
-                (_, i) => (
-                  <Card key={`skeleton-${i}`} className="overflow-hidden">
-                    <CardContent className="p-0">
-                      <Skeleton className="w-full h-48" />
-                      <div className="p-2">
-                        <Skeleton className="h-4 w-20 mx-auto" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              )}
+              [...Array(loading ? 8 : 4)].map((_, i) => (
+                <Card key={`skeleton-${i}`} className="overflow-hidden rounded-sm border-0 bg-[rgba(19,27,46,0.95)]">
+                  <CardContent className="p-0">
+                    <Skeleton className="h-56 w-full bg-[rgba(49,57,77,0.55)]" />
+                    <div className="space-y-3 p-4">
+                      <Skeleton className="h-3 w-24 bg-[rgba(49,57,77,0.55)]" />
+                      <Skeleton className="h-5 w-2/3 bg-[rgba(49,57,77,0.55)]" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
         </div>
       </ScrollArea>

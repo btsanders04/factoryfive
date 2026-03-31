@@ -88,7 +88,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto my-12 px-4">
+    <div className="my-12 w-full max-w-6xl px-1 sm:px-4">
       {/* Lightbox Component */}
       <ImageLightbox
         isOpen={lightboxOpen}
@@ -104,14 +104,19 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
       {/* Timeline Track */}
       <div className="relative">
         {/* Original center line - hide on mobile, show on tablet and up */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gray-300 hidden sm:block"></div>
+        <div className="absolute left-1/2 hidden h-full w-px -translate-x-1/2 transform bg-[rgba(192,192,194,0.18)] sm:block"></div>
 
         {/* Mobile only timeline line */}
-        <div className="absolute left-4 h-full w-1 bg-gray-300 sm:hidden"></div>
+        <div className="absolute left-4 h-full w-px bg-[rgba(192,192,194,0.18)] sm:hidden"></div>
 
         {/* Milestone Nodes */}
         <div className="relative">
           {milestones.map((milestone, index) => (
+            (() => {
+              const milestoneDate = new Date(milestone.date);
+              const isRedlineMoment =
+                milestoneDate.getMonth() === 2 && milestoneDate.getDate() === 20;
+              return (
             <div
               key={milestone.id}
               className={`mb-16 ${
@@ -132,14 +137,20 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
                         selectedMilestone === milestone.id ? null : milestone.id
                       )
                     }
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full cursor-pointer flex items-center justify-center z-10 mr-3 sm:mr-0 sm:mb-2 hover:bg-primary
-                    ${selectedMilestone === milestone.id ? "bg-primary" : "bg-gray-400"}`}
+                    className={`z-10 mr-3 flex h-8 w-8 cursor-pointer items-center justify-center rounded-sm sm:mr-0 sm:mb-2 sm:h-10 sm:w-10
+                    ${
+                      isRedlineMoment
+                        ? "bg-[rgba(227,24,55,0.9)] text-white"
+                        : selectedMilestone === milestone.id
+                          ? "metallic-accent text-[hsl(var(--primary-foreground))]"
+                          : "bg-[rgba(49,57,77,0.9)] text-[hsl(var(--secondary))]"
+                    }`}
                   >
-                    <span className="text-white font-bold text-sm sm:text-base">
+                    <span className="text-sm font-bold sm:text-base">
                       {index + 1}
                     </span>
                   </motion.div>
-                  <div className="text-sm font-medium text-gray-600">
+                  <div className="eyebrow-label text-[0.58rem] text-[hsl(var(--muted-foreground))]">
                     {dateFormat(milestone.date)}
                   </div>
                 </div>
@@ -147,20 +158,29 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
 
               {/* Timeline Content - Adjusted for mobile */}
               <motion.div
-                className="ml-12 sm:ml-0 mt-3 sm:mt-0 sm:w-1/2 p-4 rounded-lg shadow-md bg-white"
+                className={`ml-12 mt-3 rounded-sm p-4 sm:ml-0 sm:mt-0 sm:w-1/2 ${
+                  isRedlineMoment
+                    ? "bg-[linear-gradient(135deg,rgba(227,24,55,0.14),rgba(19,27,46,0.92))]"
+                    : "bg-[rgba(19,27,46,0.92)]"
+                }`}
                 initial={{ opacity: 0.9 }}
                 whileHover={{ opacity: 1, scale: 1.02 }}
                 animate={{ height: "auto", opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-xl font-bold text-gray-700">
-                    {milestone.title}
-                  </h3>
+                  <div>
+                    {isRedlineMoment && (
+                      <p className="eyebrow-label mb-1 text-[0.5rem] text-[#E31837]">Redline Moment</p>
+                    )}
+                    <h3 className="font-[var(--font-display)] text-xl uppercase text-foreground">
+                      {milestone.title}
+                    </h3>
+                  </div>
                   {onEditMilestone && <Button
                     onClick={() => onEditMilestone(milestone)}
                     variant="ghost"
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-white"
+                    className="h-8 w-8 p-0 text-[hsl(var(--muted-foreground))] hover:text-foreground"
                   >
                     <Edit2></Edit2>
                   </Button>}
@@ -168,7 +188,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
 
                 {/* Main Image - Now clickable to open lightbox */}
                 <div
-                  className="relative w-full h-40 sm:h-48 mb-3 overflow-hidden rounded cursor-pointer"
+                  className="relative mb-3 h-40 w-full cursor-pointer overflow-hidden rounded-sm sm:h-48"
                   onClick={() =>
                     openLightbox(milestone.featuredImage, milestone.title, milestone.id)
                   }
@@ -183,7 +203,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
                 </div>
 
                 {/* Description */}
-                <p className="my-3 text-gray-700">{milestone.description}</p>
+                <p className="my-3 text-sm leading-7 text-[hsl(var(--muted-foreground))]">{milestone.description}</p>
 
                 {/* Expanded Image Gallery - Only shown when selected */}
                 {selectedMilestone === milestone.id &&
@@ -194,12 +214,12 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
                       transition={{ delay: 0.2 }}
                       className="mt-4"
                     >
-                      <h4 className="font-semibold mb-2">More Photos</h4>
+                      <h4 className="eyebrow-label mb-2 text-[0.58rem] text-secondary">More Photos</h4>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {milestone.additionalImages.map((img, i) => (
                           <div
                             key={i}
-                            className="relative h-20 sm:h-24 rounded overflow-hidden cursor-pointer"
+                            className="relative h-20 cursor-pointer overflow-hidden rounded-sm sm:h-24"
                             onClick={() =>
                               openLightbox(
                                 img,
@@ -226,7 +246,7 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
                   milestone.additionalImages.length > 0 && (
                     <div className="text-center mt-4">
                       <button
-                        className="text-blue-600 text-sm font-medium"
+                        className="text-sm font-medium uppercase tracking-[0.22em] text-[hsl(var(--secondary))]"
                         onClick={() =>
                           setSelectedMilestone(
                             selectedMilestone === milestone.id
@@ -243,6 +263,8 @@ const BuildTimeline: React.FC<BuildTimelineProps> = ({ milestones, onEditMilesto
                   )}
               </motion.div>
             </div>
+              );
+            })()
           ))}
         </div>
       </div>

@@ -14,11 +14,11 @@ export default function PublicLayout({
     <StackProvider app={stackServerApp}>
       <StackTheme>
     <ThemeWrapper>
-      <div className="flex flex-col min-h-screen bg-background">
+      <div className="app-shell flex min-h-screen flex-col bg-background">
         <TopNavigation isPublic />
         
-        <main className="flex-1">
-          <div className="container mx-auto py-4 px-4 md:px-8">
+        <main className="relative z-10 flex-1">
+          <div className="container mx-auto px-4 py-4 md:px-8 md:py-6">
             {children}
           </div>
         </main>

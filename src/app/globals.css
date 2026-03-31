@@ -4,93 +4,60 @@
 
 @layer base {
   :root {
-    /* Original light theme variables */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 217.2 91.2% 67.8%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --background: 218 39% 10%;
+    --foreground: 220 19% 89%;
+    --card: 220 38% 14%;
+    --card-foreground: 220 19% 89%;
+    --popover: 220 38% 14%;
+    --popover-foreground: 220 19% 89%;
+    --primary: 219 35% 81%;
+    --primary-foreground: 218 39% 10%;
+    --secondary: 240 2% 76%;
+    --secondary-foreground: 218 39% 10%;
+    --muted: 221 30% 20%;
+    --muted-foreground: 219 14% 64%;
+    --accent: 220 29% 24%;
+    --accent-foreground: 220 19% 89%;
+    --destructive: 351 80% 49%;
+    --destructive-foreground: 220 19% 95%;
+    --border: 220 24% 35%;
+    --input: 220 25% 18%;
+    --ring: 219 35% 81%;
+    --chart-1: 219 35% 81%;
+    --chart-2: 240 2% 76%;
+    --chart-3: 351 80% 49%;
+    --chart-4: 214 26% 65%;
+    --chart-5: 209 32% 48%;
+    --radius: 0.125rem;
+
+    --surface: 218 39% 10%;
+    --surface-container-low: 219 38% 13%;
+    --surface-container-high: 220 28% 19%;
+    --surface-bright: 220 23% 25%;
+    --outline-ghost: 220 18% 83%;
+    --performance-red: 351 80% 49%;
   }
 
   .dark {
-    /* Factory Five MK5 theme colors */
-    /* Blues */
-    --blue-400: 217.2 91.2% 67.8%; /* #60A5FA */
-    --blue-600: 221.2 83.2% 53.3%; /* #2563EB */
-
-    --white:  0 0% 100%;
-    
-    /* Slate colors for backgrounds */
-    --slate-800: 217.2 32.6% 17.5%; /* #1E293B */
-    --slate-900: 222.2 47.4% 11.2%; /* #0F172A */
-    --slate-950: 222.2 84% 4.9%; /* #020617 */
-    
-    /* Text colors */
-    --text-white: 0 0% 100%; /* #FFFFFF */
-    --text-primary: 217.2 91.2% 67.8%; /* #60A5FA - blue-400 */
-    --text-secondary: 217.9 10.6% 64.9%; /* #94A3B8 - slate-400 */
-    --text-muted: 215.4 16.3% 46.9%; /* #64748B - slate-500 */
-    --text: 210 40% 98%; /* #E2E8F0 - slate-300 */
-    
-    /* Gradient colors */
-    --gradient-start: 224.3 64.3% 32.9%; /* #172554 - blue-950 */
-    --gradient-end: 222.2 84% 4.9%; /* #020617 - slate-950 */
-
-    /* Updated dark theme system */
-    --background: 222.2 84% 4.9%; /* slate-950 */
-    --foreground: 210 40% 98%; /* slate-300 */
-    
-    --card: 222.2 84% 4.9%; /* slate-950 */
-    --card-foreground: 210 40% 98%; /* slate-300 */
-    
-    --popover: 222.2 84% 4.9%; /* slate-950 */
-    --popover-foreground: 210 40% 98%; /* slate-300 */
-    
-    --primary: 217.2 91.2% 67.8%;; /* blue-600 */
-    --primary-foreground: 222.2 47.4% 11.2%; /* slate-300 */
-    
-    --secondary: 24 100%, 50%; /* orange */
-    --secondary-foreground: 210 40% 98%; /* slate-300 */
-    
-    --muted: 217.2 32.6% 17.5%; /* slate-800 */
-    --muted-foreground: 215 20.2% 65.1%; /* slate-400 */
-    
-    --accent: 217.2 32.6% 17.5%; /* slate-800 */
-    --accent-foreground: 210 40% 98%; /* slate-300 */
-    
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 217.2 32.6% 17.5%; /* slate-800 */
-    --input: 217.2 32.6% 17.5%; /* slate-800 */
-    --ring: 212.7 26.8% 83.9%; /* blue-600 */
-
-    /* Chart colors */
-    --chart-1: 220 70% 50%; /* blue-600 */
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background: 218 39% 10%;
+    --foreground: 220 19% 89%;
+    --card: 220 38% 14%;
+    --card-foreground: 220 19% 89%;
+    --popover: 220 38% 14%;
+    --popover-foreground: 220 19% 89%;
+    --primary: 219 35% 81%;
+    --primary-foreground: 218 39% 10%;
+    --secondary: 240 2% 76%;
+    --secondary-foreground: 218 39% 10%;
+    --muted: 221 30% 20%;
+    --muted-foreground: 219 14% 64%;
+    --accent: 220 29% 24%;
+    --accent-foreground: 220 19% 89%;
+    --destructive: 351 80% 49%;
+    --destructive-foreground: 220 19% 95%;
+    --border: 220 24% 35%;
+    --input: 220 25% 18%;
+    --ring: 219 35% 81%;
   }
 }
 
@@ -98,30 +65,106 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    color-scheme: dark;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body), sans-serif;
+    background-image:
+      radial-gradient(circle at top left, rgba(185, 199, 228, 0.12), transparent 28%),
+      linear-gradient(180deg, rgba(12, 20, 37, 0.98), rgba(11, 19, 38, 1));
+    min-height: 100vh;
   }
-}
 
-/* Factory Five MK5 specific styles */
-.dark body {
-  @apply bg-gradient-to-br from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))];
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display), sans-serif;
+    letter-spacing: -0.04em;
+  }
+
+  ::selection {
+    background: rgba(185, 199, 228, 0.28);
+    color: hsl(var(--foreground));
+  }
 }
 
 @layer components {
+  .app-shell {
+    @apply relative;
+  }
+
+  .app-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(185, 199, 228, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(185, 199, 228, 0.03) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), transparent 88%);
+    z-index: 0;
+  }
+
+  .glass-panel {
+    background: linear-gradient(180deg, rgba(19, 27, 46, 0.82), rgba(34, 42, 61, 0.7));
+    backdrop-filter: blur(12px);
+    box-shadow: 0 24px 60px rgba(7, 10, 18, 0.32);
+  }
+
   .app-card {
-    @apply border-[hsl(var(--border))] bg-[hsl(var(--slate-950))]/70 backdrop-blur-sm shadow-xl rounded-xl;
+    @apply rounded-sm border-0 text-card-foreground shadow-none;
+    background: linear-gradient(180deg, rgba(19, 27, 46, 0.96), rgba(24, 33, 52, 0.96));
   }
-  
-  .app-divider {
-    @apply h-0.5 w-full bg-gradient-to-r from-[hsl(var(--blue-600))] via-[hsl(var(--blue-400))] to-[hsl(var(--blue-600))];
+
+  .app-section {
+    @apply rounded-sm border-0;
+    background: linear-gradient(180deg, rgba(19, 27, 46, 0.94), rgba(14, 22, 39, 0.94));
   }
-  
-  .app-button-primary {
-    @apply bg-primary text-primary-foreground hover:bg-[hsl(var(--blue-400))] rounded-md px-4 py-2 transition-colors;
+
+  .eyebrow-label {
+    font-family: var(--font-body), sans-serif;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
   }
-  
-  .app-button-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-[hsl(var(--slate-900))] border border-border rounded-md px-4 py-2 transition-colors;
+
+  .metallic-accent {
+    background-image: linear-gradient(135deg, rgba(185, 199, 228, 0.95), rgba(10, 25, 47, 0.92));
+  }
+
+  .ghost-outline {
+    box-shadow: inset 0 0 0 1px rgba(192, 192, 194, 0.15);
+  }
+
+  .progress-metal {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-metal::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.22) 25%,
+      transparent 50%
+    );
+    transform: translateX(-100%);
+    animation: metal-shimmer 2.8s linear infinite;
+  }
+}
+
+@keyframes metal-shimmer {
+  to {
+    transform: translateX(100%);
   }
 }
