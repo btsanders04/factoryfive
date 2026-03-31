@@ -210,7 +210,7 @@ export default function PublicPage() {
 
             <div className="flex flex-col gap-4 bg-[linear-gradient(180deg,rgba(39,10,18,0.92),rgba(10,18,34,0.96))] p-4 sm:p-5">
               <div className="space-y-2">
-                <p className="eyebrow-label text-[0.62rem] text-[#E31837]">Pinnacle Moment</p>
+                <p className="eyebrow-label text-[0.62rem] text-[#E31837]">Redline Moment</p>
                 <h2 className="text-2xl uppercase text-foreground">Engine Ignition</h2>
               </div>
               <div className="overflow-hidden rounded-sm bg-black shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
